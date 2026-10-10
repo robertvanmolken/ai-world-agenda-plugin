@@ -1,0 +1,12 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "AI World Agenda Assistant",
+  "name_for_model": "ai_world_agenda",
+  "description_for_human": "Search an Oracle AI World 2026 catalog snapshot and build a conflict-aware agenda.",
+  "description_for_model": "Use this API to find Oracle AI World 2026 sessions, compare times, detect conflicts, and propose agendas. Always mention that this is snapshot data and critical details should be verified in the official Oracle catalog.",
+  "auth": {"type": "none"},
+  "api": {"type": "openapi", "url": "http://localhost:8787/openapi.yaml"},
+  "logo_url": "http://localhost:8787/logo.png",
+  "contact_email": "replace-me@example.com",
+  "legal_info_url": "https://www.oracle.com/legal/"
+}

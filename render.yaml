@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: ai-world-agenda
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.server
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: HOST
+        value: 0.0.0.0
