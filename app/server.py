@@ -35,7 +35,7 @@ def _json(handler: BaseHTTPRequestHandler, status: int, payload: object) -> None
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "AIWorldAgenda/0.1"
+    server_version = "AIWorldAgenda/0.1.1"
 
     @property
     def catalog(self):
@@ -55,7 +55,18 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD")
+        self.end_headers()
+
+    def do_HEAD(self):
+        u = urlparse(self.path)
+        if u.path in {"/", "/health", "/catalog/meta", "/openapi.yaml", "/.well-known/ai-plugin.json", "/logo.png"}:
+            self.send_response(200)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            return
+        self.send_response(404)
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
     def do_GET(self):

@@ -1,14 +1,15 @@
 openapi: 3.1.0
 info:
   title: Oracle AI World 2026 Agenda Assistant
-  version: 0.1.0
+  version: 0.1.1
   description: >-
     Search a sanitized snapshot of the Oracle AI World 2026 session catalog, inspect sessions,
     detect schedule conflicts, and create a heuristic agenda. Snapshot data can become stale;
-    users should verify critical details in the official Oracle catalog.
+    users should verify critical details in the official Oracle catalog. This is an unofficial
+    community tool and is not affiliated with or endorsed by Oracle.
 servers:
-  - url: /
-    description: Same origin as the hosted API (works on Render and locally).
+  - url: https://ai-world-agenda-plugin.onrender.com
+    description: Production API hosted on Render.
 paths:
   /health:
     get:

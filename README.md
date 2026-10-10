@@ -1,4 +1,6 @@
-# Oracle AI World 2026 Agenda Assistant — snapshot plugin prototype
+# Oracle AI World 2026 Agenda Assistant
+
+> Unofficial community tool. Not affiliated with or endorsed by Oracle. The bundled catalog is a snapshot and critical details should be verified in the official Oracle catalog. — snapshot plugin prototype
 
 This project turns a **saved Oracle AI World session catalog HTML page** into a sanitized JSON catalog and a small REST API that an AI client can use to search sessions, detect conflicts, and propose a personal agenda.
 
