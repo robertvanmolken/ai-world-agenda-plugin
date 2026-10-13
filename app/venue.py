@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
-HUB_AREA = "oracle ai world hub"
+HUB_AREAS = {"oracle ai world hub", "customer success central"}
 
 
 @lru_cache(maxsize=1)
@@ -44,9 +44,12 @@ def merge_rooms(sessions: list[dict[str, Any]], rooms: dict[str, dict[str, str]]
 def resolve_zone(room: str, area: str, level: int | None) -> str | None:
     """Return a zone id, 'hub', or None when the room is not on the venue map."""
     v = venue()
-    if (area or "").strip().lower() == HUB_AREA:
+    a = (area or "").strip().lower()
+    if a in HUB_AREAS:
         return "hub"
     zones = v["zones"]
+    if a == "venetian ballroom":
+        return "venetian_ballroom"
     if (area or "").strip().lower() == "hall":
         zid = "hall_" + (room or "").strip().lower()
         return zid if zid in zones else None
