@@ -2,9 +2,9 @@
   "catalog": {
     "name": "Oracle AI World 2026 Session Catalog",
     "sourceUrl": "https://reg.rf.oracle.com/flow/oracle/oaiw26/catalog/page/catalog",
-    "snapshotFile": "Session Catalog - Session Catalog.html",
-    "importedAt": "2026-10-10T17:26:39+00:00",
-    "sessionCount": 718,
+    "snapshotFile": "Session Catalog AI World.html",
+    "importedAt": "2026-10-13T20:19:33+02:00",
+    "sessionCount": 722,
     "warning": "Snapshot data only. Verify time/location/availability in the official Oracle catalog before relying on it."
   },
   "sessions": [
@@ -611,17 +611,17 @@
       ]
     },
     {
-      "id": "session-1785550392991001XS7F",
-      "externalId": "1785550392991001XS7F",
-      "code": "LRN2281",
+      "id": "session-1785551454650001DZDc",
+      "externalId": "1785551454650001DZDc",
+      "code": "THR2282",
       "title": "5-step framework to achieve operational agility",
       "description": "In the age of AI, agility outranks efficiency. Join leaders from the Metropolitan St. Louis Sewer District to learn a practical five-step framework for modernizing legacy operations. Learn how the Metropolitan St. Louis Sewer District is leveraging Maximo on OCI and Red Hat OpenShift to modernize infrastructure operations, improve scalability, and support mission-critical services. Join the session to learn critical strategies for navigating large-scale change and building an agile enterprise that is ready to navigate AI complexity.",
-      "date": "2026-10-26",
-      "dateLabel": "Monday, Oct 26",
-      "startTime": "11:30",
-      "endTime": "12:15",
+      "date": "2026-10-27",
+      "dateLabel": "Tuesday, Oct 27",
+      "startTime": "13:50",
+      "endTime": "14:10",
       "timezone": "PDT",
-      "sessionType": "Learning Session",
+      "sessionType": "Hub Theater",
       "contentArea": "Oracle Cloud Infrastructure",
       "areasOfInterest": [
         "AI",
@@ -640,8 +640,7 @@
         "Business Executive"
       ],
       "deliveryTypes": [
-        "In Person",
-        "In Person And On Demand"
+        "In Person"
       ],
       "recommendationTopics": [
         "Cloud Infrastructure",
@@ -651,7 +650,7 @@
       "rawClasses": [
         "rf-tile-wrapper",
         "rf-tile-no-banner",
-        "session-type-learning-session",
+        "session-type-hub-theater",
         "content-area-oracle-cloud-infrastructure",
         "area-of-interest-ai",
         "area-of-interest-oracle-cloud-infrastructure",
@@ -664,10 +663,9 @@
         "job-role-business-manager",
         "job-role-business-executive",
         "session-delivery-in-person",
-        "session-delivery-in-person-and-on-demand",
         "recommendations-topics-cloud-infrastructure",
         "recommendations-topics-developer-technology",
-        "day-monday-oct-26"
+        "day-tuesday-oct-27"
       ]
     },
     {
@@ -784,64 +782,6 @@
         "recommendations-topics-cloud-infrastructure",
         "recommendations-topics-developer-technology",
         "day-wednesday-oct-28"
-      ]
-    },
-    {
-      "id": "session-1785551454650001DZDc",
-      "externalId": "1785551454650001DZDc",
-      "code": "THR2282",
-      "title": "A 20-minute playbook to intelligent supply chains: Lessons from DIRECTV",
-      "description": "Customer expectations do not pause for transformation. As DIRECTV advances its separation from AT&T, the company is reimagining how fulfillment and logistics operations support growth, customer experience, and operational agility. Working with IBM and Oracle, DIRECTV is building a connected digital foundation that unifies fulfillment and logistics processes, increases visibility across forward and reverse logistics, and reduces operational complexity. Join DIRECTV and IBM to learn how modernizing supply chain operations can improve customer outcomes, increase agility, and create a scalable foundation for future AI-powered innovation.",
-      "date": "2026-10-27",
-      "dateLabel": "Tuesday, Oct 27",
-      "startTime": "13:50",
-      "endTime": "14:10",
-      "timezone": "PDT",
-      "sessionType": "Hub Theater",
-      "contentArea": "Oracle Cloud Infrastructure",
-      "areasOfInterest": [
-        "AI",
-        "Supply Chain Manufacturing",
-        "Cross Fusion Applications"
-      ],
-      "industries": [
-        "Communications Media Entertainment",
-        "Non Industry Specific"
-      ],
-      "audienceLevel": "General Audience",
-      "jobRoles": [
-        "Tech Executive",
-        "Business Manager",
-        "Business Executive"
-      ],
-      "deliveryTypes": [
-        "In Person"
-      ],
-      "recommendationTopics": [
-        "Sales Service And Marketing",
-        "Supply Chain",
-        "Developer Technology"
-      ],
-      "notes": [],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-hub-theater",
-        "content-area-oracle-cloud-infrastructure",
-        "area-of-interest-ai",
-        "area-of-interest-supply-chain-manufacturing",
-        "area-of-interest-cross-fusion-applications",
-        "industry-communications-media-entertainment",
-        "industry-non-industry-specific",
-        "audience-level-general-audience",
-        "job-role-tech-executive",
-        "job-role-business-manager",
-        "job-role-business-executive",
-        "session-delivery-in-person",
-        "recommendations-topics-sales-service-and-marketing",
-        "recommendations-topics-supply-chain",
-        "recommendations-topics-developer-technology",
-        "day-tuesday-oct-27"
       ]
     },
     {
@@ -1604,7 +1544,7 @@
       "externalId": "1776893398876001c7IS",
       "code": "OUT1017",
       "title": "Agentic AI in Oracle Integration: Build, Configure, and Govern at Scale",
-      "description": "AI agents are powerful, but in the enterprise, power must be paired with governance, visibility, and control. In this full-day lecture and live demo session, discover how Oracle Integration enable s you to design, configure, and govern AI-driven workflows that securely connect real business systems. Learn how integrations become trusted tools that agents can invoke, how OIC can operate as an MCP server to expose enterprise capabilities, and how to augment workflows with OCI AI Services using native actions. Explore embedded AI features that boost development productivity, along with architectural guardrails, observability, and human approval patterns that ensure secure, enterprise-ready automation.",
+      "description": "AI agents are powerful, but in the enterprise, power must be paired with governance, visibility, and control. In this full-day lecture and live demo session, discover how Oracle Integration enables you to design, configure, and govern AI-driven workflows that securely connect real business systems. Learn how integrations become trusted tools that agents can invoke, how OIC can operate as an MCP server to expose enterprise capabilities, and how to augment workflows with OCI AI Services using native actions. Explore embedded AI features that boost development productivity, along with architectural guardrails, observability, and human approval patterns that ensure secure, enterprise-ready automation.",
       "date": "2026-10-25",
       "dateLabel": "Sunday, Oct 25",
       "startTime": "09:00",
@@ -1975,6 +1915,7 @@
         "Business Executive"
       ],
       "deliveryTypes": [
+        "In Person",
         "In Person And On Demand"
       ],
       "recommendationTopics": [
@@ -1995,6 +1936,7 @@
         "job-role-developer",
         "job-role-business-manager",
         "job-role-business-executive",
+        "session-delivery-in-person",
         "session-delivery-in-person-and-on-demand",
         "recommendations-topics-oracle-database",
         "recommendations-topics-data-management",
@@ -2519,6 +2461,54 @@
       ]
     },
     {
+      "id": "session-1783697825939001QzB7",
+      "externalId": "1783697825939001QzB7",
+      "code": "BOO1492",
+      "title": "AI Adventure in HR: Unlocking the Future of Work",
+      "description": "Discover how AI is transforming the future of human resources with Oracle Cloud HCM. In this interactive, hands-on session, you'll experience firsthand how Oracle AI can help HR teams to work smarter, make faster decisions, and deliver exceptional employee experiences. Through realistic day-in-the-life scenarios, you'll explore Oracle's modern user experience, AI-powered business processes, real-time analytics, and predictive insights. See how intelligent workflows reduce complexity, improve productivity, and help organizations adapt to the evolving world of work. Join us to experience how Oracle Cloud HCM and AI are expanding what's possible in HR and shaping the workforce of tomorrow.",
+      "date": "2026-10-25",
+      "dateLabel": "Sunday, Oct 25",
+      "startTime": "12:00",
+      "endTime": "14:00",
+      "timezone": "PDT",
+      "sessionType": "Product Bootcamp",
+      "contentArea": "Oracle Fusion Cloud Applications",
+      "areasOfInterest": [
+        "Human Capital Management"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "Beginner New User Of Oracle",
+      "jobRoles": [
+        "Tech It Manager",
+        "Business Manager",
+        "Business End User"
+      ],
+      "deliveryTypes": [],
+      "recommendationTopics": [
+        "Human Resources"
+      ],
+      "notes": [
+        "P Repeated Session P"
+      ],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-product-bootcamp",
+        "content-area-oracle-fusion-cloud-applications",
+        "area-of-interest-human-capital-management",
+        "industry-non-industry-specific",
+        "audience-level-beginner-new-user-of-oracle",
+        "job-role-tech-it-manager",
+        "job-role-business-manager",
+        "job-role-business-end-user",
+        "note-p-repeated-session-p",
+        "recommendations-topics-human-resources",
+        "day-sunday-oct-25"
+      ]
+    },
+    {
       "id": "session-1783698088131001uAh3",
       "externalId": "1783698088131001uAh3",
       "code": "BOO1494",
@@ -2565,54 +2555,6 @@
         "recommendations-topics-human-resources",
         "day-monday-oct-26",
         "day-tuesday-oct-27"
-      ]
-    },
-    {
-      "id": "session-1783697825939001QzB7",
-      "externalId": "1783697825939001QzB7",
-      "code": "BOO1492",
-      "title": "AI Adventure in HR: Unlocking the Future of Work",
-      "description": "Discover how AI is transforming the future of human resources with Oracle Cloud HCM. In this interactive, hands-on session, you'll experience firsthand how Oracle AI can help HR teams to work smarter, make faster decisions, and deliver exceptional employee experiences. Through realistic day-in-the-life scenarios, you'll explore Oracle's modern user experience, AI-powered business processes, real-time analytics, and predictive insights. See how intelligent workflows reduce complexity, improve productivity, and help organizations adapt to the evolving world of work. Join us to experience how Oracle Cloud HCM and AI are expanding what's possible in HR and shaping the workforce of tomorrow.",
-      "date": "2026-10-25",
-      "dateLabel": "Sunday, Oct 25",
-      "startTime": "12:00",
-      "endTime": "14:00",
-      "timezone": "PDT",
-      "sessionType": "Product Bootcamp",
-      "contentArea": "Oracle Fusion Cloud Applications",
-      "areasOfInterest": [
-        "Human Capital Management"
-      ],
-      "industries": [
-        "Non Industry Specific"
-      ],
-      "audienceLevel": "Beginner New User Of Oracle",
-      "jobRoles": [
-        "Tech It Manager",
-        "Business Manager",
-        "Business End User"
-      ],
-      "deliveryTypes": [],
-      "recommendationTopics": [
-        "Human Resources"
-      ],
-      "notes": [
-        "P Repeated Session P"
-      ],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-product-bootcamp",
-        "content-area-oracle-fusion-cloud-applications",
-        "area-of-interest-human-capital-management",
-        "industry-non-industry-specific",
-        "audience-level-beginner-new-user-of-oracle",
-        "job-role-tech-it-manager",
-        "job-role-business-manager",
-        "job-role-business-end-user",
-        "note-p-repeated-session-p",
-        "recommendations-topics-human-resources",
-        "day-sunday-oct-25"
       ]
     },
     {
@@ -3144,15 +3086,15 @@
       ]
     },
     {
-      "id": "session-1784137318953001s3X8",
-      "externalId": "1784137318953001s3X8",
-      "code": "HOL1647",
+      "id": "session-1791303968547001qdMG",
+      "externalId": "1791303968547001qdMG",
+      "code": "HOL2764",
       "title": "AI Agent Studio 101: Build AI Agents to Automate Work and Accelerate Decisions",
       "description": "New to AI agents? Discover how AI agents can help transform the way work gets done in this interactive hands-on lab. Participants will learn how to automate repetitive tasks, enabling teams to focus on higher-value activities while helping improve productivity and efficiency. The session will demonstrate how to design and personalize AI agents to support unique business requirements, deliver real-time insights to help accelerate decision-making, and streamline end-to-end processes to help reduce costs and improve operational efficiency. Through guided exercises and practical examples, attendees will gain experience building and applying AI-driven solutions that can help organizations achieve measurable business outcomes. Space is limited.",
-      "date": "2026-10-25",
-      "dateLabel": "Sunday, Oct 25",
-      "startTime": "16:00",
-      "endTime": "17:30",
+      "date": "2026-10-28",
+      "dateLabel": "Wednesday, Oct 28",
+      "startTime": "09:00",
+      "endTime": "10:30",
       "timezone": "PDT",
       "sessionType": "Hands On Lab",
       "contentArea": "Oracle Fusion Cloud Applications",
@@ -3175,7 +3117,8 @@
         "Developer Technology"
       ],
       "notes": [
-        "Bring Your Laptop To Follow Along For The Best Hands On Experience Laptops Are Not Provided"
+        "Bring Your Laptop To Follow Along For The Best Hands On Experience Laptops Are Not Provided",
+        "P Repeated Session P"
       ],
       "rawClasses": [
         "rf-tile-wrapper",
@@ -3191,8 +3134,9 @@
         "job-role-business-executive",
         "job-role-business-end-user",
         "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
+        "note-p-repeated-session-p",
         "recommendations-topics-developer-technology",
-        "day-sunday-oct-25"
+        "day-wednesday-oct-28"
       ]
     },
     {
@@ -3250,15 +3194,15 @@
       ]
     },
     {
-      "id": "session-1791303968547001qdMG",
-      "externalId": "1791303968547001qdMG",
-      "code": "HOL2764",
+      "id": "session-1784137318953001s3X8",
+      "externalId": "1784137318953001s3X8",
+      "code": "HOL1647",
       "title": "AI Agent Studio 101: Build AI Agents to Automate Work and Accelerate Decisions",
       "description": "New to AI agents? Discover how AI agents can help transform the way work gets done in this interactive hands-on lab. Participants will learn how to automate repetitive tasks, enabling teams to focus on higher-value activities while helping improve productivity and efficiency. The session will demonstrate how to design and personalize AI agents to support unique business requirements, deliver real-time insights to help accelerate decision-making, and streamline end-to-end processes to help reduce costs and improve operational efficiency. Through guided exercises and practical examples, attendees will gain experience building and applying AI-driven solutions that can help organizations achieve measurable business outcomes. Space is limited.",
-      "date": "2026-10-28",
-      "dateLabel": "Wednesday, Oct 28",
-      "startTime": "09:00",
-      "endTime": "10:30",
+      "date": "2026-10-25",
+      "dateLabel": "Sunday, Oct 25",
+      "startTime": "16:00",
+      "endTime": "17:30",
       "timezone": "PDT",
       "sessionType": "Hands On Lab",
       "contentArea": "Oracle Fusion Cloud Applications",
@@ -3281,8 +3225,7 @@
         "Developer Technology"
       ],
       "notes": [
-        "Bring Your Laptop To Follow Along For The Best Hands On Experience Laptops Are Not Provided",
-        "P Repeated Session P"
+        "Bring Your Laptop To Follow Along For The Best Hands On Experience Laptops Are Not Provided"
       ],
       "rawClasses": [
         "rf-tile-wrapper",
@@ -3298,9 +3241,8 @@
         "job-role-business-executive",
         "job-role-business-end-user",
         "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
-        "note-p-repeated-session-p",
         "recommendations-topics-developer-technology",
-        "day-wednesday-oct-28"
+        "day-sunday-oct-25"
       ]
     },
     {
@@ -3579,7 +3521,7 @@
       "id": "session-1784700343972001hb34",
       "externalId": "1784700343972001hb34",
       "code": "LRN2170",
-      "title": "AIDP Implementation Lessons: Architecture, Pitfalls, and Time to Value",
+      "title": "AIDP Implementation Lessons: Architecture, Pitfalls, and Time-to-Value",
       "description": "Three Oracle AI Data Platform implementations open their playbooks. In concise, architecture-led case studies, customers and delivery leaders will share the starting estate, target architecture, first production use case, implementation timeline, and documented outcomes. Each will also discuss a decision that worked, a challenge or delay, and how they adapted their approach across data integration, governance practices, semantics, model or agent operations, cost management, or adoption. The moderator will compare patterns, highlight practical approaches and common pitfalls, and share actionable insights to support AI adoption and business objectives.",
       "date": "2026-10-27",
       "dateLabel": "Tuesday, Oct 27",
@@ -5459,34 +5401,6 @@
       ]
     },
     {
-      "id": "session-1790625463579001Xr4r",
-      "externalId": "1790625463579001Xr4r",
-      "code": "ACT2745",
-      "title": "AI World Hub Open",
-      "description": "Where the Oracle community comes together to see, try, and talk through the products and technologies that are helping turn AI into meaningful business outcomes. Explore new ideas, learn from experts, and engage in the experiences that make AI World a must-attend event.",
-      "date": "2026-10-26",
-      "dateLabel": "Monday, Oct 26",
-      "startTime": "11:00",
-      "endTime": "19:00",
-      "timezone": "PDT",
-      "sessionType": "Activities",
-      "contentArea": null,
-      "areasOfInterest": [],
-      "industries": [],
-      "audienceLevel": null,
-      "jobRoles": [],
-      "deliveryTypes": [],
-      "recommendationTopics": [],
-      "notes": [],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-activities",
-        "session-settings-double-bookable",
-        "day-monday-oct-26"
-      ]
-    },
-    {
       "id": "session-1790626873572001XGsM",
       "externalId": "1790626873572001XGsM",
       "code": "ACT2747",
@@ -5540,6 +5454,34 @@
         "session-type-activities",
         "session-settings-double-bookable",
         "day-tuesday-oct-27"
+      ]
+    },
+    {
+      "id": "session-1790625463579001Xr4r",
+      "externalId": "1790625463579001Xr4r",
+      "code": "ACT2745",
+      "title": "AI World Hub Open",
+      "description": "Where the Oracle community comes together to see, try, and talk through the products and technologies that are helping turn AI into meaningful business outcomes. Explore new ideas, learn from experts, and engage in the experiences that make AI World a must-attend event.",
+      "date": "2026-10-26",
+      "dateLabel": "Monday, Oct 26",
+      "startTime": "11:00",
+      "endTime": "19:00",
+      "timezone": "PDT",
+      "sessionType": "Activities",
+      "contentArea": null,
+      "areasOfInterest": [],
+      "industries": [],
+      "audienceLevel": null,
+      "jobRoles": [],
+      "deliveryTypes": [],
+      "recommendationTopics": [],
+      "notes": [],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-activities",
+        "session-settings-double-bookable",
+        "day-monday-oct-26"
       ]
     },
     {
@@ -5868,6 +5810,66 @@
       ]
     },
     {
+      "id": "session-1785550392991001XS7F",
+      "externalId": "1785550392991001XS7F",
+      "code": "LRN2281",
+      "title": "A playbook to intelligent supply chains: Lessons from DIRECTV",
+      "description": "Customer expectations do not pause for transformation. As DIRECTV advances its separation from AT&T, the company is reimagining how fulfillment and logistics operations support growth, customer experience, and operational agility. Working with IBM and Oracle, DIRECTV is building a connected digital foundation that unifies fulfillment and logistics processes, increases visibility across forward and reverse logistics, and reduces operational complexity. Join DIRECTV and IBM to learn how modernizing supply chain operations can improve customer outcomes, increase agility, and create a scalable foundation for future AI-powered innovation.",
+      "date": "2026-10-26",
+      "dateLabel": "Monday, Oct 26",
+      "startTime": "11:30",
+      "endTime": "12:15",
+      "timezone": "PDT",
+      "sessionType": "Learning Session",
+      "contentArea": "Oracle Cloud Infrastructure",
+      "areasOfInterest": [
+        "AI",
+        "Supply Chain Manufacturing",
+        "Cross Fusion Applications"
+      ],
+      "industries": [
+        "Communications Media Entertainment",
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "General Audience",
+      "jobRoles": [
+        "Tech Executive",
+        "Business Manager",
+        "Business Executive"
+      ],
+      "deliveryTypes": [
+        "In Person",
+        "In Person And On Demand"
+      ],
+      "recommendationTopics": [
+        "Sales Service And Marketing",
+        "Supply Chain",
+        "Developer Technology"
+      ],
+      "notes": [],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-learning-session",
+        "content-area-oracle-cloud-infrastructure",
+        "area-of-interest-ai",
+        "area-of-interest-supply-chain-manufacturing",
+        "area-of-interest-cross-fusion-applications",
+        "industry-communications-media-entertainment",
+        "industry-non-industry-specific",
+        "audience-level-general-audience",
+        "job-role-tech-executive",
+        "job-role-business-manager",
+        "job-role-business-executive",
+        "session-delivery-in-person",
+        "session-delivery-in-person-and-on-demand",
+        "recommendations-topics-sales-service-and-marketing",
+        "recommendations-topics-supply-chain",
+        "recommendations-topics-developer-technology",
+        "day-monday-oct-26"
+      ]
+    },
+    {
       "id": "session-1788191098530001UeN3",
       "externalId": "1788191098530001UeN3",
       "code": "MET6099",
@@ -6041,6 +6043,7 @@
         "Business Executive"
       ],
       "deliveryTypes": [
+        "In Person",
         "In Person And On Demand"
       ],
       "recommendationTopics": [
@@ -6061,6 +6064,7 @@
         "job-role-tech-executive",
         "job-role-business-manager",
         "job-role-business-executive",
+        "session-delivery-in-person",
         "session-delivery-in-person-and-on-demand",
         "recommendations-topics-human-resources",
         "recommendations-topics-developer-technology",
@@ -6502,6 +6506,67 @@
       ]
     },
     {
+      "id": "session-1784060308348001fWHz",
+      "externalId": "1784060308348001fWHz",
+      "code": "LRN1616",
+      "title": "Autonomous Finance in Action: Agentic Apps for Receivables",
+      "description": "Discover how Oracle Fusion Cloud Receivables brings autonomous finance to life across credit-to-cash. Agentic applications continuously identify issues, prioritize high-impact work, recommend next-best actions, and execute approved tasks. Learn how AI can help reduce unbilled leakage, invoice delays, delivery failures, dispute blockers, collection effort, and cash application exceptions. Embedded in Fusion processes and grounded in enterprise data and controls, these agents go beyond generic assistants to help improve working capital visibility, strengthen cash control, and create a more predictable credit-to-cash process.",
+      "date": "2026-10-28",
+      "dateLabel": "Wednesday, Oct 28",
+      "startTime": "09:00",
+      "endTime": "09:45",
+      "timezone": "PDT",
+      "sessionType": "Learning Session",
+      "contentArea": "Oracle Fusion Cloud Applications",
+      "areasOfInterest": [
+        "AI",
+        "Finance"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "Advanced Long Term User Of Oracle",
+      "jobRoles": [
+        "Developer",
+        "Other",
+        "Tech Executive",
+        "Tech End User",
+        "Tech It Manager",
+        "Business Manager",
+        "Business Executive",
+        "Business End User",
+        "Database Administrator"
+      ],
+      "deliveryTypes": [],
+      "recommendationTopics": [
+        "Finance",
+        "Developer Technology"
+      ],
+      "notes": [],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-learning-session",
+        "content-area-oracle-fusion-cloud-applications",
+        "area-of-interest-ai",
+        "area-of-interest-finance",
+        "industry-non-industry-specific",
+        "audience-level-advanced-long-term-user-of-oracle",
+        "job-role-developer",
+        "job-role-other",
+        "job-role-tech-executive",
+        "job-role-tech-end-user",
+        "job-role-tech-it-manager",
+        "job-role-business-manager",
+        "job-role-business-executive",
+        "job-role-business-end-user",
+        "job-role-database-administrator",
+        "recommendations-topics-finance",
+        "recommendations-topics-developer-technology",
+        "day-wednesday-oct-28"
+      ]
+    },
+    {
       "id": "session-1784059606965001G8KR",
       "externalId": "1784059606965001G8KR",
       "code": "LRN1615",
@@ -6621,67 +6686,6 @@
         "recommendations-topics-finance",
         "recommendations-topics-developer-technology",
         "day-tuesday-oct-27"
-      ]
-    },
-    {
-      "id": "session-1784060308348001fWHz",
-      "externalId": "1784060308348001fWHz",
-      "code": "LRN1616",
-      "title": "Autonomous Finance in Action: Agentic Apps for Receivables",
-      "description": "Discover how Oracle Fusion Cloud Receivables brings autonomous finance to life across credit-to-cash. Agentic applications continuously identify issues, prioritize high-impact work, recommend next-best actions, and execute approved tasks. Learn how AI can help reduce unbilled leakage, invoice delays, delivery failures, dispute blockers, collection effort, and cash application exceptions. Embedded in Fusion processes and grounded in enterprise data and controls, these agents go beyond generic assistants to help improve working capital visibility, strengthen cash control, and create a more predictable credit-to-cash process.",
-      "date": "2026-10-28",
-      "dateLabel": "Wednesday, Oct 28",
-      "startTime": "09:00",
-      "endTime": "09:45",
-      "timezone": "PDT",
-      "sessionType": "Learning Session",
-      "contentArea": "Oracle Fusion Cloud Applications",
-      "areasOfInterest": [
-        "AI",
-        "Finance"
-      ],
-      "industries": [
-        "Non Industry Specific"
-      ],
-      "audienceLevel": "Advanced Long Term User Of Oracle",
-      "jobRoles": [
-        "Developer",
-        "Other",
-        "Tech Executive",
-        "Tech End User",
-        "Tech It Manager",
-        "Business Manager",
-        "Business Executive",
-        "Business End User",
-        "Database Administrator"
-      ],
-      "deliveryTypes": [],
-      "recommendationTopics": [
-        "Finance",
-        "Developer Technology"
-      ],
-      "notes": [],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-learning-session",
-        "content-area-oracle-fusion-cloud-applications",
-        "area-of-interest-ai",
-        "area-of-interest-finance",
-        "industry-non-industry-specific",
-        "audience-level-advanced-long-term-user-of-oracle",
-        "job-role-developer",
-        "job-role-other",
-        "job-role-tech-executive",
-        "job-role-tech-end-user",
-        "job-role-tech-it-manager",
-        "job-role-business-manager",
-        "job-role-business-executive",
-        "job-role-business-end-user",
-        "job-role-database-administrator",
-        "recommendations-topics-finance",
-        "recommendations-topics-developer-technology",
-        "day-wednesday-oct-28"
       ]
     },
     {
@@ -6904,57 +6908,6 @@
       ]
     },
     {
-      "id": "session-1788401075863001H7f1",
-      "externalId": "1788401075863001H7f1",
-      "code": "THR2639",
-      "title": "Behind the Great AI Expedition: Agentic AI in Practice Across Four Industries",
-      "description": "You played The Great AI Expedition on the show floor. Now meet the people behind the stops. Join leaders from four global companies across different industries for an open conversation about how they are using agentic AI in their businesses. Hear how they moved from the first idea to deploying AI agents, what changed in their day-to-day operations, and where they saw results. This is a peer-to-peer discussion, not a presentation, so bring your questions and compare notes with people working through similar challenges.",
-      "date": "2026-10-28",
-      "dateLabel": "Wednesday, Oct 28",
-      "startTime": "12:20",
-      "endTime": "12:40",
-      "timezone": "PDT",
-      "sessionType": "Hub Theater",
-      "contentArea": "Customer Success",
-      "areasOfInterest": [
-        "AI",
-        "AI Agents"
-      ],
-      "industries": [
-        "Non Industry Specific"
-      ],
-      "audienceLevel": "General Audience",
-      "jobRoles": [
-        "Tech Executive",
-        "Tech It Manager",
-        "Business Manager",
-        "Business Executive",
-        "Business End User"
-      ],
-      "deliveryTypes": [],
-      "recommendationTopics": [
-        "Developer Technology"
-      ],
-      "notes": [],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-hub-theater",
-        "content-area-customer-success",
-        "area-of-interest-ai",
-        "area-of-interest-al-agents",
-        "industry-non-industry-specific",
-        "audience-level-general-audience",
-        "job-role-tech-executive",
-        "job-role-tech-it-manager",
-        "job-role-business-manager",
-        "job-role-business-executive",
-        "job-role-business-end-user",
-        "recommendations-topics-developer-technology",
-        "day-wednesday-oct-28"
-      ]
-    },
-    {
       "id": "session-1788401750838001Nh2K",
       "externalId": "1788401750838001Nh2K",
       "code": "THR2640",
@@ -7003,6 +6956,57 @@
         "job-role-business-end-user",
         "recommendations-topics-developer-technology",
         "day-tuesday-oct-27"
+      ]
+    },
+    {
+      "id": "session-1788401075863001H7f1",
+      "externalId": "1788401075863001H7f1",
+      "code": "THR2639",
+      "title": "Behind the Great AI Expedition: Agentic AI in Practice Across Four Industries",
+      "description": "You played The Great AI Expedition on the show floor. Now meet the people behind the stops. Join leaders from four global companies across different industries for an open conversation about how they are using agentic AI in their businesses. Hear how they moved from the first idea to deploying AI agents, what changed in their day-to-day operations, and where they saw results. This is a peer-to-peer discussion, not a presentation, so bring your questions and compare notes with people working through similar challenges.",
+      "date": "2026-10-28",
+      "dateLabel": "Wednesday, Oct 28",
+      "startTime": "12:20",
+      "endTime": "12:40",
+      "timezone": "PDT",
+      "sessionType": "Hub Theater",
+      "contentArea": "Customer Success",
+      "areasOfInterest": [
+        "AI",
+        "AI Agents"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "General Audience",
+      "jobRoles": [
+        "Tech Executive",
+        "Tech It Manager",
+        "Business Manager",
+        "Business Executive",
+        "Business End User"
+      ],
+      "deliveryTypes": [],
+      "recommendationTopics": [
+        "Developer Technology"
+      ],
+      "notes": [],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-hub-theater",
+        "content-area-customer-success",
+        "area-of-interest-ai",
+        "area-of-interest-al-agents",
+        "industry-non-industry-specific",
+        "audience-level-general-audience",
+        "job-role-tech-executive",
+        "job-role-tech-it-manager",
+        "job-role-business-manager",
+        "job-role-business-executive",
+        "job-role-business-end-user",
+        "recommendations-topics-developer-technology",
+        "day-wednesday-oct-28"
       ]
     },
     {
@@ -7937,10 +7941,10 @@
       "code": "HOL6066",
       "title": "Be Your Database’s First Line of Defense: Hands-On Security with Data Safe",
       "description": "As a cloud DBA, you're often the first line of defense for database security. Oracle Data Safe helps you manage that responsibility without deep security expertise. Included at no extra cost with Oracle Cloud database services, it lets you run security assessments, review privileges, and monitor audit trails from one console. In this hands-on lab, you will assess security posture, classify sensitive data, mask sensitive columns in a non-production clone, and configure SQL Firewall to block unauthorized statements. You will learn to integrate routine security checks into daily DBA work, catch misconfigurations early, and help protect sensitive data without a separate security team.",
-      "date": "2026-10-28",
-      "dateLabel": "Wednesday, Oct 28",
-      "startTime": "09:00",
-      "endTime": "10:30",
+      "date": "2026-10-27",
+      "dateLabel": "Tuesday, Oct 27",
+      "startTime": "10:00",
+      "endTime": "11:30",
       "timezone": "PDT",
       "sessionType": "Hands On Lab",
       "contentArea": "Oracle AI Database",
@@ -7974,7 +7978,7 @@
         "job-role-developer",
         "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
         "recommendations-topics-data-management",
-        "day-wednesday-oct-28"
+        "day-tuesday-oct-27"
       ]
     },
     {
@@ -8360,64 +8364,6 @@
       ]
     },
     {
-      "id": "session-1786404734727001Pwka",
-      "externalId": "1786404734727001Pwka",
-      "code": "HOL2386",
-      "title": "Bring Your Laptop, Leave with a Migration: Move a Live Workload to Multicloud",
-      "description": "In this 90-minute hands-on lab you’ll migrate a live Oracle workload into the hyperscaler of your choice and prove it running with full capabilities intact. Working in your own environment, you’ll provision an Oracle Database@AWS, @Azure, or @Google Cloud target, move a workload using proven tooling—Zero Downtime Migration, Data Migration Service, GoldenGate, and Data Guard—and validate performance, security, and connectivity on the other side. You’ll handle the real decisions: method selection, dependency mapping, cutover, and rollback. The deep technical companion to the migration learning session: leave having completed a migration yourself, with a playbook for your own estate. BYO laptop; hands-on-keyboard throughout.",
-      "date": "2026-10-26",
-      "dateLabel": "Monday, Oct 26",
-      "startTime": "12:00",
-      "endTime": "13:30",
-      "timezone": "PDT",
-      "sessionType": "Hands On Lab",
-      "contentArea": "Oracle Cloud Infrastructure",
-      "areasOfInterest": [
-        "Oracle Cloud Infrastructure",
-        "Multicloud",
-        "Migration And Modernization"
-      ],
-      "industries": [
-        "Non Industry Specific"
-      ],
-      "audienceLevel": "Intermediate 1 5 Yrs User Of Oracle",
-      "jobRoles": [
-        "Developer",
-        "Tech Executive",
-        "Tech End User",
-        "Tech It Manager"
-      ],
-      "deliveryTypes": [],
-      "recommendationTopics": [
-        "Cloud Infrastructure",
-        "Data Management"
-      ],
-      "notes": [
-        "Participants Must Bring Their Own Standard Windows Or Mac Laptop With At Least 8 Gb Of Ram Chrome Installed Optional Python 3 Codex Or Other Coding Agent Vs Code",
-        "P Repeated Session P"
-      ],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-hands-on-lab",
-        "content-area-oracle-cloud-infrastructure",
-        "area-of-interest-oracle-cloud-infrastructure",
-        "area-of-interest-multicloud",
-        "area-of-interest-migration-and-modernization",
-        "industry-non-industry-specific",
-        "audience-level-intermediate-1-5-yrs-user-of-oracle",
-        "job-role-developer",
-        "job-role-tech-executive",
-        "job-role-tech-end-user",
-        "job-role-tech-it-manager",
-        "note-participants-must-bring-their-own-standard-windows-or-mac-laptop-with-at-least-8-gb-of-ram-chrome-installed-optional-python-3-codex-or-other-coding-agent-vs-code",
-        "note-p-repeated-session-p",
-        "recommendations-topics-cloud-infrastructure",
-        "recommendations-topics-data-management",
-        "day-monday-oct-26"
-      ]
-    },
-    {
       "id": "session-1791304825571001H72v",
       "externalId": "1791304825571001H72v",
       "code": "HOL2770",
@@ -8473,6 +8419,64 @@
         "recommendations-topics-cloud-infrastructure",
         "recommendations-topics-data-management",
         "day-wednesday-oct-28"
+      ]
+    },
+    {
+      "id": "session-1786404734727001Pwka",
+      "externalId": "1786404734727001Pwka",
+      "code": "HOL2386",
+      "title": "Bring Your Laptop, Leave with a Migration: Move a Live Workload to Multicloud",
+      "description": "In this 90-minute hands-on lab you’ll migrate a live Oracle workload into the hyperscaler of your choice and prove it running with full capabilities intact. Working in your own environment, you’ll provision an Oracle Database@AWS, @Azure, or @Google Cloud target, move a workload using proven tooling—Zero Downtime Migration, Data Migration Service, GoldenGate, and Data Guard—and validate performance, security, and connectivity on the other side. You’ll handle the real decisions: method selection, dependency mapping, cutover, and rollback. The deep technical companion to the migration learning session: leave having completed a migration yourself, with a playbook for your own estate. BYO laptop; hands-on-keyboard throughout.",
+      "date": "2026-10-26",
+      "dateLabel": "Monday, Oct 26",
+      "startTime": "12:00",
+      "endTime": "13:30",
+      "timezone": "PDT",
+      "sessionType": "Hands On Lab",
+      "contentArea": "Oracle Cloud Infrastructure",
+      "areasOfInterest": [
+        "Oracle Cloud Infrastructure",
+        "Multicloud",
+        "Migration And Modernization"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "Intermediate 1 5 Yrs User Of Oracle",
+      "jobRoles": [
+        "Developer",
+        "Tech Executive",
+        "Tech End User",
+        "Tech It Manager"
+      ],
+      "deliveryTypes": [],
+      "recommendationTopics": [
+        "Cloud Infrastructure",
+        "Data Management"
+      ],
+      "notes": [
+        "Participants Must Bring Their Own Standard Windows Or Mac Laptop With At Least 8 Gb Of Ram Chrome Installed Optional Python 3 Codex Or Other Coding Agent Vs Code",
+        "P Repeated Session P"
+      ],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-hands-on-lab",
+        "content-area-oracle-cloud-infrastructure",
+        "area-of-interest-oracle-cloud-infrastructure",
+        "area-of-interest-multicloud",
+        "area-of-interest-migration-and-modernization",
+        "industry-non-industry-specific",
+        "audience-level-intermediate-1-5-yrs-user-of-oracle",
+        "job-role-developer",
+        "job-role-tech-executive",
+        "job-role-tech-end-user",
+        "job-role-tech-it-manager",
+        "note-participants-must-bring-their-own-standard-windows-or-mac-laptop-with-at-least-8-gb-of-ram-chrome-installed-optional-python-3-codex-or-other-coding-agent-vs-code",
+        "note-p-repeated-session-p",
+        "recommendations-topics-cloud-infrastructure",
+        "recommendations-topics-data-management",
+        "day-monday-oct-26"
       ]
     },
     {
@@ -8886,6 +8890,56 @@
         "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
         "recommendations-topics-developer-technology",
         "day-wednesday-oct-28"
+      ]
+    },
+    {
+      "id": "session-1786404732580001P5tZ",
+      "externalId": "1786404732580001P5tZ",
+      "code": "HOL2382",
+      "title": "Build a Multiagent Team From Scratch with vLLM + OpenClaw",
+      "description": "Serve an open-weight model on an MI300X GPU with vLLM, then build a team of agents. You'll start with a single OpenClaw agent, look under the hood at the workspace files that give it memory and behavior, and put it on a live Python environment with a bug. Then you'll grow it into a team: specialists that work in parallel, and a coordinator that delegates. You'll finish with a chance to win a prize by completing a challenge: apply what you learned to expand the team one member further and solve something it can't handle yet. Beginner friendly. No prior agent experience needed.",
+      "date": "2026-10-25",
+      "dateLabel": "Sunday, Oct 25",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "timezone": "PDT",
+      "sessionType": "Hands On Lab",
+      "contentArea": "Oracle Cloud Infrastructure",
+      "areasOfInterest": [
+        "AI",
+        "Cloud Native",
+        "Compute"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "Beginner New User Of Oracle",
+      "jobRoles": [
+        "Tech End User",
+        "Tech It Manager"
+      ],
+      "deliveryTypes": [],
+      "recommendationTopics": [
+        "Developer Technology"
+      ],
+      "notes": [
+        "Bring Your Laptop To Follow Along For The Best Hands On Experience Laptops Are Not Provided"
+      ],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-hands-on-lab",
+        "content-area-oracle-cloud-infrastructure",
+        "area-of-interest-ai",
+        "area-of-interest-cloud-native",
+        "area-of-interest-compute",
+        "industry-non-industry-specific",
+        "audience-level-beginner-new-user-of-oracle",
+        "job-role-tech-end-user",
+        "job-role-tech-it-manager",
+        "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
+        "recommendations-topics-developer-technology",
+        "day-sunday-oct-25"
       ]
     },
     {
@@ -9584,6 +9638,62 @@
         "recommendations-topics-cloud-infrastructure",
         "recommendations-topics-developer-technology",
         "day-sunday-oct-25"
+      ]
+    },
+    {
+      "id": "session-1791565575221001DLS8",
+      "externalId": "1791565575221001DLS8",
+      "code": "THR2849",
+      "title": "Build Enterprise AI Skills for Reimagining How Work Gets Done",
+      "description": "AI changes both what teams can do and the skills they need to do it well. Join Oracle University leaders to explore a learning approach for business and technical roles. See how business teams can identify opportunities to reimagine workflows with AI, while technical teams build skills to develop, deploy, operate, and evolve AI-enabled systems. Learn how role-based learning, hands-on practice, and certification preparation through Oracle University can help organizations build enterprise AI skills and turn AI ideas into new ways of working.",
+      "date": "2026-10-28",
+      "dateLabel": "Wednesday, Oct 28",
+      "startTime": "13:00",
+      "endTime": "13:20",
+      "timezone": "PDT",
+      "sessionType": "Hub Theater",
+      "contentArea": "Customer Success",
+      "areasOfInterest": [
+        "AI",
+        "Oracle University"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "General Audience",
+      "jobRoles": [
+        "Tech Executive",
+        "Tech End User",
+        "Tech It Manager",
+        "Business Manager",
+        "Business Executive",
+        "Business End User"
+      ],
+      "deliveryTypes": [
+        "In Person"
+      ],
+      "recommendationTopics": [
+        "Developer Technology"
+      ],
+      "notes": [],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-hub-theater",
+        "content-area-customer-success",
+        "area-of-interest-ai",
+        "area-of-interest-oracle-university",
+        "industry-non-industry-specific",
+        "audience-level-general-audience",
+        "job-role-tech-executive",
+        "job-role-tech-end-user",
+        "job-role-tech-it-manager",
+        "job-role-business-manager",
+        "job-role-business-executive",
+        "job-role-business-end-user",
+        "session-delivery-in-person",
+        "recommendations-topics-developer-technology",
+        "day-wednesday-oct-28"
       ]
     },
     {
@@ -10601,57 +10711,6 @@
         "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
         "recommendations-topics-developer-technology",
         "day-wednesday-oct-28"
-      ]
-    },
-    {
-      "id": "session-1785294757435001XfmI",
-      "externalId": "1785294757435001XfmI",
-      "code": "THR2216",
-      "title": "Building Greater Cloud Visibility with an Independent Review Model",
-      "description": "FedEx Freight sought greater visibility into its Oracle Cloud Infrastructure environment while continuing to work with its managed service provider. With Oracle Customer Success Services, the team added an independent review and oversight process to help identify configuration gaps, prioritize remediation, and track operational risks over time. This approach helped create a more repeatable operating model and improve cloud visibility. The session will explore how these operating practices can support readiness for future AI-enabled cloud use cases. Attendees will learn how an independent review model can complement existing operating practices and support ongoing operational improvement.",
-      "date": "2026-10-26",
-      "dateLabel": "Monday, Oct 26",
-      "startTime": "14:50",
-      "endTime": "15:10",
-      "timezone": "PDT",
-      "sessionType": "Hub Theater",
-      "contentArea": "Customer Success",
-      "areasOfInterest": [
-        "Security",
-        "Oracle Cloud Infrastructure",
-        "Migration And Modernization"
-      ],
-      "industries": [
-        "Non Industry Specific"
-      ],
-      "audienceLevel": "Intermediate 1 5 Yrs User Of Oracle",
-      "jobRoles": [
-        "Other",
-        "Tech Executive",
-        "Tech End User",
-        "Tech It Manager"
-      ],
-      "deliveryTypes": [],
-      "recommendationTopics": [
-        "Cloud Infrastructure"
-      ],
-      "notes": [],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-hub-theater",
-        "content-area-customer-success",
-        "area-of-interest-security",
-        "area-of-interest-oracle-cloud-infrastructure",
-        "area-of-interest-migration-and-modernization",
-        "industry-non-industry-specific",
-        "audience-level-intermediate-1-5-yrs-user-of-oracle",
-        "job-role-other",
-        "job-role-tech-executive",
-        "job-role-tech-end-user",
-        "job-role-tech-it-manager",
-        "recommendations-topics-cloud-infrastructure",
-        "day-monday-oct-26"
       ]
     },
     {
@@ -14047,7 +14106,7 @@
       "externalId": "1788218768022001NBAG",
       "code": "LRN2632",
       "title": "Drive Agentic Success by Modernizing Legacy Data Platforms on OCI",
-      "description": "Enterprise AI success requires a modern, unified data platform to power every autonomous decision with trustworthy data. Modernizing your data pipelines is critical to deliver data that’s trusted and readily available for agent consumption and meets the demands of agentic workflows at scale. In this session, discover how to simplify and accelerate modernization of critical data workloads to Oracle Cloud Infrastructure (OCI) using Informatica Intelligent Data Management Cloud (IDMC). Through real-world customer examples, explore how to automate the migration and unification of fragmented legacy databases into OCI, build a scalable foundation, and unlock headless data management capabilities for your agents.",
+      "description": "Enterprise AI success requires a modern, unified data platform to power every autonomous decision with trustworthy data. Modernizing your data pipelines is critical to deliver data that’s trusted and readily available for agent consumption, meeting the demands of agentic workflows at scale. In this session, discover how to accelerate modernization of critical data workloads to Oracle Cloud Infrastructure (OCI) using Informatica Intelligent Data Management Cloud (IDMC). Through real-world customer examples, experts from Informatica and Deloitte will share how to automate the migration and unification of fragmented legacy databases into OCI, build a scalable foundation, and unlock headless data management capabilities for your agents.",
       "date": "2026-10-26",
       "dateLabel": "Monday, Oct 26",
       "startTime": "14:00",
@@ -14607,6 +14666,7 @@
         "Business Executive"
       ],
       "deliveryTypes": [
+        "In Person",
         "In Person And On Demand"
       ],
       "recommendationTopics": [
@@ -14629,6 +14689,7 @@
         "job-role-tech-executive",
         "job-role-business-manager",
         "job-role-business-executive",
+        "session-delivery-in-person",
         "session-delivery-in-person-and-on-demand",
         "recommendations-topics-cloud-infrastructure",
         "recommendations-topics-developer-technology",
@@ -15366,6 +15427,7 @@
         "Business End User"
       ],
       "deliveryTypes": [
+        "In Person",
         "In Person And On Demand"
       ],
       "recommendationTopics": [
@@ -15389,6 +15451,7 @@
         "job-role-tech-executive",
         "job-role-business-executive",
         "job-role-business-end-user",
+        "session-delivery-in-person",
         "session-delivery-in-person-and-on-demand",
         "recommendations-topics-cloud-infrastructure",
         "recommendations-topics-oracle-database",
@@ -17183,59 +17246,6 @@
       ]
     },
     {
-      "id": "session-1785614739770001ZtPw",
-      "externalId": "1785614739770001ZtPw",
-      "code": "THR2286",
-      "title": "From Infrastructure Complexity to AI-Powered Automation",
-      "description": "As Tango Analytics expanded its multicloud strategy, delivering complex database infrastructure consistently and at scale became increasingly difficult. The company transformed its infrastructure delivery approach by applying generative AI to automate deployment design, improve standardization, and reduce manual effort across cloud environments. Working with Oracle technologies, Tango Analytics established a more consistent, governed deployment model that helps accelerate modernization while reducing operational risk. Attendees will learn practical approaches for using AI to simplify infrastructure operations, strengthen governance, and build a scalable foundation for enterprise AI adoption.",
-      "date": "2026-10-26",
-      "dateLabel": "Monday, Oct 26",
-      "startTime": "12:10",
-      "endTime": "12:30",
-      "timezone": "PDT",
-      "sessionType": "Hub Theater",
-      "contentArea": "Customer Success",
-      "areasOfInterest": [
-        "Systems Infrastructure",
-        "Multicloud",
-        "Oracle AI Database"
-      ],
-      "industries": [
-        "Non Industry Specific"
-      ],
-      "audienceLevel": "Intermediate 1 5 Yrs User Of Oracle",
-      "jobRoles": [
-        "Developer",
-        "Tech Executive",
-        "Tech It Manager",
-        "Database Administrator"
-      ],
-      "deliveryTypes": [],
-      "recommendationTopics": [
-        "Cloud Infrastructure",
-        "Data Management"
-      ],
-      "notes": [],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-hub-theater",
-        "content-area-customer-success",
-        "area-of-interest-systems-infrastructure",
-        "area-of-interest-multicloud",
-        "area-of-interest-oracle-ai-database",
-        "industry-non-industry-specific",
-        "audience-level-intermediate-1-5-yrs-user-of-oracle",
-        "job-role-developer",
-        "job-role-tech-executive",
-        "job-role-tech-it-manager",
-        "job-role-database-administrator",
-        "recommendations-topics-cloud-infrastructure",
-        "recommendations-topics-data-management",
-        "day-monday-oct-26"
-      ]
-    },
-    {
       "id": "session-1789447052946001CGvz",
       "externalId": "1789447052946001CGvz",
       "code": "THR2685",
@@ -17662,11 +17672,11 @@
       "externalId": "1784407311741001mPed",
       "code": "THR1858",
       "title": "From Modernization to AI Readiness: Newfold Digital’s OCI Transformation",
-      "description": "As Newfold Digital expands its portfolio of digital brands and services, it is modernizing its technology landscape with a focus on agility, performance, and operational efficiency. Learn how the company uses Oracle Cloud Infrastructure, Oracle Cloud Infrastructure Kubernetes Engine, and Oracle Customer Success Services to support cloud-native operations and help optimize costs. Explore how Oracle AI Data Platform and related OCI lakehouse capabilities can support a scalable data foundation for analytics and future AI initiatives. Hear practical lessons from Newfold Digital’s modernization journey and its approach to preparing data and operations for AI.",
-      "date": "2026-10-28",
-      "dateLabel": "Wednesday, Oct 28",
-      "startTime": "13:00",
-      "endTime": "13:20",
+      "description": "What happens to your network when a global web hosting business becomes an AI-powered platform for small businesses? Newfold Digital is making that shift through brands such as Bluehost, expanding beyond hosting to offer AI-powered experiences that help small businesses build and grow online. Supporting this evolution is network infrastructure built for changing business needs. Join Newfold Digital for a technical look at how Oracle Cloud Infrastructure (OCI) Networking supports its transformation. Explore real-world lessons in advanced routing, Bring Your Own IP (BYOIP), Network Load Balancers (NLBs), and other capabilities, and learn how Newfold is evolving its architecture to serve customers and prepare for future AI-powered services.",
+      "date": "2026-10-26",
+      "dateLabel": "Monday, Oct 26",
+      "startTime": "13:30",
+      "endTime": "13:50",
       "timezone": "PDT",
       "sessionType": "Hub Theater",
       "contentArea": "Customer Success",
@@ -17703,7 +17713,7 @@
         "job-role-tech-it-manager",
         "job-role-business-executive",
         "recommendations-topics-cloud-infrastructure",
-        "day-wednesday-oct-28"
+        "day-monday-oct-26"
       ]
     },
     {
@@ -18807,6 +18817,7 @@
         "job-role-business-manager",
         "job-role-business-executive",
         "job-role-business-end-user",
+        "featured-sessions-page-cloud-applications-page",
         "recommendations-topics-developer-technology",
         "day-monday-oct-26"
       ]
@@ -19138,15 +19149,15 @@
       ]
     },
     {
-      "id": "session-1781818797608001D8kQ",
-      "externalId": "1781818797608001D8kQ",
-      "code": "HOL1164",
+      "id": "session-1791301939660001gIfV",
+      "externalId": "1791301939660001gIfV",
+      "code": "HOL2761",
       "title": "Get Started with Oracle Fusion AI Agent Studio",
       "description": "New to Fusion AI? This beginner-friendly hands-on lab is your launchpad into Oracle Fusion AI Agent Studio. You'll take a guided tour of the studio, explore the library of seeded agent templates, customize prompts to fit a business scenario, and launch your very first working AI agent, all without writing code. It's the ideal first step for business and technical users who want a confident, hands-on introduction to building agents in Fusion Applications. Space is limited.",
       "date": "2026-10-26",
       "dateLabel": "Monday, Oct 26",
-      "startTime": "14:00",
-      "endTime": "15:30",
+      "startTime": "16:00",
+      "endTime": "17:30",
       "timezone": "PDT",
       "sessionType": "Hands On Lab",
       "contentArea": "Oracle Fusion Cloud Applications",
@@ -19200,15 +19211,15 @@
       ]
     },
     {
-      "id": "session-1791301939660001gIfV",
-      "externalId": "1791301939660001gIfV",
-      "code": "HOL2761",
+      "id": "session-1781818797608001D8kQ",
+      "externalId": "1781818797608001D8kQ",
+      "code": "HOL1164",
       "title": "Get Started with Oracle Fusion AI Agent Studio",
       "description": "New to Fusion AI? This beginner-friendly hands-on lab is your launchpad into Oracle Fusion AI Agent Studio. You'll take a guided tour of the studio, explore the library of seeded agent templates, customize prompts to fit a business scenario, and launch your very first working AI agent, all without writing code. It's the ideal first step for business and technical users who want a confident, hands-on introduction to building agents in Fusion Applications. Space is limited.",
       "date": "2026-10-26",
       "dateLabel": "Monday, Oct 26",
-      "startTime": "16:00",
-      "endTime": "17:30",
+      "startTime": "14:00",
+      "endTime": "15:30",
       "timezone": "PDT",
       "sessionType": "Hands On Lab",
       "contentArea": "Oracle Fusion Cloud Applications",
@@ -19792,6 +19803,58 @@
       ]
     },
     {
+      "id": "session-1791565439481001wJSM",
+      "externalId": "1791565439481001wJSM",
+      "code": "THR2848",
+      "title": "Help End Users Adopt AI with Oracle Guided Learning",
+      "description": "Introducing new AI capabilities into enterprise processes and workflows is only the beginning. End users also need guidance on when and how to use them. Join Oracle leaders to see how Oracle Guided Learning can support enterprise AI adoption. See how in-workflow guidance, self-service support, and change communications can support AI adoption as capabilities evolve. Explore how usage insights and feedback capabilities can help teams understand adoption and friction points, improve the user experience, and support more effective use of AI.",
+      "date": "2026-10-28",
+      "dateLabel": "Wednesday, Oct 28",
+      "startTime": "13:00",
+      "endTime": "13:20",
+      "timezone": "PDT",
+      "sessionType": "Hub Theater",
+      "contentArea": "Customer Success",
+      "areasOfInterest": [
+        "AI",
+        "Oracle University"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "General Audience",
+      "jobRoles": [
+        "Tech End User",
+        "Tech It Manager",
+        "Business Manager",
+        "Business End User"
+      ],
+      "deliveryTypes": [
+        "In Person"
+      ],
+      "recommendationTopics": [
+        "Developer Technology"
+      ],
+      "notes": [],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-hub-theater",
+        "content-area-customer-success",
+        "area-of-interest-ai",
+        "area-of-interest-oracle-university",
+        "industry-non-industry-specific",
+        "audience-level-general-audience",
+        "job-role-tech-end-user",
+        "job-role-tech-it-manager",
+        "job-role-business-manager",
+        "job-role-business-end-user",
+        "session-delivery-in-person",
+        "recommendations-topics-developer-technology",
+        "day-wednesday-oct-28"
+      ]
+    },
+    {
       "id": "session-1784480270827001mR2C",
       "externalId": "1784480270827001mR2C",
       "code": "THR1872",
@@ -20264,6 +20327,59 @@
         "recommendations-topics-human-resources",
         "recommendations-topics-developer-technology",
         "day-wednesday-oct-28"
+      ]
+    },
+    {
+      "id": "session-1785381130243001oqeu",
+      "externalId": "1785381130243001oqeu",
+      "code": "THR2236",
+      "title": "How Avis Budget Group Is Operationalizing Agentic AI at Enterprise Scale",
+      "description": "As organizations look beyond AI experimentation, Avis Budget Group is exploring what it takes to operationalize agentic AI at enterprise scale. By modernizing business processes with Oracle Fusion Applications and Oracle Cloud Infrastructure, the company is implementing AI-enabled workflows with business controls and oversight to help streamline complex operations, improve efficiency, and support business growth. Attend this session to learn how Avis built an AI-ready foundation and is applying it across contract, finance, and back-office processes.",
+      "date": "2026-10-26",
+      "dateLabel": "Monday, Oct 26",
+      "startTime": "12:10",
+      "endTime": "12:30",
+      "timezone": "PDT",
+      "sessionType": "Hub Theater",
+      "contentArea": "Customer Success",
+      "areasOfInterest": [
+        "Oracle Cloud Infrastructure",
+        "AI Agents",
+        "Cross Fusion Applications"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "Intermediate 1 5 Yrs User Of Oracle",
+      "jobRoles": [
+        "Tech Executive",
+        "Business Manager",
+        "Business Executive",
+        "Business End User"
+      ],
+      "deliveryTypes": [],
+      "recommendationTopics": [
+        "Cloud Infrastructure",
+        "Developer Technology"
+      ],
+      "notes": [],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-hub-theater",
+        "content-area-customer-success",
+        "area-of-interest-oracle-cloud-infrastructure",
+        "area-of-interest-al-agents",
+        "area-of-interest-cross-fusion-applications",
+        "industry-non-industry-specific",
+        "audience-level-intermediate-1-5-yrs-user-of-oracle",
+        "job-role-tech-executive",
+        "job-role-business-manager",
+        "job-role-business-executive",
+        "job-role-business-end-user",
+        "recommendations-topics-cloud-infrastructure",
+        "recommendations-topics-developer-technology",
+        "day-monday-oct-26"
       ]
     },
     {
@@ -22557,8 +22673,8 @@
       "description": "The engineering and construction industry has spent decades recording what happened. The leaders of the next decade will shape what happens next. In this forward-looking session, Oracle leaders and E&C customers will explore moving beyond systems of record to systems of outcomes, turning trusted project data into confident decisions, coordinated actions, and measurable results. Hear how industry leaders are connecting data, workflows, collaboration, and intelligence to anticipate risk, improve delivery certainty, and drive performance across the project lifecycle. The discussion will focus on where AI can make a meaningful difference, leveraging Oracle's unified capabilities to build a more productive, resilient, and predictable future.",
       "date": "2026-10-27",
       "dateLabel": "Tuesday, Oct 27",
-      "startTime": "10:30",
-      "endTime": "11:15",
+      "startTime": "11:45",
+      "endTime": "12:30",
       "timezone": "PDT",
       "sessionType": "Learning Session",
       "contentArea": "Oracle Fusion Cloud Applications",
@@ -23037,7 +23153,7 @@
       "externalId": "1785279050873001W9cR",
       "code": "THR6076",
       "title": "Learn How Agents Reason with Location and Other Data Types in AI Lakehouse",
-      "description": "Picking the next store location is a high-stakes decision. Poor site selection can lead to weaker sales, reduced accessibility, operational friction, and missed growth opportunities. Join us to learn how AI agents can help evaluate candidate locations by bringing together many of the factors an experienced team would con sider, while reducing manual effort. See how agents can weigh customer access, local demand, competitors, suppliers, and market context across multiple sources and formats, including text, spatial data, documents, CSV files, and JSON documents. Instead of manually analyzing these data streams and stitching the results together, agents can help compare options more efficiently and provide supporting evidence.",
+      "description": "Picking the next store location is a high-stakes decision. Poor site selection can lead to weaker sales, reduced accessibility, operational friction, and missed growth opportunities. Join us to learn how AI agents can help evaluate candidate locations by bringing together many of the factors an experienced team would consider, while reducing manual effort. See how agents can weigh customer access, local demand, competitors, suppliers, and market context across multiple sources and formats, including text, spatial data, documents, CSV files, and JSON documents. Instead of manually analyzing these data streams and stitching the results together, agents can help compare options more efficiently and provide supporting evidence.",
       "date": "2026-10-28",
       "dateLabel": "Wednesday, Oct 28",
       "startTime": "13:00",
@@ -24748,57 +24864,6 @@
       ]
     },
     {
-      "id": "session-1784407703270001I2NO",
-      "externalId": "1784407703270001I2NO",
-      "code": "THR1859",
-      "title": "Modernizing at Scale: MitraTech’s Journey to an AI-Ready Platform",
-      "description": "MitraTech is modernizing its enterprise platform to support greater agility, scalability, and operational efficiency while preparing for future AI initiatives. Learn how the company uses Oracle Cloud Infrastructure (OCI), Oracle Cloud Infrastructure Kubernetes Engine (OKE), Oracle AI Data Platform, and Oracle Customer Success Services to support cloud-native operations and help manage costs. The session will explore how a unified data foundation can support advanced analytics, automation, and future AI use cases, along with practical lessons and strategies from MitraTech's modernization journey.",
-      "date": "2026-10-26",
-      "dateLabel": "Monday, Oct 26",
-      "startTime": "13:30",
-      "endTime": "13:50",
-      "timezone": "PDT",
-      "sessionType": "Hub Theater",
-      "contentArea": "Customer Success",
-      "areasOfInterest": [
-        "AI Data Platform",
-        "AI Lakehouse",
-        "Migration And Modernization"
-      ],
-      "industries": [
-        "Non Industry Specific"
-      ],
-      "audienceLevel": "Intermediate 1 5 Yrs User Of Oracle",
-      "jobRoles": [
-        "Tech Executive",
-        "Tech It Manager",
-        "Business Executive"
-      ],
-      "deliveryTypes": [],
-      "recommendationTopics": [
-        "Oracle Database",
-        "Data Management"
-      ],
-      "notes": [],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-hub-theater",
-        "content-area-customer-success",
-        "area-of-interest-ai-data-platform",
-        "area-of-interest-al-lakehouse",
-        "area-of-interest-migration-and-modernization",
-        "industry-non-industry-specific",
-        "audience-level-intermediate-1-5-yrs-user-of-oracle",
-        "job-role-tech-executive",
-        "job-role-tech-it-manager",
-        "job-role-business-executive",
-        "recommendations-topics-oracle-database",
-        "recommendations-topics-data-management",
-        "day-monday-oct-26"
-      ]
-    },
-    {
       "id": "session-1784484228554001vct4",
       "externalId": "1784484228554001vct4",
       "code": "THR1880",
@@ -25447,6 +25512,60 @@
         "recommendations-topics-data-management",
         "recommendations-topics-developer-technology",
         "day-monday-oct-26"
+      ]
+    },
+    {
+      "id": "session-1791565291655001BHOp",
+      "externalId": "1791565291655001BHOp",
+      "code": "THR2847",
+      "title": "Navigate Your AI Journey with Oracle AI Success Navigator",
+      "description": "Where should your organization start with Oracle AI, and how can you turn priorities into a workable plan? Join Oracle experts to explore how Oracle AI Success Navigator brings together AI guidance, best practices, and collaboration tools to support your cloud lifecycle from discovery, implementation, adoption, and ongoing innovation with Oracle Cloud applications. See how teams can review guidance for adopting AI, identify relevant capabilities, align stakeholders around priorities and adoption plans, and take practical next steps to enable Oracle AI capabilities that can help accelerate business outcomes.",
+      "date": "2026-10-28",
+      "dateLabel": "Wednesday, Oct 28",
+      "startTime": "11:40",
+      "endTime": "12:00",
+      "timezone": "PDT",
+      "sessionType": "Hub Theater",
+      "contentArea": "Customer Success",
+      "areasOfInterest": [
+        "AI",
+        "Oracle University",
+        "Cross Fusion Applications"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "General Audience",
+      "jobRoles": [
+        "Tech Executive",
+        "Tech It Manager",
+        "Business Manager",
+        "Business Executive"
+      ],
+      "deliveryTypes": [
+        "In Person"
+      ],
+      "recommendationTopics": [
+        "Developer Technology"
+      ],
+      "notes": [],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-hub-theater",
+        "content-area-customer-success",
+        "area-of-interest-ai",
+        "area-of-interest-oracle-university",
+        "area-of-interest-cross-fusion-applications",
+        "industry-non-industry-specific",
+        "audience-level-general-audience",
+        "job-role-tech-executive",
+        "job-role-tech-it-manager",
+        "job-role-business-manager",
+        "job-role-business-executive",
+        "session-delivery-in-person",
+        "recommendations-topics-developer-technology",
+        "day-wednesday-oct-28"
       ]
     },
     {
@@ -27406,6 +27525,64 @@
       ]
     },
     {
+      "id": "session-1789575455004001ez3f",
+      "externalId": "1789575455004001ez3f",
+      "code": "LRN2690",
+      "title": "Oracle Cloud ERP Executive Session: Towards Autonomous Finance",
+      "description": "Finance is entering a new era, moving from systems that record activity to systems that continuously drive outcomes. Autonomous operations introduce a new model for advancing finance work with agents operating within trusted controls. Agentic performance execution connects real-time financial signals to policy-aware actions across the business. Together, these capabilities establish a new operating model for finance. See how Oracle Fusion Agentic Applications and Fusion Claw help finance teams move beyond copilot insights toward autonomous finance, so they can guide the business at a new pace with greater speed and confidence.",
+      "date": "2026-10-26",
+      "dateLabel": "Monday, Oct 26",
+      "startTime": "14:00",
+      "endTime": "14:45",
+      "timezone": "PDT",
+      "sessionType": "Learning Session",
+      "contentArea": "Oracle Fusion Cloud Applications",
+      "areasOfInterest": [
+        "Finance"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "Advanced Long Term User Of Oracle",
+      "jobRoles": [
+        "Developer",
+        "Other",
+        "Tech Executive",
+        "Tech End User",
+        "Tech It Manager",
+        "Business Manager",
+        "Business Executive",
+        "Business End User",
+        "Database Administrator"
+      ],
+      "deliveryTypes": [],
+      "recommendationTopics": [
+        "Finance"
+      ],
+      "notes": [],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-learning-session",
+        "content-area-oracle-fusion-cloud-applications",
+        "area-of-interest-finance",
+        "industry-non-industry-specific",
+        "audience-level-advanced-long-term-user-of-oracle",
+        "job-role-developer",
+        "job-role-other",
+        "job-role-tech-executive",
+        "job-role-tech-end-user",
+        "job-role-tech-it-manager",
+        "job-role-business-manager",
+        "job-role-business-executive",
+        "job-role-business-end-user",
+        "job-role-database-administrator",
+        "featured-sessions-page-cloud-applications-page",
+        "recommendations-topics-finance",
+        "day-monday-oct-26"
+      ]
+    },
+    {
       "id": "session-1784057793877001HG1b",
       "externalId": "1784057793877001HG1b",
       "code": "LRN1613",
@@ -28900,64 +29077,6 @@
       ]
     },
     {
-      "id": "session-1785178937814001dCbO",
-      "externalId": "1785178937814001dCbO",
-      "code": "HOL2200",
-      "title": "Power AI Agents with Content Intelligence and Enterprise Knowledge",
-      "description": "AI agents are only as smart as the knowledge they can reach. In this hands-on lab, you'll enrich AI agents with enterprise content and external sources using Content Intelligence, connecting prebuilt connectors and web crawling so your agents can help discover, summarize, and act on information with greater accuracy. Perfect for builders who want grounded, trustworthy, context-aware AI responses. Space is limited.",
-      "date": "2026-10-26",
-      "dateLabel": "Monday, Oct 26",
-      "startTime": "14:00",
-      "endTime": "15:30",
-      "timezone": "PDT",
-      "sessionType": "Hands On Lab",
-      "contentArea": "Oracle Fusion Cloud Applications",
-      "areasOfInterest": [
-        "AI Agents",
-        "Cross Fusion Applications"
-      ],
-      "industries": [
-        "Non Industry Specific"
-      ],
-      "audienceLevel": "Intermediate 1 5 Yrs User Of Oracle",
-      "jobRoles": [
-        "Tech Executive",
-        "Tech End User",
-        "Tech It Manager",
-        "Business Manager",
-        "Business Executive",
-        "Business End User"
-      ],
-      "deliveryTypes": [],
-      "recommendationTopics": [
-        "Developer Technology"
-      ],
-      "notes": [
-        "Bring Your Laptop To Follow Along For The Best Hands On Experience Laptops Are Not Provided",
-        "P Repeated Session P"
-      ],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-hands-on-lab",
-        "content-area-oracle-fusion-cloud-applications",
-        "area-of-interest-al-agents",
-        "area-of-interest-cross-fusion-applications",
-        "industry-non-industry-specific",
-        "audience-level-intermediate-1-5-yrs-user-of-oracle",
-        "job-role-tech-executive",
-        "job-role-tech-end-user",
-        "job-role-tech-it-manager",
-        "job-role-business-manager",
-        "job-role-business-executive",
-        "job-role-business-end-user",
-        "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
-        "note-p-repeated-session-p",
-        "recommendations-topics-developer-technology",
-        "day-monday-oct-26"
-      ]
-    },
-    {
       "id": "session-1791304221598001gFGQ",
       "externalId": "1791304221598001gFGQ",
       "code": "HOL2766",
@@ -29083,6 +29202,64 @@
       "dateLabel": "Monday, Oct 26",
       "startTime": "16:00",
       "endTime": "17:30",
+      "timezone": "PDT",
+      "sessionType": "Hands On Lab",
+      "contentArea": "Oracle Fusion Cloud Applications",
+      "areasOfInterest": [
+        "AI Agents",
+        "Cross Fusion Applications"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "Intermediate 1 5 Yrs User Of Oracle",
+      "jobRoles": [
+        "Tech Executive",
+        "Tech End User",
+        "Tech It Manager",
+        "Business Manager",
+        "Business Executive",
+        "Business End User"
+      ],
+      "deliveryTypes": [],
+      "recommendationTopics": [
+        "Developer Technology"
+      ],
+      "notes": [
+        "Bring Your Laptop To Follow Along For The Best Hands On Experience Laptops Are Not Provided",
+        "P Repeated Session P"
+      ],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-hands-on-lab",
+        "content-area-oracle-fusion-cloud-applications",
+        "area-of-interest-al-agents",
+        "area-of-interest-cross-fusion-applications",
+        "industry-non-industry-specific",
+        "audience-level-intermediate-1-5-yrs-user-of-oracle",
+        "job-role-tech-executive",
+        "job-role-tech-end-user",
+        "job-role-tech-it-manager",
+        "job-role-business-manager",
+        "job-role-business-executive",
+        "job-role-business-end-user",
+        "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
+        "note-p-repeated-session-p",
+        "recommendations-topics-developer-technology",
+        "day-monday-oct-26"
+      ]
+    },
+    {
+      "id": "session-1785178937814001dCbO",
+      "externalId": "1785178937814001dCbO",
+      "code": "HOL2200",
+      "title": "Power AI Agents with Content Intelligence and Enterprise Knowledge",
+      "description": "AI agents are only as smart as the knowledge they can reach. In this hands-on lab, you'll enrich AI agents with enterprise content and external sources using Content Intelligence, connecting prebuilt connectors and web crawling so your agents can help discover, summarize, and act on information with greater accuracy. Perfect for builders who want grounded, trustworthy, context-aware AI responses. Space is limited.",
+      "date": "2026-10-26",
+      "dateLabel": "Monday, Oct 26",
+      "startTime": "14:00",
+      "endTime": "15:30",
       "timezone": "PDT",
       "sessionType": "Hands On Lab",
       "contentArea": "Oracle Fusion Cloud Applications",
@@ -29285,6 +29462,57 @@
       ]
     },
     {
+      "id": "session-1791565079915001IdHj",
+      "externalId": "1791565079915001IdHj",
+      "code": "THR2846",
+      "title": "Preview Rapid SaaS Implementation with Oracle AI Success Navigator",
+      "description": "Get a preview of implementation agent capabilities in Oracle AI Success Navigator and how they can support customers and delivery teams across implementation workflows, including discovery, design, configuration, data migration, and testing. Join Oracle AI Success Navigator product leaders to see how agent orchestration can help reduce transactional work, support implementation teams, and help accelerate transformation programs.",
+      "date": "2026-10-27",
+      "dateLabel": "Tuesday, Oct 27",
+      "startTime": "11:10",
+      "endTime": "11:30",
+      "timezone": "PDT",
+      "sessionType": "Hub Theater",
+      "contentArea": "Customer Success",
+      "areasOfInterest": [
+        "AI",
+        "Oracle University",
+        "Cross Fusion Applications"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "General Audience",
+      "jobRoles": [
+        "Tech End User",
+        "Tech It Manager",
+        "Business Manager",
+        "Business End User"
+      ],
+      "deliveryTypes": [],
+      "recommendationTopics": [
+        "Developer Technology"
+      ],
+      "notes": [],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-hub-theater",
+        "content-area-customer-success",
+        "area-of-interest-ai",
+        "area-of-interest-oracle-university",
+        "area-of-interest-cross-fusion-applications",
+        "industry-non-industry-specific",
+        "audience-level-general-audience",
+        "job-role-tech-end-user",
+        "job-role-tech-it-manager",
+        "job-role-business-manager",
+        "job-role-business-end-user",
+        "recommendations-topics-developer-technology",
+        "day-tuesday-oct-27"
+      ]
+    },
+    {
       "id": "session-1787352585438001ZIIt",
       "externalId": "1787352585438001ZIIt",
       "code": "THR6097",
@@ -29292,8 +29520,8 @@
       "description": "Sensitive enterprise data shouldn't have to leave an organization's security boundary to become AI-ready. Join Oracle and NVIDIA to see an end-to-end private AI architecture using Oracle Private AI Services Container and Oracle AI Database. Learn how to generate embeddings privately, accelerate vector index creation with NVIDIA GPUs, retrieve enterprise knowledge with Oracle AI Vector Search, and securely perform inference using the Private LLM Service. Discover a practical retrieval-augmented generation (RAG) workflow and how to build secure, scalable AI applications while keeping models, prompts, data, and responses entirely within your own infrastructure.",
       "date": "2026-10-28",
       "dateLabel": "Wednesday, Oct 28",
-      "startTime": "09:40",
-      "endTime": "10:00",
+      "startTime": "11:00",
+      "endTime": "11:20",
       "timezone": "PDT",
       "sessionType": "Hub Theater",
       "contentArea": "Oracle AI Database",
@@ -30597,63 +30825,6 @@
       ]
     },
     {
-      "id": "session-1790955212066001NJ4e",
-      "externalId": "1790955212066001NJ4e",
-      "code": "HOL2755",
-      "title": "Run Vector Search with GPU Acceleration Using Oracle AI Database and NVIDIA cuVS",
-      "description": "In this hands-on lab, you will configure Oracle AI Database 26ai to offload index creation to NVIDIA GPUs using NVIDIA cuVS-powered Vector Index Service. You will load embeddings, build an HNSW vector index, compare GPU and CPU index-build performance, and execute semantic similarity searches using SQL. The lab demonstrates how organizations can accelerate the preparation of large vector datasets while keeping vectors, metadata, and business data governed within Oracle AI Database.",
-      "date": "2026-10-25",
-      "dateLabel": "Sunday, Oct 25",
-      "startTime": "12:00",
-      "endTime": "13:30",
-      "timezone": "PDT",
-      "sessionType": "Hands On Lab",
-      "contentArea": "Oracle AI Database",
-      "areasOfInterest": [
-        "AI",
-        "Vector Search",
-        "Oracle AI Database"
-      ],
-      "industries": [
-        "Non Industry Specific"
-      ],
-      "audienceLevel": "Intermediate 1 5 Yrs User Of Oracle",
-      "jobRoles": [
-        "Developer",
-        "Database Administrator"
-      ],
-      "deliveryTypes": [
-        "In Person"
-      ],
-      "recommendationTopics": [
-        "Data Management",
-        "Developer Technology"
-      ],
-      "notes": [
-        "Bring Your Laptop To Follow Along For The Best Hands On Experience Laptops Are Not Provided",
-        "P Repeated Session P"
-      ],
-      "rawClasses": [
-        "rf-tile-wrapper",
-        "rf-tile-no-banner",
-        "session-type-hands-on-lab",
-        "content-area-oracle-ai-database",
-        "area-of-interest-ai",
-        "area-of-interest-vector-search",
-        "area-of-interest-oracle-ai-database",
-        "industry-non-industry-specific",
-        "audience-level-intermediate-1-5-yrs-user-of-oracle",
-        "job-role-developer",
-        "job-role-database-administrator",
-        "session-delivery-in-person",
-        "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
-        "note-p-repeated-session-p",
-        "recommendations-topics-data-management",
-        "recommendations-topics-developer-technology",
-        "day-sunday-oct-25"
-      ]
-    },
-    {
       "id": "session-1791305437001001ERhG",
       "externalId": "1791305437001001ERhG",
       "code": "HOL2772",
@@ -30708,6 +30879,63 @@
         "recommendations-topics-data-management",
         "recommendations-topics-developer-technology",
         "day-monday-oct-26"
+      ]
+    },
+    {
+      "id": "session-1790955212066001NJ4e",
+      "externalId": "1790955212066001NJ4e",
+      "code": "HOL2755",
+      "title": "Run Vector Search with GPU Acceleration Using Oracle AI Database and NVIDIA cuVS",
+      "description": "In this hands-on lab, you will configure Oracle AI Database 26ai to offload index creation to NVIDIA GPUs using NVIDIA cuVS-powered Vector Index Service. You will load embeddings, build an HNSW vector index, compare GPU and CPU index-build performance, and execute semantic similarity searches using SQL. The lab demonstrates how organizations can accelerate the preparation of large vector datasets while keeping vectors, metadata, and business data governed within Oracle AI Database.",
+      "date": "2026-10-25",
+      "dateLabel": "Sunday, Oct 25",
+      "startTime": "12:00",
+      "endTime": "13:30",
+      "timezone": "PDT",
+      "sessionType": "Hands On Lab",
+      "contentArea": "Oracle AI Database",
+      "areasOfInterest": [
+        "AI",
+        "Vector Search",
+        "Oracle AI Database"
+      ],
+      "industries": [
+        "Non Industry Specific"
+      ],
+      "audienceLevel": "Intermediate 1 5 Yrs User Of Oracle",
+      "jobRoles": [
+        "Developer",
+        "Database Administrator"
+      ],
+      "deliveryTypes": [
+        "In Person"
+      ],
+      "recommendationTopics": [
+        "Data Management",
+        "Developer Technology"
+      ],
+      "notes": [
+        "Bring Your Laptop To Follow Along For The Best Hands On Experience Laptops Are Not Provided",
+        "P Repeated Session P"
+      ],
+      "rawClasses": [
+        "rf-tile-wrapper",
+        "rf-tile-no-banner",
+        "session-type-hands-on-lab",
+        "content-area-oracle-ai-database",
+        "area-of-interest-ai",
+        "area-of-interest-vector-search",
+        "area-of-interest-oracle-ai-database",
+        "industry-non-industry-specific",
+        "audience-level-intermediate-1-5-yrs-user-of-oracle",
+        "job-role-developer",
+        "job-role-database-administrator",
+        "session-delivery-in-person",
+        "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
+        "note-p-repeated-session-p",
+        "recommendations-topics-data-management",
+        "recommendations-topics-developer-technology",
+        "day-sunday-oct-25"
       ]
     },
     {
@@ -33805,6 +34033,7 @@
         "Database Administrator"
       ],
       "deliveryTypes": [
+        "In Person",
         "In Person And On Demand"
       ],
       "recommendationTopics": [
@@ -33827,6 +34056,7 @@
         "job-role-tech-executive",
         "job-role-business-executive",
         "job-role-database-administrator",
+        "session-delivery-in-person",
         "session-delivery-in-person-and-on-demand",
         "recommendations-topics-cloud-infrastructure",
         "recommendations-topics-data-management",
@@ -34277,6 +34507,7 @@
         "Tech Executive"
       ],
       "deliveryTypes": [
+        "In Person",
         "In Person And On Demand"
       ],
       "recommendationTopics": [
@@ -34292,6 +34523,7 @@
         "industry-non-industry-specific",
         "audience-level-intermediate-1-5-yrs-user-of-oracle",
         "job-role-tech-executive",
+        "session-delivery-in-person",
         "session-delivery-in-person-and-on-demand",
         "recommendations-topics-developer-technology",
         "day-tuesday-oct-27"
@@ -34653,7 +34885,7 @@
       "date": "2026-10-27",
       "dateLabel": "Tuesday, Oct 27",
       "startTime": "21:00",
-      "endTime": "00:00",
+      "endTime": "23:59",
       "timezone": "PDT",
       "sessionType": "Activities",
       "contentArea": null,
@@ -34785,8 +35017,8 @@
       "description": "If you’re building AI agents or applications that generate SQL, the question is no longer “Is the SQL valid?” but “Do the queries answer your questions correctly?” Has the agent taken into account your business rules and edge cases? Will it corrupt your data? Oracle AI Database provides multiple new guardrails to help AI agents generate reliable SQL. These include options to enrich your database with business context and metadata to help LLMs understand your schema, as well as new constraints to help protect your data against incorrect INSERT statements. Join this session to learn how the Oracle AI Database enhancements help developers build AI agents that generate more accurate SQL while helping safeguard enterprise data.",
       "date": "2026-10-28",
       "dateLabel": "Wednesday, Oct 28",
-      "startTime": "11:00",
-      "endTime": "11:20",
+      "startTime": "09:40",
+      "endTime": "10:00",
       "timezone": "PDT",
       "sessionType": "Hub Theater",
       "contentArea": "Oracle AI Database",
@@ -35735,10 +35967,10 @@
       "code": "HOL6002",
       "title": "Turn Enterprise Data into Better Answers with Oracle AI Vector Search",
       "description": "In this hands-on lab, you’ll build a retrieval-augmented generation (RAG) pipeline using Oracle AI Vector Search in Oracle AI Database, SQL, and Oracle Private AI Services Container. You’ll learn how unstructured documents can be converted into vector embeddings, how to run semantic similarity searches over enterprise data, and how retrieved context can help support more relevant, context-aware natural language responses. You’ll also work with a prebuilt Oracle APEX chatbot that uses the same SQL-based retrieval pipeline, demonstrating how AI Vector Search can be integrated into enterprise applications.",
-      "date": "2026-10-27",
-      "dateLabel": "Tuesday, Oct 27",
-      "startTime": "10:00",
-      "endTime": "11:30",
+      "date": "2026-10-28",
+      "dateLabel": "Wednesday, Oct 28",
+      "startTime": "09:00",
+      "endTime": "10:30",
       "timezone": "PDT",
       "sessionType": "Hands On Lab",
       "contentArea": "Oracle AI Database",
@@ -35774,7 +36006,7 @@
         "job-role-developer",
         "note-bring-your-laptop-to-follow-along-for-the-best-hands-on-experience-laptops-are-not-provided",
         "recommendations-topics-data-management",
-        "day-tuesday-oct-27"
+        "day-wednesday-oct-28"
       ]
     },
     {

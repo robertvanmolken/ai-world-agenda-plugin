@@ -101,14 +101,49 @@ The parser extracts only catalog tiles and ignores Oracle SSO/account metadata o
 - `POST /sessions/conflicts`
 - `POST /agenda/optimize`
 
-## Connecting it to ChatGPT
+## Connecting it to Claude and ChatGPT (MCP, recommended)
+
+The server speaks the Model Context Protocol, which both Claude and ChatGPT support. Tools: `search_sessions`, `get_session_by_code`, `find_session_conflicts`, `optimize_agenda`, `get_catalog_metadata`, plus ChatGPT-style `search` and `fetch`.
+
+Install and run (Python 3.10+):
+
+```bash
+pip install -r requirements.txt
+uvicorn app.asgi:app --port 8787      # remote MCP at http://127.0.0.1:8787/mcp, plus REST routes
+```
+
+**Claude.ai** — Settings → Connectors → Add custom connector → `https://YOUR-SERVICE.onrender.com/mcp`.
+
+**Claude Code** — `claude mcp add --transport http ai-world https://YOUR-SERVICE.onrender.com/mcp`
+
+**Claude Desktop (local stdio)** — add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "ai-world-agenda": {
+      "command": "python",
+      "args": ["-m", "app.mcp_server"],
+      "cwd": "/absolute/path/to/ai-world-agenda-plugin"
+    }
+  }
+}
+```
+
+**ChatGPT** — Settings → Connectors → Advanced → enable Developer mode, then create a connector with URL `https://YOUR-SERVICE.onrender.com/mcp` (no authentication).
+
+Optional env vars: `ALLOWED_HOSTS` (comma-separated hostnames to enable host validation, e.g. `YOUR-SERVICE.onrender.com`), `AI_WORLD_DATA` (alternate catalog JSON).
+
+Render: `render.yaml` now starts `uvicorn app.asgi:app --host 0.0.0.0 --port $PORT`. If you configured the service manually, change the start command to that. The Starter plan (always on, no cold starts) is recommended for connectors; free-tier spin-down can make the first connector call time out.
+
+## Connecting it to ChatGPT (legacy OpenAPI plugin/actions)
 
 The useful artifact is `openapi.yaml`. Host this API on an HTTPS endpoint accessible to ChatGPT, then use the custom-plugin/connector/action mechanism available in your ChatGPT workspace to register the API schema.
 
 `localhost` is only for development; a hosted integration needs an HTTPS URL. Update the `servers:` entry in `openapi.yaml` after deployment.
 
 
-## Deploy free on Render
+## Deploy on Render
 
 This package is Render-ready. The server binds to `0.0.0.0` and reads Render's `PORT` environment variable automatically.
 
@@ -117,7 +152,7 @@ This package is Render-ready. The server binds to `0.0.0.0` and reads Render's `
 1. Create a GitHub repository and push this project to it.
 2. In Render, choose **New > Blueprint**.
 3. Connect the GitHub repository.
-4. Render detects `render.yaml` and creates the free web service.
+4. Render detects `render.yaml` and creates the web service (Starter plan).
 5. Wait for the deploy to finish.
 6. Open the generated URL, for example:
 
@@ -140,9 +175,9 @@ Use these settings:
 ```text
 Runtime: Python
 Build command: pip install -r requirements.txt
-Start command: python -m app.server
+Start command: uvicorn app.asgi:app --host 0.0.0.0 --port $PORT
 Health check path: /health
-Plan: Free
+Plan: Starter
 ```
 
 No database, secret, or persistent disk is required for the bundled snapshot.
@@ -151,9 +186,9 @@ No database, secret, or persistent disk is required for the bundled snapshot.
 
 `openapi.yaml` uses a same-origin server URL (`/`), so you do **not** need to edit it for your Render hostname. The legacy plugin manifest is generated dynamically from the incoming host and HTTPS proxy headers, so it also points to the deployed Render URL automatically.
 
-### Free-tier note
+### Plan note
 
-A free Render service can spin down when idle. The first request after inactivity can therefore take longer. That is acceptable for this prototype, but a paid/always-on service would be preferable for a busy live conference deployment.
+The Starter plan stays always on, so there are no cold starts. A free Render service spins down when idle, which can make the first MCP connector call time out.
 
 ## Snapshot limitation
 

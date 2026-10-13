@@ -2,9 +2,9 @@ services:
   - type: web
     name: ai-world-agenda
     runtime: python
-    plan: free
+    plan: starter
     buildCommand: pip install -r requirements.txt
-    startCommand: python -m app.server
+    startCommand: uvicorn app.asgi:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     autoDeploy: true
     envVars:
