@@ -59,3 +59,27 @@ class PlannerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DisclaimerTests(unittest.TestCase):
+    def test_every_json_tool_result_has_disclaimer(self):
+        import json
+
+        from app import mcp_server as m
+
+        results = [
+            m.search_sessions_tool(query="integration", limit=2),
+            m.get_session_by_code("LRN2138"),
+            m.get_session_by_code("NOPE"),
+            m.find_session_conflicts(["LRN2138", "LRN6075"]),
+            m.check_transition("LRN2138", "LRN6075"),
+            m.check_walk("Hall G", "Titian 2204", 10),
+            m.plan_strict_day("2026-10-26", ["integration"]),
+            m.optimize_agenda_tool("2026-10-26", ["integration"]),
+            m.get_catalog_metadata(),
+            json.loads(m.search("integration")),
+            json.loads(m.fetch("LRN2138")),
+        ]
+        for r in results:
+            self.assertEqual(r.get("disclaimer"), m.DISCLAIMER)
+        self.assertIn("disclaimer", m.mcp.instructions)
