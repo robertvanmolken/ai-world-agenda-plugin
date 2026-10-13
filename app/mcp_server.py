@@ -66,12 +66,25 @@ def _security() -> TransportSecuritySettings:
     )
 
 
+DISCLAIMER = (
+    "Unofficial snapshot of the Oracle AI World 2026 session catalog (captured 2026-10-13). Rooms come from the "
+    "mobile app and walking times are rough estimates, so verify times, rooms and availability in the official "
+    "Oracle catalog and the event app before relying on them. Always show this disclaimer to the user."
+)
+
+
+def with_disclaimer(result: dict[str, Any]) -> dict[str, Any]:
+    """Return a copy of a tool result with the disclaimer attached."""
+    return {**result, "disclaimer": DISCLAIMER}
+
+
 mcp = FastMCP(
     "Oracle AI World 2026 Agenda Assistant",
     instructions=(
         "Search the Oracle AI World 2026 session catalog (an unofficial snapshot), detect schedule "
         "conflicts and propose a personal agenda. Dates are ISO (YYYY-MM-DD), times are 24h HH:MM. "
-        "Verify critical details in the official Oracle catalog."
+        "Verify critical details in the official Oracle catalog. Every tool result has a 'disclaimer' field: "
+        "always include it in your answer."
     ),
     website_url=PUBLIC_URL,
     icons=[
@@ -112,19 +125,19 @@ def search_sessions_tool(
         "sessionType": session_type, "industry": industry, "speaker": speaker,
         "company": company, "room": room, "level": level, "limit": limit,
     }
-    return {"results": search_sessions(sessions(), filters)}
+    return with_disclaimer({"results": search_sessions(sessions(), filters)})
 
 
 @mcp.tool(annotations=READ_ONLY)
 def get_session_by_code(code: str) -> dict[str, Any]:
     """Get one session by its session code, e.g. LRN2141."""
-    return get_by_code(sessions(), code) or {"error": "Session not found"}
+    return with_disclaimer(get_by_code(sessions(), code) or {"error": "Session not found"})
 
 
 @mcp.tool(annotations=READ_ONLY)
 def find_session_conflicts(codes: list[str], minimum_transition_minutes: int = 0) -> dict[str, Any]:
     """Find overlapping or too-tightly-scheduled sessions among the given session codes."""
-    return find_conflicts(sessions(), codes, minimum_transition_minutes)
+    return with_disclaimer(find_conflicts(sessions(), codes, minimum_transition_minutes))
 
 
 @mcp.tool(annotations=READ_ONLY)
@@ -135,7 +148,7 @@ def check_transition(code_a: str, code_b: str) -> dict[str, Any]:
     a, b = get_by_code(sessions(), code_a), get_by_code(sessions(), code_b)
     if not a or not b:
         return {"error": "Session not found"}
-    return assess_transition(a, b) | {"venueWarning": venue()["warning"]}
+    return with_disclaimer(assess_transition(a, b) | {"venueWarning": venue()["warning"]})
 
 
 @mcp.tool(annotations=READ_ONLY)
@@ -143,7 +156,7 @@ def check_walk(from_place: str, to_place: str, gap_minutes: int) -> dict[str, An
     """Walking check between two places with a given gap, for custom stops such as lunch or networking.
     Places are free text: 'Hall G', 'Oracle AI World Hub', 'Galileo 1001, Level 1', 'Titian 2204'.
     Returns the best/worst walking minutes and lateIfWalking (minutes late on arrival). An estimate."""
-    return check_move(from_place, to_place, gap_minutes) | {"venueWarning": venue()["warning"]}
+    return with_disclaimer(check_move(from_place, to_place, gap_minutes) | {"venueWarning": venue()["warning"]})
 
 
 @mcp.tool(annotations=READ_ONLY)
@@ -169,11 +182,11 @@ def plan_strict_day(
     Includes a lunch block in Hall G and networking blocks in the Hub. lateness_basis is 'worst' (safe) or
     'best' (hurrying) walking time. Sessions not in the mobile app are excluded. HH:MM times; estimates only.
     Returns schedule, moves (gap, walking range, lateIfWalking), dropped sessions with reasons, and warnings."""
-    return plan_day(
+    return with_disclaimer(plan_day(
         sessions(), date, topics, late_tolerance_minutes, lateness_basis, include_hub_talks, include_keynote,
         lunch_minutes, (lunch_from, lunch_until), networking_blocks, networking_minutes,
         (networking_from, networking_until), day_start, day_end, fixed_commitments,
-    )
+    ) | {"venueWarning": venue()["warning"]})
 
 
 @mcp.tool(name="optimize_agenda", annotations=READ_ONLY)
@@ -190,13 +203,13 @@ def optimize_agenda_tool(
         "preferences": {"minimumTransitionMinutes": minimum_transition_minutes},
         "fixedCommitments": fixed_commitments or [],
     }
-    return optimize_agenda(sessions(), body)
+    return with_disclaimer(optimize_agenda(sessions(), body))
 
 
 @mcp.tool(annotations=READ_ONLY)
 def get_catalog_metadata() -> dict[str, Any]:
     """Describe the catalog snapshot (source, extraction date, counts)."""
-    return catalog()["catalog"]
+    return with_disclaimer(catalog()["catalog"])
 
 
 # ChatGPT-compatible `search` / `fetch` tools (required for deep research / company knowledge).
@@ -207,7 +220,7 @@ def search(query: str) -> str:
         {"id": s.get("code"), "title": f"{s.get('code')} - {s.get('title')}", "url": s.get("url") or ""}
         for s in search_sessions(sessions(), {"query": query, "limit": 20})
     ]
-    return json.dumps({"results": results}, ensure_ascii=False)
+    return json.dumps({"results": results, "disclaimer": DISCLAIMER}, ensure_ascii=False)
 
 
 @mcp.tool(annotations=READ_ONLY)
@@ -218,7 +231,8 @@ def fetch(id: str) -> str:
         return json.dumps({"error": "Session not found"})
     text = "\n".join(f"{k}: {v}" for k, v in s.items() if v not in (None, "", []))
     return json.dumps(
-        {"id": s.get("code"), "title": s.get("title"), "text": text, "url": s.get("url") or "", "metadata": s},
+        {"id": s.get("code"), "title": s.get("title"), "text": text + "\ndisclaimer: " + DISCLAIMER,
+         "url": s.get("url") or "", "metadata": s, "disclaimer": DISCLAIMER},
         ensure_ascii=False,
     )
 

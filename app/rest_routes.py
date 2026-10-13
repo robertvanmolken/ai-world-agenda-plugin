@@ -8,7 +8,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from .catalog import find_conflicts, get_by_code, optimize_agenda, search_sessions
-from .mcp_server import ROOT, catalog, mcp, sessions
+from .mcp_server import ROOT, catalog, mcp, sessions, with_disclaimer
 from .planner import plan_day
 from .venue import assess_transition, venue
 
@@ -72,6 +72,7 @@ _ICONS = {
     "/icon.png": "icon-512.png",
     "/icon-192.png": "icon-192.png",
     "/icon-64.png": "icon-64.png",
+    "/og-image.png": "og-image.png",
     "/favicon.png": "favicon.png",
     "/favicon.ico": "favicon.png",
 }
@@ -108,13 +109,13 @@ for _name in _FONTS:
 
 @mcp.custom_route("/sessions", methods=["GET"])
 async def rest_sessions(request: Request) -> Response:
-    return JSONResponse({"results": search_sessions(sessions(), dict(request.query_params))})
+    return JSONResponse(with_disclaimer({"results": search_sessions(sessions(), dict(request.query_params))}))
 
 
 @mcp.custom_route("/sessions/code/{code}", methods=["GET"])
 async def rest_session_code(request: Request) -> Response:
     s = get_by_code(sessions(), request.path_params["code"])
-    return JSONResponse(s or {"error": "Session not found"}, status_code=200 if s else 404)
+    return JSONResponse(with_disclaimer(s or {"error": "Session not found"}), status_code=200 if s else 404)
 
 
 @mcp.custom_route("/sessions/search", methods=["POST"])
@@ -122,7 +123,7 @@ async def rest_search(request: Request) -> Response:
     body = await _json_body(request)
     if body is None:
         return _BAD
-    return JSONResponse({"results": search_sessions(sessions(), body)})
+    return JSONResponse(with_disclaimer({"results": search_sessions(sessions(), body)}))
 
 
 @mcp.custom_route("/sessions/conflicts", methods=["POST"])
@@ -131,7 +132,7 @@ async def rest_conflicts(request: Request) -> Response:
     if body is None:
         return _BAD
     minutes = int(body.get("minimumTransitionMinutes") or 0)
-    return JSONResponse(find_conflicts(sessions(), body.get("codes") or [], minutes))
+    return JSONResponse(with_disclaimer(find_conflicts(sessions(), body.get("codes") or [], minutes)))
 
 
 @mcp.custom_route("/agenda/optimize", methods=["POST"])
@@ -139,7 +140,7 @@ async def rest_optimize(request: Request) -> Response:
     body = await _json_body(request)
     if body is None:
         return _BAD
-    return JSONResponse(optimize_agenda(sessions(), body))
+    return JSONResponse(with_disclaimer(optimize_agenda(sessions(), body)))
 
 
 
@@ -151,7 +152,7 @@ async def rest_transition(request: Request) -> Response:
     a, b = get_by_code(sessions(), body.get("codeA") or ""), get_by_code(sessions(), body.get("codeB") or "")
     if not a or not b:
         return JSONResponse({"error": "Session not found"}, status_code=404)
-    return JSONResponse(assess_transition(a, b) | {"venueWarning": venue()["warning"]})
+    return JSONResponse(with_disclaimer(assess_transition(a, b) | {"venueWarning": venue()["warning"]}))
 
 
 @mcp.custom_route("/agenda/plan", methods=["POST"])
@@ -169,4 +170,4 @@ async def rest_plan(request: Request) -> Response:
         tuple(r.get("networkingWindow", ["11:00", "18:00"])),
         r.get("dayStart", "08:00"), r.get("dayEnd", "18:00"), body.get("fixedCommitments"),
     )
-    return JSONResponse(result)
+    return JSONResponse(with_disclaimer(result | {"venueWarning": venue()["warning"]}))
