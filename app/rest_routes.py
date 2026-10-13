@@ -9,6 +9,7 @@ from starlette.responses import JSONResponse, Response
 
 from .catalog import find_conflicts, get_by_code, optimize_agenda, search_sessions
 from .mcp_server import ROOT, catalog, mcp, sessions
+from .planner import plan_day
 from .venue import assess_transition, venue
 
 
@@ -151,3 +152,21 @@ async def rest_transition(request: Request) -> Response:
     if not a or not b:
         return JSONResponse({"error": "Session not found"}, status_code=404)
     return JSONResponse(assess_transition(a, b) | {"venueWarning": venue()["warning"]})
+
+
+@mcp.custom_route("/agenda/plan", methods=["POST"])
+async def rest_plan(request: Request) -> Response:
+    body = await _json_body(request)
+    if body is None or not body.get("date"):
+        return _BAD
+    r = body.get("rules") or {}
+    result = plan_day(
+        sessions(), body["date"], body.get("topics") or [],
+        int(r.get("lateToleranceMinutes", 2)), r.get("latenessBasis", "worst"),
+        bool(r.get("includeHubTalks", True)), bool(r.get("includeKeynote", False)),
+        int(r.get("lunchMinutes", 30)), tuple(r.get("lunchWindow", ["12:00", "14:00"])),
+        int(r.get("networkingBlocks", 2)), int(r.get("networkingMinutes", 20)),
+        tuple(r.get("networkingWindow", ["11:00", "18:00"])),
+        r.get("dayStart", "08:00"), r.get("dayEnd", "18:00"), body.get("fixedCommitments"),
+    )
+    return JSONResponse(result)

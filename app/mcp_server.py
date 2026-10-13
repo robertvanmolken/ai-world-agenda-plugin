@@ -18,9 +18,11 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from .catalog import find_conflicts, get_by_code, load_catalog, optimize_agenda, search_sessions
+from .planner import plan_day
 from .venue import (
     apply_overrides,
     assess_transition,
+    check_move,
     load_not_in_app,
     load_overrides,
     load_rooms,
@@ -128,11 +130,50 @@ def find_session_conflicts(codes: list[str], minimum_transition_minutes: int = 0
 @mcp.tool(annotations=READ_ONLY)
 def check_transition(code_a: str, code_b: str) -> dict[str, Any]:
     """Can someone walk from one session to the other? Uses venue maps; the result is an estimate.
-    Verdict: ok, tight, unlikely, overlap or unknown (room not yet published)."""
+    Verdict: ok, tight, unlikely, overlap or unknown (room not yet published).
+    lateIfWalking gives the minutes late on arrival for the best and worst walking estimate."""
     a, b = get_by_code(sessions(), code_a), get_by_code(sessions(), code_b)
     if not a or not b:
         return {"error": "Session not found"}
     return assess_transition(a, b) | {"venueWarning": venue()["warning"]}
+
+
+@mcp.tool(annotations=READ_ONLY)
+def check_walk(from_place: str, to_place: str, gap_minutes: int) -> dict[str, Any]:
+    """Walking check between two places with a given gap, for custom stops such as lunch or networking.
+    Places are free text: 'Hall G', 'Oracle AI World Hub', 'Galileo 1001, Level 1', 'Titian 2204'.
+    Returns the best/worst walking minutes and lateIfWalking (minutes late on arrival). An estimate."""
+    return check_move(from_place, to_place, gap_minutes) | {"venueWarning": venue()["warning"]}
+
+
+@mcp.tool(annotations=READ_ONLY)
+def plan_strict_day(
+    date: str,
+    topics: list[str],
+    late_tolerance_minutes: int = 2,
+    lateness_basis: str = "worst",
+    include_hub_talks: bool = True,
+    include_keynote: bool = False,
+    lunch_minutes: int = 30,
+    lunch_from: str = "12:00",
+    lunch_until: str = "14:00",
+    networking_blocks: int = 2,
+    networking_minutes: int = 20,
+    networking_from: str = "11:00",
+    networking_until: str = "18:00",
+    day_start: str = "08:00",
+    day_end: str = "18:00",
+    fixed_commitments: list[dict[str, str]] | None = None,
+) -> dict[str, Any]:
+    """Plan one day with no overlaps and a limit on how late you may arrive (the best plan by topic score).
+    Includes a lunch block in Hall G and networking blocks in the Hub. lateness_basis is 'worst' (safe) or
+    'best' (hurrying) walking time. Sessions not in the mobile app are excluded. HH:MM times; estimates only.
+    Returns schedule, moves (gap, walking range, lateIfWalking), dropped sessions with reasons, and warnings."""
+    return plan_day(
+        sessions(), date, topics, late_tolerance_minutes, lateness_basis, include_hub_talks, include_keynote,
+        lunch_minutes, (lunch_from, lunch_until), networking_blocks, networking_minutes,
+        (networking_from, networking_until), day_start, day_end, fixed_commitments,
+    )
 
 
 @mcp.tool(name="optimize_agenda", annotations=READ_ONLY)

@@ -149,6 +149,59 @@ def _label(zone: str) -> str:
     return venue()["hub"]["name"] if zone == "hub" else venue()["zones"][zone]["name"]
 
 
+def late_minutes(gap: int, best: int, worst: int) -> dict[str, int]:
+    """Minutes late on arrival for the best and worst walking estimate (0 when there is time to spare)."""
+    return {"best": max(0, best - gap), "worst": max(0, worst - gap)}
+
+
+def resolve_place(text: str) -> str | None:
+    """Turn free text like 'Hall G', 'Hub', 'Galileo 1001, Level 1' or 'Titian' into a zone id."""
+    t = (text or "").strip().lower()
+    if not t:
+        return None
+    if "hub" in t or "customer success" in t:
+        return "hub"
+    zones = venue()["zones"]
+    for zid, z in zones.items():
+        if t == z["name"].lower() or t == zid:
+            return zid
+    lvl = re.search(r"level\s*(\d)", t)
+    level = int(lvl.group(1)) if lvl else None
+    if t.startswith("hall "):
+        return resolve_zone(t[5:].split(",")[0].strip(), "Hall", level)
+    num = re.search(r"\d{3,4}", t)
+    if num:
+        n = int(num.group())
+        for zid, z in zones.items():
+            if level is not None and z["level"] != level:
+                continue
+            if any(lo <= n <= hi for lo, hi in z.get("ranges", [])):
+                return zid
+    for zid, z in zones.items():
+        if z["name"].lower() in t:
+            return zid
+    return None
+
+
+def check_move(from_place: str, to_place: str, gap_minutes: int) -> dict[str, Any]:
+    """Walking check between two free-text places (for lunch, networking or any custom stop)."""
+    za, zb = resolve_place(from_place), resolve_place(to_place)
+    out: dict[str, Any] = {"from": from_place, "to": to_place, "gapMinutes": gap_minutes, "estimate": True}
+    if not za or not zb:
+        out.update(verdict="unknown", reason="Could not place: " + ", ".join(p for p, z in ((from_place, za), (to_place, zb)) if not z))
+        return out
+    lo, hi = travel_minutes(za, zb)
+    out.update(
+        estimatedMinutes={"best": lo, "worst": hi},
+        lateIfWalking=late_minutes(gap_minutes, lo, hi),
+        route=f"{_label(za)} -> {_label(zb)}",
+    )
+    out["verdict"] = "overlap" if gap_minutes < 0 else "ok" if hi <= gap_minutes else "tight" if lo <= gap_minutes else "unlikely"
+    if "hub" in (za, zb):
+        out["note"] = "The Oracle AI World Hub location is unconfirmed, so this is a range over Halls A-D and G."
+    return out
+
+
 def assess_transition(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
     """Can someone get from the end of session a to the start of session b?
 
@@ -187,6 +240,7 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
     else:
         out["verdict"] = "unlikely"
     levels = {venue()["zones"][z]["level"] for z in _candidates(za) + _candidates(zb)}
+    out["lateIfWalking"] = late_minutes(gap, lo, hi)
     out["route"] = f"{_label(za)} -> {_label(zb)}" + (" (via escalator/elevator)" if len(levels) > 1 else "")
     if "hub" in (za, zb):
         out["note"] = "The Oracle AI World Hub location is unconfirmed, so this is a range over Halls A-D and G."

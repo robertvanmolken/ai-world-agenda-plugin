@@ -126,6 +126,13 @@ Rooms are from the mobile app as of 2026-10-13 and cover only the sessions liste
 To add rooms: append rows to `data/rooms.csv`, then run `python scripts/validate_rooms.py` (add `--missing` to list sessions without a room).
 
 
+## Strict day planning (no overlaps, limited lateness, lunch and networking)
+
+- MCP tool `plan_strict_day` (REST `POST /agenda/plan`) picks the best-scoring sessions for your topics so that no two overlap and every move can be walked within `late_tolerance_minutes` (default 2). `lateness_basis` is `worst` (safe, default) or `best` (you hurry). It adds a 30-minute lunch in Hall G (window 12:00-14:00) and two 20-minute networking blocks in the Hub, and returns the moves (gap, walking range, minutes late), the best sessions it dropped with reasons, and warnings. The keynote and Hub talks are options (`include_keynote`, `include_hub_talks`).
+- MCP tool `check_walk(from_place, to_place, gap_minutes)` checks a custom stop such as lunch. `check_transition` also returns `lateIfWalking`.
+- Sessions in `data/not_in_app.csv` (not found in the mobile app) are flagged `inApp: false` and never planned. `data/session_overrides.csv` corrects dates and times taken from the app.
+- All walking times are estimates; the Hub location is unconfirmed.
+
 ## Connecting it to Claude and ChatGPT (MCP, recommended)
 
 Both clients connect to the same remote MCP endpoint: `https://YOUR-SERVICE.onrender.com/mcp` (no authentication; the data is public and every tool is read-only). The landing page at `/` shows this URL with a copy button.
