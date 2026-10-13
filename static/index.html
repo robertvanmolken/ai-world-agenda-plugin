@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oracle AI World 2026 Agenda Assistant</title>
+<link rel="icon" href="/logo.png">
+<style>
+:root{--primary:#1570ef;--accent:#d92d20;--heading:#222;--body:#444;--surface:#fff;--surface2:#f5f5f5;--border:#ddd}
+*{box-sizing:border-box}
+body{margin:0;background:var(--surface);color:var(--body);font:16px/1.5 "Oracle Sans","Helvetica Neue",Arial,sans-serif}
+h1,h2,h3{color:var(--heading);margin:0 0 .5rem}
+a{color:var(--primary)}
+header{background:var(--surface2);border-bottom:1px solid var(--border)}
+.wrap{max-width:960px;margin:0 auto;padding:1.5rem 1rem}
+.brand{display:flex;gap:1rem;align-items:center}
+.brand img{width:64px;height:64px;border-radius:12px}
+.notice{border-left:4px solid var(--accent);background:#fef3f2;padding:.75rem 1rem;border-radius:4px;margin-top:1rem;font-size:.9rem}
+.meta{font-size:.85rem;color:#666;margin-top:.5rem}
+section{margin-top:2rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1rem}
+code{background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;word-break:break-all;font-size:.85rem}
+button,select,input{font:inherit;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--border)}
+button{background:var(--primary);color:#fff;border-color:var(--primary);cursor:pointer}
+button.ghost{background:#fff;color:var(--primary)}
+form{display:flex;gap:.5rem;flex-wrap:wrap}
+input[type=search]{flex:1;min-width:200px}
+.tile{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1rem;margin-top:.75rem;cursor:pointer}
+.tile:hover{border-color:var(--primary)}
+.tile .code{color:var(--primary);font-weight:600;font-size:.85rem}
+.tile .when{font-size:.85rem;color:#666}
+.tile .desc{margin:.5rem 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tile.open .desc{display:block}
+.tag{display:inline-block;background:var(--surface2);border-radius:999px;padding:1px 10px;font-size:.75rem;margin:.4rem .3rem 0 0}
+ul.prompts{padding-left:1.1rem;margin:.25rem 0}
+footer{margin:3rem 0 2rem;font-size:.85rem;color:#666}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand"><img src="/logo.png" alt="" onerror="this.style.display='none'">
+    <div><h1>Oracle AI World 2026 Agenda Assistant</h1>
+    <div>Search sessions, spot schedule conflicts and build a personal agenda, right from your AI assistant.</div></div></div>
+  <div class="notice"><strong>Unofficial community tool.</strong> Not affiliated with or endorsed by Oracle. The catalog is a snapshot, so verify times, rooms and availability in the official Oracle catalog.</div>
+  <div class="meta" id="meta">Loading catalog info&hellip;</div>
+</div></header>
+<main class="wrap">
+  <section>
+    <h2>Find sessions</h2>
+    <form id="f">
+      <input type="search" id="q" placeholder="e.g. AI agents, integration, MCP" aria-label="Search sessions">
+      <select id="d" aria-label="Day"><option value="">All days</option></select>
+      <button type="submit">Search</button>
+    </form>
+    <div id="status" class="meta" aria-live="polite"></div>
+    <div id="results"></div>
+  </section>
+  <section>
+    <h2>Use it with your AI assistant</h2>
+    <p>Add this MCP connector URL: <code id="url"></code> <button class="ghost" id="copy" type="button">Copy</button></p>
+    <div class="grid">
+      <div class="card"><h3>Claude.ai</h3>Settings &rarr; Connectors &rarr; Add custom connector, then paste the URL.</div>
+      <div class="card"><h3>Claude Code</h3><code id="cc"></code></div>
+      <div class="card"><h3>ChatGPT</h3>Settings &rarr; Connectors &rarr; Advanced &rarr; enable Developer mode, then create a connector with the URL (no authentication).</div>
+    </div>
+  </section>
+  <section class="card">
+    <h3>Try asking</h3>
+    <ul class="prompts">
+      <li>Plan my Tuesday around AI agents and integration, with a 10 minute break between sessions.</li>
+      <li>Do sessions LRN2141 and MET2725 conflict?</li>
+      <li>What customer case studies are on Wednesday afternoon?</li>
+    </ul>
+  </section>
+  <footer><a href="/openapi.yaml">OpenAPI</a> &middot; <a href="/health">Health</a> &middot; <a href="/catalog/meta">Catalog metadata</a></footer>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const mcpUrl = location.origin + "/mcp";
+$("url").textContent = mcpUrl;
+$("cc").textContent = "claude mcp add --transport http ai-world " + mcpUrl;
+$("copy").onclick = async () => {
+  try { await navigator.clipboard.writeText(mcpUrl); $("copy").textContent = "Copied"; }
+  catch (e) { $("copy").textContent = "Copy failed"; }
+  setTimeout(() => $("copy").textContent = "Copy", 1500);
+};
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+
+fetch("/catalog/meta").then(r => r.json()).then(m => {
+  const when = m.importedAt ? new Date(m.importedAt).toLocaleDateString() : "unknown";
+  $("meta").textContent = m.sessionCount + " sessions, snapshot from " + when + ".";
+}).catch(() => { $("meta").textContent = ""; });
+
+["2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28"].forEach(d => {
+  const o = el("option", "", new Date(d + "T12:00:00").toLocaleDateString(undefined, {weekday: "long", month: "short", day: "numeric"}));
+  o.value = d; $("d").appendChild(o);
+});
+
+function tile(s) {
+  const t = el("div", "tile"); t.tabIndex = 0;
+  t.appendChild(el("div", "code", s.code || ""));
+  t.appendChild(el("strong", "", s.title || ""));
+  t.appendChild(el("div", "when", [s.dateLabel || s.date, (s.startTime || "") + "-" + (s.endTime || ""), s.timezone, s.sessionType].filter(Boolean).join(" \u00b7 ")));
+  if (s.description) t.appendChild(el("p", "desc", s.description));
+  const tags = el("div"); (s.areasOfInterest || []).slice(0, 5).forEach(a => tags.appendChild(el("span", "tag", a))); t.appendChild(tags);
+  const toggle = () => t.classList.toggle("open");
+  t.onclick = toggle; t.onkeydown = e => { if (e.key === "Enter") toggle(); };
+  return t;
+}
+
+$("f").onsubmit = async e => {
+  e.preventDefault();
+  const body = {query: $("q").value.trim(), limit: 25};
+  if ($("d").value) body.date = $("d").value;
+  $("status").textContent = "Searching\u2026"; $("results").replaceChildren();
+  try {
+    const r = await fetch("/sessions/search", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    if (!r.ok) throw new Error(r.status);
+    const list = (await r.json()).results || [];
+    $("status").textContent = list.length ? list.length + " session(s) shown. Click a card for details." : "No sessions found.";
+    list.forEach(s => $("results").appendChild(tile(s)));
+  } catch (err) { $("status").textContent = "Search failed. Please try again."; }
+};
+</script>
+</body>
+</html>

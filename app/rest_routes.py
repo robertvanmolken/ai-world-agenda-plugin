@@ -27,8 +27,13 @@ async def _json_body(request: Request) -> dict[str, Any] | None:
 _BAD = JSONResponse({"error": "Invalid JSON"}, status_code=400)
 
 
-@mcp.custom_route("/", methods=["GET"])
+@mcp.custom_route("/", methods=["GET", "HEAD"])
 async def root(request: Request) -> Response:
+    return Response((ROOT / "static" / "index.html").read_bytes(), media_type="text/html; charset=utf-8")
+
+
+@mcp.custom_route("/status", methods=["GET"])
+async def status(request: Request) -> Response:
     return JSONResponse({
         "name": "Oracle AI World 2026 Agenda Assistant", "status": "ok", "sessions": len(sessions()),
         "mcp": "/mcp", "openapi": "/openapi.yaml", "health": "/health", "catalogMetadata": "/catalog/meta",
