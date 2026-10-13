@@ -141,6 +141,7 @@ claude mcp add --transport http ai-world https://YOUR-SERVICE.onrender.com/mcp
 Optional environment variables:
 
 - `ALLOWED_HOSTS` — comma-separated hostnames (for example `YOUR-SERVICE.onrender.com`) to enable host validation on `/mcp`. Unset by default; a wrong value makes `/mcp` fail.
+- `PUBLIC_URL` — public base URL used for the MCP icon and website URLs (default `https://ai-world-agenda-plugin.onrender.com`). Set it if your hostname differs.
 - `AI_WORLD_DATA` — path to an alternate catalog JSON.
 - `HOST`, `PORT` — bind address/port (`PORT` is set by Render).
 

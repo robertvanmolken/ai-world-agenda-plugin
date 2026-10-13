@@ -13,7 +13,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
-from mcp.types import ToolAnnotations
+from mcp.types import Icon, ToolAnnotations
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
@@ -21,6 +21,8 @@ from .catalog import find_conflicts, get_by_code, load_catalog, optimize_agenda,
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_FILE = Path(os.environ.get("AI_WORLD_DATA", ROOT / "data" / "sessions.json"))
+
+PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://ai-world-agenda-plugin.onrender.com").rstrip("/")
 
 _catalog: dict[str, Any] | None = None
 
@@ -56,6 +58,11 @@ mcp = FastMCP(
         "conflicts and propose a personal agenda. Dates are ISO (YYYY-MM-DD), times are 24h HH:MM. "
         "Verify critical details in the official Oracle catalog."
     ),
+    website_url=PUBLIC_URL,
+    icons=[
+        Icon(src=f"{PUBLIC_URL}/icon.png", mimeType="image/png", sizes=["512x512"]),
+        Icon(src=f"{PUBLIC_URL}/icon-192.png", mimeType="image/png", sizes=["192x192"]),
+    ],
     stateless_http=True,
     json_response=True,
     streamable_http_path="/mcp",

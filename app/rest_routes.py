@@ -64,12 +64,29 @@ async def manifest(request: Request) -> Response:
     return JSONResponse(data)
 
 
-@mcp.custom_route("/logo.png", methods=["GET"])
-async def logo(request: Request) -> Response:
-    path = ROOT / "logo.png"
-    if not path.exists():
-        return JSONResponse({"error": "Not found"}, status_code=404)
-    return Response(path.read_bytes(), media_type="image/png")
+# Only these resized files are served; the full-size emblem in the repo root is never exposed.
+_ICONS = {
+    "/logo.png": "icon-512.png",
+    "/icon.png": "icon-512.png",
+    "/icon-192.png": "icon-192.png",
+    "/icon-64.png": "icon-64.png",
+    "/favicon.png": "favicon.png",
+    "/favicon.ico": "favicon.png",
+}
+
+
+def _icon_route(path: str, filename: str) -> None:
+    @mcp.custom_route(path, methods=["GET", "HEAD"])
+    async def _serve(request: Request) -> Response:
+        f = ROOT / "static" / filename
+        if not f.exists():
+            return JSONResponse({"error": "Not found"}, status_code=404)
+        return Response(f.read_bytes(), media_type="image/png",
+                        headers={"Cache-Control": "public, max-age=86400"})
+
+
+for _path, _file in _ICONS.items():
+    _icon_route(_path, _file)
 
 
 @mcp.custom_route("/sessions", methods=["GET"])

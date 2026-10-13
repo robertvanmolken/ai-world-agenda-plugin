@@ -24,6 +24,11 @@ class McpTests(unittest.TestCase):
                   "optimize_agenda", "get_catalog_metadata", "search", "fetch"]:
             self.assertIn(n, names)
 
+    def test_server_icons(self):
+        self.assertTrue(mcp._mcp_server.icons)
+        self.assertTrue(mcp._mcp_server.icons[0].src.endswith("/icon.png"))
+        self.assertTrue(mcp._mcp_server.website_url)
+
     def test_search_and_fetch(self):
         res = self._run(lambda c: c.call_tool("search", {"query": "integration"}))
         results = json.loads(res.content[0].text)["results"]
