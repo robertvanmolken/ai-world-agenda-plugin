@@ -3,6 +3,13 @@
   "source": "https://www.venetianlasvegas.com/meetings/planning/spaces/expo-halls/expo-map-floor-plan.html",
   "mapsCapturedAt": "2026-10-13",
   "warning": "Walking minutes are rough estimates. The official maps have no scale, so positions (x, in minutes of walking from the level's escalator/elevator core) were judged by eye. Treat results as guidance, not measurements.",
+  "calibration": {
+    "source": "Google Maps satellite view of The Venetian Expo (captured 2026-10-13), read by eye from the 50 m scale bar",
+    "metersPerPixel": 0.48,
+    "expoFootprintMeters": {"width": 310, "depth": 200},
+    "crossingMinutesAt80mPerMin": 4,
+    "note": "Roof view only. It confirms the overall size but not hall positions, levels or indoor routes, so zone x values were left unchanged. Hall A to Hall D currently spans 6 minutes, which is on the cautious side of the roughly 4-minute width of the whole Expo."
+  },
   "model": {
     "sameZoneMinutes": 3,
     "sameLevelBaseMinutes": 2,
