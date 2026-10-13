@@ -4,78 +4,144 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Oracle AI World 2026 Agenda Assistant</title>
+<meta name="description" content="Unofficial community tool: search Oracle AI World 2026 sessions, detect conflicts and build a personal agenda from Claude or ChatGPT.">
 <link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preload" href="/fonts/plus-jakarta-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/source-serif-4.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-:root{--primary:#1570ef;--accent:#d92d20;--heading:#222;--body:#444;--surface:#fff;--surface2:#f5f5f5;--border:#ddd}
-*{box-sizing:border-box}
-body{margin:0;background:var(--surface);color:var(--body);font:16px/1.5 "Oracle Sans","Helvetica Neue",Arial,sans-serif}
-h1,h2,h3{color:var(--heading);margin:0 0 .5rem}
-a{color:var(--primary)}
-header{background:var(--surface2);border-bottom:1px solid var(--border)}
-.wrap{max-width:960px;margin:0 auto;padding:1.5rem 1rem}
-.brand{display:flex;gap:1rem;align-items:center}
-.brand img{width:64px;height:64px;border-radius:12px}
-.notice{border-left:4px solid var(--accent);background:#fef3f2;padding:.75rem 1rem;border-radius:4px;margin-top:1rem;font-size:.9rem}
-.meta{font-size:.85rem;color:#666;margin-top:.5rem}
-section{margin-top:2rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
-.card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1rem}
-code{background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;word-break:break-all;font-size:.85rem}
-button,select,input{font:inherit;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--border)}
-button{background:var(--primary);color:#fff;border-color:var(--primary);cursor:pointer}
-button.ghost{background:#fff;color:var(--primary)}
-form{display:flex;gap:.5rem;flex-wrap:wrap}
-input[type=search]{flex:1;min-width:200px}
-.tile{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1rem;margin-top:.75rem;cursor:pointer}
-.tile:hover{border-color:var(--primary)}
-.tile .code{color:var(--primary);font-weight:600;font-size:.85rem}
-.tile .when{font-size:.85rem;color:#666}
-.tile .desc{margin:.5rem 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:200 800;font-display:swap;src:url(/fonts/plus-jakarta-sans.woff2) format('woff2')}
+@font-face{font-family:'Source Serif 4';font-style:normal;font-weight:200 900;font-display:swap;src:url(/fonts/source-serif-4.woff2) format('woff2')}
+@font-face{font-family:'Source Serif 4';font-style:italic;font-weight:200 900;font-display:swap;src:url(/fonts/source-serif-4-italic.woff2) format('woff2')}
+:root{
+  --warm-white:#F8F4F0;--white:#fff;--surface-soft:#F1EBE5;
+  --bg-dark:#481F2B;--bg-dark-3:#37151F;
+  --text:#2B1A20;--muted:#76686B;--on-dark:#fff;--on-dark-muted:#E3D3D6;--link-on-dark:#F6D4CF;
+  --accent:#B8321F;--accent-hover:#9A2A1A;--accent-active:#822315;--accent-bright:#D03D2C;
+  --accent-soft:#F6D4CF;--accent-subtle:#FBEDEA;
+  --sage:#C8D2C1;--sage-text:#4C5E47;
+  --border:#E0D6CD;--border-light:#ECE5DE;--border-hover:#BEAB9B;--border-dark:rgba(255,255,255,.15);
+  --gradient-brand:linear-gradient(135deg,#D03D2C,#9A3732);
+  --font-heading:'Source Serif 4',Georgia,serif;
+  --font-body:'Plus Jakarta Sans',-apple-system,'Segoe UI',Arial,sans-serif;
+  --radius:16px;--max-w:1180px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--warm-white);color:var(--text);line-height:1.65;font-size:17px;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:var(--accent);text-decoration:none}a:hover{color:var(--accent-hover)}
+h1,h2,h3{font-family:var(--font-heading);font-weight:600;line-height:1.15;letter-spacing:-.01em}
+h1{font-size:clamp(2.2rem,5vw,3.8rem)}h2{font-size:clamp(1.8rem,3.4vw,2.6rem);margin-bottom:.6rem}h3{font-size:1.3rem;margin-bottom:.5rem}
+.container{max-width:var(--max-w);margin:0 auto;padding:0 24px}
+section{padding:80px 0}
+.eyebrow{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);background:var(--accent-subtle);border:1px solid var(--accent-soft);border-radius:999px;padding:6px 16px;margin-bottom:22px}
+.eyebrow.on-dark{color:var(--link-on-dark);background:rgba(255,255,255,.06);border-color:var(--border-dark)}
+.lead{font-size:1.15rem;color:var(--muted);max-width:640px}
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-body);font-weight:700;font-size:1rem;padding:14px 28px;border-radius:12px;border:1px solid transparent;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
+.btn-primary{background:var(--gradient-brand);color:#fff;box-shadow:0 6px 20px rgba(184,50,31,.28)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(184,50,31,.34);color:#fff}
+.btn-primary:active{background:var(--accent-active)}
+.btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--border-hover);color:var(--text)}
+.hero .btn-ghost{color:#fff;border-color:var(--border-dark)}
+.hero .btn-ghost:hover{border-color:#fff;color:#fff}
+.site-header{position:sticky;top:0;z-index:50;background:rgba(248,244,240,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-light)}
+.site-header .container{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:1.15rem;font-weight:700;color:var(--text)}
+.logo:hover{color:var(--text)}.logo img{height:44px;width:44px;border-radius:10px}
+.main-nav{display:flex;gap:28px}.main-nav a{color:var(--muted);font-weight:600;font-size:.95rem}.main-nav a:hover{color:var(--accent)}
+@media(max-width:760px){.main-nav{display:none}.logo span{font-size:1rem}}
+.hero{background-color:var(--bg-dark);background-image:linear-gradient(180deg,var(--bg-dark),var(--bg-dark-3));color:var(--on-dark);padding:100px 0 90px}
+.hero h1 em{color:var(--accent-bright);font-style:italic}
+.hero .lead{color:var(--on-dark-muted);margin-top:22px}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+.hero-meta{margin-top:34px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--on-dark-muted)}
+.notice{margin-top:26px;max-width:640px;border-left:4px solid var(--accent-bright);background:rgba(255,255,255,.06);padding:12px 16px;border-radius:6px;font-size:.92rem;color:var(--on-dark-muted)}
+.notice strong{color:#fff}
+.alt{background:var(--surface-soft)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:28px}
+.card{background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius);padding:24px;box-shadow:0 2px 10px rgba(72,31,43,.05)}
+.card p{color:var(--muted);font-size:.95rem}
+code{background:var(--surface-soft);border:1px solid var(--border);border-radius:6px;padding:2px 7px;overflow-wrap:anywhere;font-size:.85rem}
+form{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+input,select{font:inherit;font-size:1rem;color:var(--text);background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:13px 16px}
+input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input[type=search]{flex:1;min-width:220px}
+.status{margin-top:16px;font-size:.9rem;color:var(--muted)}
+.tile{background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius);padding:20px 22px;margin-top:14px;cursor:pointer;box-shadow:0 2px 10px rgba(72,31,43,.05);transition:border-color .15s ease,transform .15s ease}
+.tile:hover,.tile:focus{border-color:var(--accent);outline:none;transform:translateY(-1px)}
+.tile .code{color:var(--accent);font-weight:700;font-size:.8rem;letter-spacing:.08em}
+.tile strong{display:block;font-family:var(--font-heading);font-size:1.15rem;margin-top:2px}
+.tile .when{font-size:.88rem;color:var(--muted);margin-top:2px}
+.tile .desc{margin-top:10px;font-size:.95rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .tile.open .desc{display:block}
-.tag{display:inline-block;background:var(--surface2);border-radius:999px;padding:1px 10px;font-size:.75rem;margin:.4rem .3rem 0 0}
-ul.prompts{padding-left:1.1rem;margin:.25rem 0}
-footer{margin:3rem 0 2rem;font-size:.85rem;color:#666}
+.tag{display:inline-block;background:var(--sage);color:var(--sage-text);border-radius:999px;padding:2px 12px;font-size:.75rem;font-weight:600;margin:10px 8px 0 0}
+.copy-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
+ul.prompts{margin:14px 0 0 1.2rem;color:var(--muted)}ul.prompts li{margin-bottom:6px}
+footer{background:var(--bg-dark-3);color:var(--on-dark-muted);padding:50px 0;font-size:.9rem}
+footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
+.foot{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
 </style>
 </head>
 <body>
-<header><div class="wrap">
-  <div class="brand"><img src="/icon-192.png" alt="" onerror="this.style.display='none'">
-    <div><h1>Oracle AI World 2026 Agenda Assistant</h1>
-    <div>Search sessions, spot schedule conflicts and build a personal agenda, right from your AI assistant.</div></div></div>
-  <div class="notice"><strong>Unofficial community tool.</strong> Not affiliated with or endorsed by Oracle. The catalog is a snapshot, so verify times, rooms and availability in the official Oracle catalog.</div>
-  <div class="meta" id="meta">Loading catalog info&hellip;</div>
+<header class="site-header"><div class="container">
+  <a class="logo" href="#top"><img src="/icon-192.png" alt="" onerror="this.style.display='none'"><span>AI World Agenda Assistant</span></a>
+  <nav class="main-nav"><a href="#search">Search</a><a href="#connect">Connect</a><a href="#try">Try asking</a></nav>
+  <a class="btn btn-primary" href="#search" style="padding:10px 22px">Find sessions</a>
 </div></header>
-<main class="wrap">
-  <section>
-    <h2>Find sessions</h2>
-    <form id="f">
-      <input type="search" id="q" placeholder="e.g. AI agents, integration, MCP" aria-label="Search sessions">
-      <select id="d" aria-label="Day"><option value="">All days</option></select>
-      <button type="submit">Search</button>
-    </form>
-    <div id="status" class="meta" aria-live="polite"></div>
-    <div id="results"></div>
-  </section>
-  <section>
-    <h2>Use it with your AI assistant</h2>
-    <p>Add this MCP connector URL: <code id="url"></code> <button class="ghost" id="copy" type="button">Copy</button></p>
-    <div class="grid">
-      <div class="card"><h3>Claude.ai</h3>Settings &rarr; Connectors &rarr; Add custom connector, then paste the URL.</div>
-      <div class="card"><h3>Claude Code</h3><code id="cc"></code></div>
-      <div class="card"><h3>ChatGPT</h3>Settings &rarr; Connectors &rarr; Advanced &rarr; enable Developer mode, then create a connector with the URL (no authentication).</div>
-    </div>
-  </section>
-  <section class="card">
-    <h3>Try asking</h3>
-    <ul class="prompts">
-      <li>Plan my Tuesday around AI agents and integration, with a 10 minute break between sessions.</li>
-      <li>Do sessions LRN2141 and MET2725 conflict?</li>
-      <li>What customer case studies are on Wednesday afternoon?</li>
-    </ul>
-  </section>
-  <footer><a href="/openapi.yaml">OpenAPI</a> &middot; <a href="/health">Health</a> &middot; <a href="/catalog/meta">Catalog metadata</a></footer>
-</main>
 
+<section class="hero" id="top"><div class="container">
+  <span class="eyebrow on-dark">Unofficial community tool</span>
+  <h1>Plan your Oracle AI World<br>with an <em>AI assistant</em>.</h1>
+  <p class="lead">Search sessions, spot schedule conflicts and build a personal agenda for Oracle AI World 2026, straight from Claude or ChatGPT.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="#search">Search sessions &darr;</a>
+    <a class="btn btn-ghost" href="#connect">Connect to your AI</a>
+  </div>
+  <div class="notice"><strong>Not affiliated with or endorsed by Oracle.</strong> The catalog is a snapshot, so verify times, rooms and availability in the official Oracle catalog.</div>
+  <p class="hero-meta" id="meta">Loading catalog info&hellip;</p>
+</div></section>
+
+<section id="search"><div class="container">
+  <span class="eyebrow">Search</span>
+  <h2>Find sessions</h2>
+  <p class="lead">Search the catalog snapshot by topic and day.</p>
+  <form id="f">
+    <input type="search" id="q" placeholder="e.g. AI agents, integration, MCP" aria-label="Search sessions">
+    <select id="d" aria-label="Day"><option value="">All days</option></select>
+    <button class="btn btn-primary" type="submit">Search</button>
+  </form>
+  <div id="status" class="status" aria-live="polite"></div>
+  <div id="results"></div>
+</div></section>
+
+<section class="alt" id="connect"><div class="container">
+  <span class="eyebrow">Connect</span>
+  <h2>Use it with your AI assistant</h2>
+  <p class="lead">Add this MCP connector URL. No sign-in is needed, and every tool is read-only.</p>
+  <div class="copy-row"><code id="url"></code><button class="btn btn-ghost" id="copy" type="button" style="padding:8px 18px">Copy</button></div>
+  <div class="grid">
+    <div class="card"><h3>Claude.ai</h3><p>Settings &rarr; Connectors &rarr; Add custom connector, then paste the URL.</p></div>
+    <div class="card"><h3>Claude Code</h3><p><code id="cc"></code></p></div>
+    <div class="card"><h3>ChatGPT</h3><p>Settings &rarr; Connectors &rarr; Advanced &rarr; enable Developer mode, then create a connector with the URL (no authentication).</p></div>
+  </div>
+</div></section>
+
+<section id="try"><div class="container">
+  <span class="eyebrow">Try asking</span>
+  <h2>Example prompts</h2>
+  <ul class="prompts">
+    <li>Plan my Tuesday around AI agents and integration, with a 10 minute break between sessions.</li>
+    <li>Do sessions LRN2141 and MET2725 conflict?</li>
+    <li>What customer case studies are on Wednesday afternoon?</li>
+  </ul>
+</div></section>
+
+<footer><div class="container foot">
+  <div>Unofficial community tool. Not affiliated with or endorsed by Oracle.<br>Data is a snapshot; always confirm in the official Oracle catalog.</div>
+  <div><a href="/openapi.yaml">OpenAPI</a> &middot; <a href="/health">Health</a> &middot; <a href="/catalog/meta">Catalog metadata</a></div>
+</div></footer>
 <script>
 const $ = id => document.getElementById(id);
 const mcpUrl = location.origin + "/mcp";
@@ -90,7 +156,7 @@ const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls)
 
 fetch("/catalog/meta").then(r => r.json()).then(m => {
   const when = m.importedAt ? new Date(m.importedAt).toLocaleDateString() : "unknown";
-  $("meta").textContent = m.sessionCount + " sessions, snapshot from " + when + ".";
+  $("meta").textContent = m.sessionCount + " sessions \u00b7 snapshot from " + when;
 }).catch(() => { $("meta").textContent = ""; });
 
 ["2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28"].forEach(d => {

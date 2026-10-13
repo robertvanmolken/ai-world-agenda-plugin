@@ -89,6 +89,21 @@ for _path, _file in _ICONS.items():
     _icon_route(_path, _file)
 
 
+# Self-hosted fonts (SIL Open Font License). Fixed whitelist of file names.
+_FONTS = ["plus-jakarta-sans.woff2", "source-serif-4.woff2", "source-serif-4-italic.woff2"]
+
+
+def _font_route(filename: str) -> None:
+    @mcp.custom_route(f"/fonts/{filename}", methods=["GET", "HEAD"])
+    async def _serve(request: Request) -> Response:
+        return Response((ROOT / "static" / "fonts" / filename).read_bytes(), media_type="font/woff2",
+                        headers={"Cache-Control": "public, max-age=31536000, immutable"})
+
+
+for _name in _FONTS:
+    _font_route(_name)
+
+
 @mcp.custom_route("/sessions", methods=["GET"])
 async def rest_sessions(request: Request) -> Response:
     return JSONResponse({"results": search_sessions(sessions(), dict(request.query_params))})

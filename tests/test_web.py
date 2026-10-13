@@ -29,6 +29,17 @@ class WebTest(unittest.TestCase):
         self.assertLess(len(self.client.get("/icon.png").content), 1_000_000)
         self.assertNotEqual(200, self.client.get("/AI World Agenda Assistant Emblem.png").status_code)
 
+    def test_fonts_are_local(self):
+        page = self.client.get("/").text
+        self.assertNotIn("fonts.googleapis.com", page)
+        self.assertNotIn("fonts.gstatic.com", page)
+        for f in ["plus-jakarta-sans", "source-serif-4", "source-serif-4-italic"]:
+            r = self.client.get(f"/fonts/{f}.woff2")
+            self.assertEqual(200, r.status_code, f)
+            self.assertEqual("font/woff2", r.headers["content-type"], f)
+            self.assertTrue(r.content.startswith(b"wOF2"), f)
+        self.assertEqual(404, self.client.get("/fonts/../app/catalog.py").status_code)
+
     def test_status_json(self):
         r = self.client.get("/status")
         self.assertEqual("ok", r.json()["status"])
