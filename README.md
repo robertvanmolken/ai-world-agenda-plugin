@@ -110,6 +110,22 @@ python -m unittest discover -s tests
 
 The parser extracts only catalog tiles and ignores Oracle SSO/account metadata outside those tiles.
 
+## Rooms and "can I make it?" checks
+
+Rooms come from the Oracle AI World mobile app, not from the catalog HTML (the catalog has no room data).
+They are stored separately in `data/rooms.csv` (`code,room,area,level,location,source,capturedAt`) and merged
+into the sessions by code on load, so refreshing the catalog never overwrites them.
+Rooms are from the mobile app as of 2026-10-13 and cover only the sessions listed in that file; others show no room yet.
+
+- `data/venue.json` models the Venetian Expo (levels 1-5) from the [official floor plans](https://www.venetianlasvegas.com/meetings/planning/spaces/expo-halls/expo-map-floor-plan.html). The map images themselves are not stored in the repo.
+- The maps have no scale, so walking minutes are **rough estimates**, tuned in `venue.json` (`model` and each zone's `x`).
+- The Oracle AI World Hub location is unconfirmed (`hub.confirmed: false`), so Hub transitions return a best/worst range over Halls A-D and G. Set `confirmed` and the `candidates` list once it is known.
+- MCP tool `check_transition(code_a, code_b)` and REST `POST /sessions/transition` return `ok`, `tight`, `unlikely`, `overlap` or `unknown`. `find_session_conflicts` also returns `travel`, and `optimize_agenda` skips sessions that are unlikely to be reachable.
+- `search_sessions` accepts `room` and `level` filters.
+
+To add rooms: append rows to `data/rooms.csv`, then run `python scripts/validate_rooms.py` (add `--missing` to list sessions without a room).
+
+
 ## Connecting it to Claude and ChatGPT (MCP, recommended)
 
 Both clients connect to the same remote MCP endpoint: `https://YOUR-SERVICE.onrender.com/mcp` (no authentication; the data is public and every tool is read-only). The landing page at `/` shows this URL with a copy button.

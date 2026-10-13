@@ -10,3 +10,4 @@ venv/
 # Saved Oracle catalog HTML (authenticated page, do not publish)
 data/*.html
 data/*_files/
+data/room-screenshots/

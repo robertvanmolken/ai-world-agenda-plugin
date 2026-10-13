@@ -18,6 +18,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from .catalog import find_conflicts, get_by_code, load_catalog, optimize_agenda, search_sessions
+from .venue import assess_transition, load_rooms, merge_rooms, venue
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_FILE = Path(os.environ.get("AI_WORLD_DATA", ROOT / "data" / "sessions.json"))
@@ -31,6 +32,7 @@ def catalog() -> dict[str, Any]:
     global _catalog
     if _catalog is None:
         _catalog = load_catalog(DATA_FILE)
+        merge_rooms(_catalog["sessions"], load_rooms())
     return _catalog
 
 
@@ -86,6 +88,8 @@ def search_sessions_tool(
     industry: str = "",
     speaker: str = "",
     company: str = "",
+    room: str = "",
+    level: str = "",
     limit: int = 25,
 ) -> dict[str, Any]:
     """Search sessions by free-text query and optional filters (date YYYY-MM-DD, from_time/to_time HH:MM)."""
@@ -93,7 +97,7 @@ def search_sessions_tool(
         "query": query, "date": date, "from": from_time, "to": to_time,
         "contentArea": content_area, "areaOfInterest": area_of_interest,
         "sessionType": session_type, "industry": industry, "speaker": speaker,
-        "company": company, "limit": limit,
+        "company": company, "room": room, "level": level, "limit": limit,
     }
     return {"results": search_sessions(sessions(), filters)}
 
@@ -108,6 +112,16 @@ def get_session_by_code(code: str) -> dict[str, Any]:
 def find_session_conflicts(codes: list[str], minimum_transition_minutes: int = 0) -> dict[str, Any]:
     """Find overlapping or too-tightly-scheduled sessions among the given session codes."""
     return find_conflicts(sessions(), codes, minimum_transition_minutes)
+
+
+@mcp.tool(annotations=READ_ONLY)
+def check_transition(code_a: str, code_b: str) -> dict[str, Any]:
+    """Can someone walk from one session to the other? Uses venue maps; the result is an estimate.
+    Verdict: ok, tight, unlikely, overlap or unknown (room not yet published)."""
+    a, b = get_by_code(sessions(), code_a), get_by_code(sessions(), code_b)
+    if not a or not b:
+        return {"error": "Session not found"}
+    return assess_transition(a, b) | {"venueWarning": venue()["warning"]}
 
 
 @mcp.tool(name="optimize_agenda", annotations=READ_ONLY)

@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from .venue import assess_transition
+
 
 def load_catalog(path: str | Path) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
@@ -13,7 +15,7 @@ def load_catalog(path: str | Path) -> dict[str, Any]:
 
 def _blob(session: dict[str, Any]) -> str:
     fields: list[str] = []
-    for k in ["code", "title", "description", "sessionType", "contentArea", "audienceLevel"]:
+    for k in ["code", "title", "description", "sessionType", "contentArea", "audienceLevel", "room", "area", "roomLocation"]:
         if session.get(k): fields.append(str(session[k]))
     for k in ["areasOfInterest", "industries", "jobRoles", "recommendationTopics"]:
         fields.extend(session.get(k) or [])
@@ -26,6 +28,10 @@ def session_matches(s: dict[str, Any], filters: dict[str, Any]) -> bool:
     if filters.get("from") and s.get("startTime") and s["startTime"] < filters["from"]:
         return False
     if filters.get("to") and s.get("endTime") and s["endTime"] > filters["to"]:
+        return False
+    if filters.get("room") and str(filters["room"]).lower() not in (s.get("roomLocation") or "").lower():
+        return False
+    if filters.get("level") not in (None, "") and str(s.get("level")) != str(filters["level"]):
         return False
     blob = _blob(s)
     for key in ["keyword", "contentArea", "areaOfInterest", "sessionType", "industry", "speaker", "company"]:
@@ -81,8 +87,14 @@ def find_conflicts(sessions: list[dict[str, Any]], codes: list[str], transition:
         for b in selected[i+1:]:
             if overlap(a, b, transition):
                 conflicts.append({"a": a["code"], "b": b["code"], "reason": "overlap_or_transition"})
+    travel = []
+    for i, a in enumerate(selected):
+        for b in selected[i+1:]:
+            t = assess_transition(a, b)
+            if t.get("gapMinutes") is not None and 0 <= t["gapMinutes"] <= 60:
+                travel.append(t)
     missing = [c for c in codes if not get_by_code(sessions, c)]
-    return {"sessions": selected, "conflicts": conflicts, "missingCodes": missing}
+    return {"sessions": selected, "conflicts": conflicts, "travel": travel, "missingCodes": missing}
 
 
 def score_session(s: dict[str, Any], interests: list[str]) -> tuple[float, list[str]]:
@@ -143,6 +155,7 @@ def optimize_agenda(sessions: list[dict[str, Any]], body: dict[str, Any]) -> dic
     alternatives: list[dict[str, Any]] = []
     for score, reasons, s in scored:
         blocked = any(overlap(s, c, transition) for c in fixed_norm + [x["session"] for x in chosen])
+        blocked = blocked or any(assess_transition(s, x["session"])["verdict"] == "unlikely" for x in chosen)
         item = {"session": s, "score": round(score, 2), "reasons": reasons}
         if blocked:
             if len(alternatives) < 20:

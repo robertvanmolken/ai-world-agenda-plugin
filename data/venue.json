@@ -1,0 +1,48 @@
+{
+  "venue": "The Venetian Convention & Expo Center, Las Vegas",
+  "source": "https://www.venetianlasvegas.com/meetings/planning/spaces/expo-halls/expo-map-floor-plan.html",
+  "mapsCapturedAt": "2026-10-13",
+  "warning": "Walking minutes are rough estimates. The official maps have no scale, so positions (x, in minutes of walking from the level's escalator/elevator core) were judged by eye. Treat results as guidance, not measurements.",
+  "model": {
+    "sameZoneMinutes": 3,
+    "sameLevelBaseMinutes": 2,
+    "levelChangeMinutes": 2,
+    "levelChangeBaseMinutes": 2,
+    "bufferMinutes": 2
+  },
+  "zones": {
+    "hall_g":      {"name": "Hall G", "level": 1, "x": 7.0, "kind": "hall"},
+    "l1_rooms":    {"name": "Rooms 101-407 (Level 1)", "level": 1, "x": 3.0, "kind": "meeting", "ranges": [[101, 407]]},
+    "casanova":    {"name": "Casanova", "level": 1, "x": 1.5, "kind": "meeting", "ranges": [[501, 607]]},
+    "marco_polo":  {"name": "Marco Polo", "level": 1, "x": 0.5, "kind": "meeting", "ranges": [[701, 807]]},
+    "galileo":     {"name": "Galileo", "level": 1, "x": 1.5, "kind": "meeting", "ranges": [[901, 1007]]},
+
+    "hall_a":      {"name": "Hall A", "level": 2, "x": 11.0, "kind": "hall"},
+    "hall_b":      {"name": "Hall B", "level": 2, "x": 9.0, "kind": "hall"},
+    "hall_c":      {"name": "Hall C", "level": 2, "x": 7.0, "kind": "hall"},
+    "hall_d":      {"name": "Hall D", "level": 2, "x": 5.0, "kind": "hall"},
+    "venetian_ballroom": {"name": "Venetian Ballroom", "level": 2, "x": 3.0, "kind": "ballroom"},
+    "bellini":     {"name": "Bellini", "level": 2, "x": 1.5, "kind": "meeting", "ranges": [[2001, 2106]]},
+    "titian":      {"name": "Titian", "level": 2, "x": 0.5, "kind": "meeting", "ranges": [[2201, 2306]]},
+    "veronese":    {"name": "Veronese", "level": 2, "x": 0.5, "kind": "meeting", "ranges": [[2401, 2506]]},
+    "bassano":     {"name": "Bassano", "level": 2, "x": 1.5, "kind": "meeting", "ranges": [[2601, 2806]]},
+
+    "lido":        {"name": "Lido", "level": 3, "x": 1.5, "kind": "meeting", "ranges": [[3001, 3106]]},
+    "murano":      {"name": "Murano", "level": 3, "x": 0.5, "kind": "meeting", "ranges": [[3201, 3306]]},
+    "san_polo":    {"name": "San Polo", "level": 3, "x": 0.5, "kind": "meeting", "ranges": [[3401, 3506]]},
+    "toscana":     {"name": "Toscana", "level": 3, "x": 1.5, "kind": "meeting", "ranges": [[3601, 3806]]},
+
+    "delfino":     {"name": "Delfino", "level": 4, "x": 1.5, "kind": "meeting", "ranges": [[4001, 4106]]},
+    "lando":       {"name": "Lando", "level": 4, "x": 0.5, "kind": "meeting", "ranges": [[4201, 4306]]},
+    "marcello":    {"name": "Marcello", "level": 4, "x": 0.5, "kind": "meeting", "ranges": [[4401, 4506]]},
+    "zeno":        {"name": "Zeno", "level": 4, "x": 1.5, "kind": "meeting", "ranges": [[4601, 4806]]},
+
+    "palazzo_ballroom": {"name": "Palazzo Ballroom", "level": 5, "x": 1.0, "kind": "ballroom"}
+  },
+  "hub": {
+    "name": "Oracle AI World Hub",
+    "confirmed": false,
+    "note": "The app only says e.g. 'Theater 6, Oracle AI World Hub'. The exact hall is not known, so travel is computed as a range over all candidates.",
+    "candidates": ["hall_a", "hall_b", "hall_c", "hall_d", "hall_g"]
+  }
+}

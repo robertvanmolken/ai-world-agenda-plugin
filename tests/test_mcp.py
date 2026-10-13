@@ -21,7 +21,7 @@ class McpTests(unittest.TestCase):
         res = self._run(lambda c: c.list_tools())
         names = {t.name for t in res.tools}
         for n in ["search_sessions", "get_session_by_code", "find_session_conflicts",
-                  "optimize_agenda", "get_catalog_metadata", "search", "fetch"]:
+                  "optimize_agenda", "check_transition", "get_catalog_metadata", "search", "fetch"]:
             self.assertIn(n, names)
 
     def test_server_icons(self):

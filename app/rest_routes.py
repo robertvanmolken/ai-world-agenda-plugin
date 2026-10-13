@@ -9,6 +9,7 @@ from starlette.responses import JSONResponse, Response
 
 from .catalog import find_conflicts, get_by_code, optimize_agenda, search_sessions
 from .mcp_server import ROOT, catalog, mcp, sessions
+from .venue import assess_transition, venue
 
 
 def _origin(request: Request) -> str:
@@ -138,3 +139,15 @@ async def rest_optimize(request: Request) -> Response:
     if body is None:
         return _BAD
     return JSONResponse(optimize_agenda(sessions(), body))
+
+
+
+@mcp.custom_route("/sessions/transition", methods=["POST"])
+async def rest_transition(request: Request) -> Response:
+    body = await _json_body(request)
+    if body is None:
+        return _BAD
+    a, b = get_by_code(sessions(), body.get("codeA") or ""), get_by_code(sessions(), body.get("codeB") or "")
+    if not a or not b:
+        return JSONResponse({"error": "Session not found"}, status_code=404)
+    return JSONResponse(assess_transition(a, b) | {"venueWarning": venue()["warning"]})
