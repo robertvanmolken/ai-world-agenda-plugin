@@ -7,6 +7,7 @@ from __future__ import annotations
 import csv
 import json
 import re
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -39,6 +40,48 @@ def merge_rooms(sessions: list[dict[str, Any]], rooms: dict[str, dict[str, str]]
             s["level"] = int(row["level"]) if (row.get("level") or "").strip() else None
             s["roomLocation"] = row.get("location") or ""
             s["roomSource"] = row.get("source") or ""
+
+
+def load_not_in_app(path: str | Path | None = None) -> dict[str, dict[str, str]]:
+    """Read not_in_app.csv into {session code: row}: sessions listed in the catalog but absent from the app."""
+    f = Path(path) if path else DATA_DIR / "not_in_app.csv"
+    if not f.exists():
+        return {}
+    with f.open(encoding="utf-8", newline="") as fh:
+        return {row["code"].strip().upper(): row for row in csv.DictReader(fh) if row.get("code")}
+
+
+def mark_not_in_app(sessions: list[dict[str, Any]], missing: dict[str, dict[str, str]]) -> None:
+    """Flag sessions that were not found in the mobile app (inApp=False plus a note), in place."""
+    for s in sessions:
+        row = missing.get((s.get("code") or "").upper())
+        if row:
+            s["inApp"] = False
+            s["appNote"] = (row.get("note") or "Not found in the mobile app") + ", checked " + (row.get("checkedAt") or "")
+            s["appNote"] = s["appNote"].rstrip(", ")
+
+
+def load_overrides(path: str | Path | None = None) -> dict[str, dict[str, str]]:
+    """Read session_overrides.csv into {session code: row}: time corrections taken from the mobile app."""
+    f = Path(path) if path else DATA_DIR / "session_overrides.csv"
+    if not f.exists():
+        return {}
+    with f.open(encoding="utf-8", newline="") as fh:
+        return {row["code"].strip().upper(): row for row in csv.DictReader(fh) if row.get("code")}
+
+
+def apply_overrides(sessions: list[dict[str, Any]], overrides: dict[str, dict[str, str]]) -> None:
+    """Replace date and times on sessions in place and set timeCorrected=True."""
+    for s in sessions:
+        row = overrides.get((s.get("code") or "").upper())
+        if not row:
+            continue
+        d = datetime.strptime(row["date"].strip(), "%Y-%m-%d")
+        s["date"] = d.strftime("%Y-%m-%d")
+        s["dateLabel"] = f"{d.strftime('%A')}, {d.strftime('%b')} {d.day}"
+        s["startTime"] = row["startTime"].strip()
+        s["endTime"] = row["endTime"].strip()
+        s["timeCorrected"] = True
 
 
 def resolve_zone(room: str, area: str, level: int | None) -> str | None:
@@ -77,7 +120,8 @@ def _walk(a: str, b: str) -> int:
     if a == b:
         return m["sameZoneMinutes"]
     if za["level"] == zb["level"]:
-        return round(m["sameLevelBaseMinutes"] + abs(za["x"] - zb["x"]))
+        minutes = m["sameLevelBaseMinutes"] + abs(za["x"] - zb["x"])
+        return round(min(minutes, m.get("sameLevelMaxMinutes", minutes)))
     return round(m["levelChangeBaseMinutes"] + za["x"] + m["levelChangeMinutes"] + zb["x"])
 
 
@@ -121,6 +165,10 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
     out["gapMinutes"] = gap
     if gap < 0:
         out.update(verdict="overlap", reason="The sessions overlap in time.")
+        return out
+    gone = [x.get("code") for x in (first, second) if x.get("inApp") is False]
+    if gone:
+        out.update(verdict="unknown", reason=f"Not found in the mobile app: {', '.join(gone)}. It may be cancelled or moved.")
         return out
     za, zb = session_zone(first), session_zone(second)
     if not za or not zb:

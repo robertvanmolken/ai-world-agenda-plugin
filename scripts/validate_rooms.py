@@ -11,11 +11,36 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.catalog import load_catalog  # noqa: E402
-from app.venue import DATA_DIR, load_rooms, resolve_zone  # noqa: E402
+from app.venue import DATA_DIR, HUB_AREAS, apply_overrides, load_not_in_app, load_overrides, load_rooms, resolve_zone  # noqa: E402
+
+
+def _m(t: str) -> int:
+    return int(t[:2]) * 60 + int(t[3:5])
+
+
+def _room_clashes(by_code: dict, rooms: dict) -> list[str]:
+    """Two sessions in the same physical room at overlapping times: one of the rows is wrong."""
+    slots: dict[tuple, list[dict]] = {}
+    for code, row in rooms.items():
+        s = by_code.get(code)
+        area = (row.get("area") or "").strip().lower()
+        if not s or area in HUB_AREAS or (row.get("room") or "").strip().lower() == "hub":
+            continue
+        if s.get("startTime") and s.get("endTime"):
+            slots.setdefault((s["date"], (row.get("location") or "").strip().lower()), []).append(s)
+    out = []
+    for (date, loc), group in slots.items():
+        for i, a in enumerate(group):
+            for b in group[i + 1:]:
+                if _m(a["startTime"]) < _m(b["endTime"]) and _m(b["startTime"]) < _m(a["endTime"]):
+                    out.append(f"{a['code']} and {b['code']}: same room '{loc}' at overlapping times on {date}")
+    return out
 
 
 def validate() -> tuple[list[str], list[str]]:
     sessions = load_catalog(DATA_DIR / "sessions.json")["sessions"]
+    overrides = load_overrides()
+    apply_overrides(sessions, overrides)
     by_code = {s["code"].upper(): s for s in sessions if s.get("code")}
     rooms = load_rooms()
     errors = []
@@ -26,7 +51,17 @@ def validate() -> tuple[list[str], list[str]]:
         level = int(row["level"]) if (row.get("level") or "").strip() else None
         if not resolve_zone(row.get("room", ""), row.get("area", ""), level):
             errors.append(f"{code}: room '{row.get('room')}' ({row.get('area')}, level {level}) not on venue map")
-    missing = sorted(c for c in by_code if c not in rooms)
+    for code in overrides:
+        if code not in by_code:
+            errors.append(f"{code}: in session_overrides.csv but not in catalog")
+    errors.extend(_room_clashes(by_code, rooms))
+    gone = load_not_in_app()
+    for code in gone:
+        if code not in by_code:
+            errors.append(f"{code}: in not_in_app.csv but not in catalog")
+        if code in rooms:
+            errors.append(f"{code}: has a room and is also marked not in app")
+    missing = sorted(c for c in by_code if c not in rooms and c not in gone)
     return errors, missing
 
 

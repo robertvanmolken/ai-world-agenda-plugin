@@ -18,7 +18,16 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from .catalog import find_conflicts, get_by_code, load_catalog, optimize_agenda, search_sessions
-from .venue import assess_transition, load_rooms, merge_rooms, venue
+from .venue import (
+    apply_overrides,
+    assess_transition,
+    load_not_in_app,
+    load_overrides,
+    load_rooms,
+    mark_not_in_app,
+    merge_rooms,
+    venue,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_FILE = Path(os.environ.get("AI_WORLD_DATA", ROOT / "data" / "sessions.json"))
@@ -32,7 +41,9 @@ def catalog() -> dict[str, Any]:
     global _catalog
     if _catalog is None:
         _catalog = load_catalog(DATA_FILE)
+        apply_overrides(_catalog["sessions"], load_overrides())
         merge_rooms(_catalog["sessions"], load_rooms())
+        mark_not_in_app(_catalog["sessions"], load_not_in_app())
     return _catalog
 
 
