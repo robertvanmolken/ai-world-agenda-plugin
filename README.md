@@ -221,3 +221,9 @@ This project deliberately:
 
 Add an authenticated **admin-only upload endpoint** that accepts a newly saved HTML snapshot, sanitizes it, rebuilds `sessions.json`, and discards the raw HTML. This would make refreshing the catalog easy without solving Oracle SSO.
 
+
+## License
+
+The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, modify and share it for noncommercial purposes. Commercial use needs permission from the author.
+
+The license covers the code only. Session data, the catalog HTML and room screenshots in `data/` come from Oracle's public catalog and mobile app and are not covered by this license. This is an unofficial community project and is not affiliated with Oracle.
