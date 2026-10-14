@@ -226,4 +226,4 @@ Add an authenticated **admin-only upload endpoint** that accepts a newly saved H
 
 The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, modify and share it for noncommercial purposes. Commercial use needs permission from the author.
 
-The license covers the code only. Session data, the catalog HTML and room screenshots in `data/` come from Oracle's public catalog and mobile app and are not covered by this license. This is an unofficial community project and is not affiliated with Oracle.
+The license covers the code and my own data files (`venue.json`, `not_in_app.csv`, `session_overrides.csv`). Session information in `data/sessions.json` and the room assignments in `data/rooms.csv` come from Oracle's public catalog and mobile app. Oracle's content is not covered by this license. The saved catalog pages and screenshots I used as sources are not published. This is an unofficial community project and is not affiliated with Oracle.
