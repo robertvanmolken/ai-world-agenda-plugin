@@ -19,6 +19,7 @@ class WebTest(unittest.TestCase):
         self.assertIn("text/html", r.headers["content-type"])
         self.assertIn("Oracle AI World 2026 Agenda Assistant", r.text)
         self.assertIn('id="f"', r.text)
+        self.assertIn('id="chk"', r.text)
 
     def test_icons_served_but_not_original(self):
         for p in ["/icon.png", "/icon-192.png", "/favicon.ico", "/logo.png"]:
@@ -43,6 +44,13 @@ class WebTest(unittest.TestCase):
     def test_status_json(self):
         r = self.client.get("/status")
         self.assertEqual("ok", r.json()["status"])
+
+    def test_schedule_check_endpoints(self):
+        c = self.client.post("/sessions/conflicts", json={"codes": ["LRN1128", "LRN2162"]}).json()
+        self.assertEqual(2, len(c["sessions"]))
+        self.assertIn("disclaimer", c)
+        t = self.client.post("/sessions/transition", json={"codeA": "LRN1128", "codeB": "LRN2162"}).json()
+        self.assertEqual("ok", t["verdict"])
 
     def test_health_and_search(self):
         self.assertTrue(self.client.get("/health").json()["ok"])

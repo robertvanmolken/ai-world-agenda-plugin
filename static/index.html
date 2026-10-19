@@ -93,12 +93,18 @@ ul.prompts{margin:14px 0 0 1.2rem;color:var(--muted)}ul.prompts li{margin-bottom
 footer{background:var(--bg-dark-3);color:var(--on-dark-muted);padding:50px 0;font-size:.9rem}
 footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
 .foot{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.verdict{display:inline-block;border-radius:999px;padding:2px 12px;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.v-ok{background:var(--sage);color:var(--sage-text)}.v-tight{background:#F9E3B4;color:#6B4A00}.v-unlikely,.v-overlap{background:var(--accent-soft);color:var(--accent-active)}.v-unknown{background:var(--surface-soft);color:var(--muted);border:1px solid var(--border)}
+.hop{background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius);padding:16px 22px;margin-top:10px}
+.hop p{color:var(--muted);font-size:.92rem;margin-top:4px}
+.fine{margin-top:16px;font-size:.85rem;color:var(--muted)}
+input.codes{flex:1;min-width:260px}
 </style>
 </head>
 <body>
 <header class="site-header"><div class="container">
   <a class="logo" href="#top"><img src="/icon-192.png" alt="" onerror="this.style.display='none'"><span>AI World Agenda Assistant</span></a>
-  <nav class="main-nav"><a href="#search">Search</a><a href="#connect">Connect</a><a href="#try">Try asking</a></nav>
+  <nav class="main-nav"><a href="#search">Search</a><a href="#check">Check schedule</a><a href="#connect">Connect</a><a href="#try">Try asking</a></nav>
   <a class="btn btn-primary" href="#search" style="padding:10px 22px">Find sessions</a>
 </div></header>
 
@@ -125,6 +131,24 @@ footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
   </form>
   <div id="status" class="status" aria-live="polite"></div>
   <div id="results"></div>
+</div></section>
+
+<section id="check"><div class="container">
+  <span class="eyebrow">Schedule check</span>
+  <h2>Can I make it?</h2>
+  <p class="lead">Enter two or more session codes. We check overlaps and estimate the walk between sessions on the same day.</p>
+  <form id="chk">
+    <input type="text" id="codes" class="codes" placeholder="e.g. LRN1128, LRN2162" aria-label="Session codes" autocomplete="off">
+    <select id="gap" aria-label="Extra buffer between sessions">
+      <option value="0">No extra buffer</option>
+      <option value="5">5 min buffer</option>
+      <option value="10">10 min buffer</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Check</button>
+  </form>
+  <div id="cstatus" class="status" aria-live="polite"></div>
+  <div id="cresults"></div>
+  <p class="fine" id="cfine"></p>
 </div></section>
 
 <section class="alt" id="connect"><div class="container">
@@ -180,6 +204,8 @@ function tile(s) {
   t.appendChild(el("div", "code", s.code || ""));
   t.appendChild(el("strong", "", s.title || ""));
   t.appendChild(el("div", "when", [s.dateLabel || s.date, (s.startTime || "") + "-" + (s.endTime || ""), s.timezone, s.sessionType].filter(Boolean).join(" \u00b7 ")));
+  const where = s.roomLocation || s.room;
+  if (where) t.appendChild(el("div", "when", "Room: " + where));
   if (s.description) t.appendChild(el("p", "desc", s.description));
   const tags = el("div"); (s.areasOfInterest || []).slice(0, 5).forEach(a => tags.appendChild(el("span", "tag", a))); t.appendChild(tags);
   const toggle = () => t.classList.toggle("open");
@@ -199,6 +225,50 @@ $("f").onsubmit = async e => {
     $("status").textContent = list.length ? list.length + " session(s) shown. Click a card for details." : "No sessions found.";
     list.forEach(s => $("results").appendChild(tile(s)));
   } catch (err) { $("status").textContent = "Search failed. Please try again."; }
+};
+
+const verdictText = {ok: "OK", tight: "Tight", unlikely: "Unlikely", overlap: "Overlap", unknown: "Unknown"};
+function hop(t) {
+  const d = el("div", "hop");
+  const v = el("span", "verdict v-" + (t.verdict || "unknown"), verdictText[t.verdict] || "Unknown");
+  d.appendChild(v);
+  d.appendChild(el("strong", "", "  " + t.from + " \u2192 " + t.to));
+  const bits = [];
+  if (t.gapMinutes != null) bits.push("Gap: " + t.gapMinutes + " min");
+  if (t.estimatedMinutes) bits.push("Walk: " + (t.estimatedMinutes.best === t.estimatedMinutes.worst ? t.estimatedMinutes.best : t.estimatedMinutes.best + "\u2013" + t.estimatedMinutes.worst) + " min");
+  if (t.route) bits.push(t.route);
+  if (bits.length) d.appendChild(el("p", "", bits.join(" \u00b7 ")));
+  if (t.lateIfWalking && t.lateIfWalking.worst > 0) d.appendChild(el("p", "", "If you walk, you could be " + (t.lateIfWalking.best === t.lateIfWalking.worst ? t.lateIfWalking.worst : t.lateIfWalking.best + "\u2013" + t.lateIfWalking.worst) + " min late."));
+  if (t.reason) d.appendChild(el("p", "", t.reason));
+  return d;
+}
+
+$("chk").onsubmit = async e => {
+  e.preventDefault();
+  const codes = [...new Set(($("codes").value.toUpperCase().match(/[A-Z]{2,5}\d{3,5}/g) || []))].slice(0, 15);
+  $("cresults").replaceChildren(); $("cfine").textContent = "";
+  if (codes.length < 2) { $("cstatus").textContent = "Enter at least two session codes, such as LRN1128, LRN2162."; return; }
+  $("cstatus").textContent = "Checking\u2026";
+  const post = (url, body) => fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)}).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  try {
+    const c = await post("/sessions/conflicts", {codes, minimumTransitionMinutes: parseInt($("gap").value, 10)});
+    const found = (c.sessions || []).filter(s => s.date && s.startTime).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
+    const out = [];
+    for (let i = 0; i < found.length - 1; i++) {
+      const a = found[i], b = found[i + 1];
+      if (a.date !== b.date) continue;
+      out.push(await post("/sessions/transition", {codeA: a.code, codeB: b.code}));
+    }
+    const miss = (c.missingCodes || []);
+    const parts = [];
+    if (miss.length) parts.push("Not found: " + miss.join(", ") + ".");
+    if (found.length < 2) parts.push("Need at least two known sessions.");
+    else if (!out.length) parts.push("These sessions are on different days, so there is no walking to check.");
+    else parts.push((c.conflicts || []).length ? (c.conflicts.length + " conflict(s) found.") : "No overlaps found.");
+    $("cstatus").textContent = parts.join(" ");
+    out.forEach(t => $("cresults").appendChild(hop(t)));
+    $("cfine").textContent = c.disclaimer || "Walking times are estimates. Always check the official Oracle app.";
+  } catch (err) { $("cstatus").textContent = "Check failed. Please try again."; }
 };
 </script>
 </body>
