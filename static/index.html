@@ -104,7 +104,7 @@ input.codes{flex:1;min-width:260px}
 <body>
 <header class="site-header"><div class="container">
   <a class="logo" href="#top"><img src="/icon-192.png" alt="" onerror="this.style.display='none'"><span>AI World Agenda Assistant</span></a>
-  <nav class="main-nav"><a href="#connect">Connect</a><a href="#search">Search</a><a href="#check">Check schedule</a><a href="#try">Try asking</a></nav>
+  <nav class="main-nav"><a href="#connect">Connect</a><a href="#search">Search</a><a href="#check">Check schedule</a></nav>
   <a class="btn btn-primary" href="#connect" style="padding:10px 22px">Connect</a>
 </div></header>
 
@@ -130,6 +130,13 @@ input.codes{flex:1;min-width:260px}
     <div class="card"><h3>Claude Code</h3><p><code id="cc"></code></p></div>
     <div class="card"><h3>ChatGPT</h3><p>Settings &rarr; Connectors &rarr; Advanced &rarr; enable Developer mode, then create a connector with the URL (no authentication).</p></div>
   </div>
+  <h3 style="margin-top:36px">Then try asking</h3>
+  <ul class="prompts">
+    <li>I want to fully focus on sessions about AI for business success. Make me an agenda for all three days.</li>
+    <li>What should I see on Monday about Oracle Integration, GoldenGate and MCP?</li>
+    <li>Can I walk from my 14:00 session (LRN1128) to the 15:15 one (LRN2162) without being late?</li>
+    <li>Build me a day plan for Tuesday around AI agents, with lunch and time to network.</li>
+  </ul>
 </div></section>
 
 <section id="search"><div class="container">
@@ -161,16 +168,6 @@ input.codes{flex:1;min-width:260px}
   <div id="cstatus" class="status" aria-live="polite"></div>
   <div id="cresults"></div>
   <p class="fine" id="cfine"></p>
-</div></section>
-
-<section id="try"><div class="container">
-  <span class="eyebrow">Try asking</span>
-  <h2>Example prompts</h2>
-  <ul class="prompts">
-    <li>Plan my Tuesday around AI agents and integration, with a 10 minute break between sessions.</li>
-    <li>Do sessions LRN2141 and MET2725 conflict?</li>
-    <li>What customer case studies are on Wednesday afternoon?</li>
-  </ul>
 </div></section>
 
 <footer><div class="container foot">
