@@ -51,38 +51,81 @@ Why: for a partner, kiosk or demo where people may browse sessions but not run t
 
 ## Business policies
 
-Each rule applies to one tool. The wording is plain language, ready to turn into policy logic.
+In the gateway, a business policy applies to one tool on one MCP server, and you can't combine tools in one policy. So there is one policy per tool below. Each policy lists every check that belongs to that tool, so it can be written as a single rule. The wording is plain language, ready to turn into policy logic.
 
-### Search
-1. **Cap the result count.** Deny `search_sessions` if `limit` is above 50. The default is 25.
-2. **Require some input.** Deny `search_sessions` if the query and every filter are empty. This blocks a request that pulls the whole catalog.
-3. **Check the date.** Deny any call where `date` is not YYYY-MM-DD, or is outside the event week.
-4. **Check times.** Deny any call where `from_time`, `to_time`, `day_start`, `day_end` or the lunch and networking times are not HH:MM.
+A check that appears in several tools, such as the session code format, is repeated in each tool's policy.
 
-### Session lookups
-5. **Check session codes.** Deny `get_session_by_code`, `check_transition` and `fetch` if a code doesn't look like a session code (letters followed by digits, such as LRN1128).
-6. **Limit the list size.** Deny `find_session_conflicts` if `codes` has more than 15 entries.
+| # | Policy (one tool) | Tool |
+|---|---|---|
+| 1 | Search guard | `search_sessions` |
+| 2 | Session lookup guard | `get_session_by_code` |
+| 3 | Conflict check guard | `find_session_conflicts` |
+| 4 | Transition guard | `check_transition` |
+| 5 | Walk check guard | `check_walk` |
+| 6 | Strict day plan guard | `plan_strict_day` |
+| 7 | Agenda optimizer guard | `optimize_agenda` |
+| 8 | ChatGPT search guard | `search` |
+| 9 | ChatGPT fetch guard | `fetch` |
 
-### Walking checks
-7. **Limit the gap.** Deny `check_walk` if `gap_minutes` is negative or above 240.
-8. **Limit place text.** Deny `check_walk` if either place is longer than 100 characters.
-9. **Block self-comparison.** Deny `check_transition` when both codes are the same.
+`get_catalog_metadata` takes no input, so it needs no policy.
 
-### Planning
-10. **Limit lateness.** Deny `plan_strict_day` if `late_tolerance_minutes` is above 10. Someone who accepts being 30 minutes late doesn't want a "strict" plan.
-11. **Limit topics.** Deny `plan_strict_day` and `optimize_agenda` if there are more than 10 topics or interests, or any is longer than 100 characters.
-12. **Limit lunch and networking.** Deny `plan_strict_day` if lunch is longer than 90 minutes, or networking blocks total more than 120 minutes.
-13. **Limit fixed commitments.** Deny `plan_strict_day` and `optimize_agenda` if there are more than 10.
-14. **Check the lateness basis.** Deny `plan_strict_day` unless `lateness_basis` is `worst` or `best`.
+### 1. Search guard (`search_sessions`)
+Deny the call if any of these is true:
+- `limit` is above 50. The default is 25.
+- The query and every filter are empty. This blocks a request that pulls the whole catalog.
+- The query is a single wildcard-like value, such as `*`, `%` or `.`.
+- `date` is given but is not YYYY-MM-DD, or is outside the event week.
+- `from_time` or `to_time` is given but is not HH:MM.
 
-### Fair use
-15. **Block likely scraping.** Deny any search whose query is a single wildcard-like value, such as `*`, `%` or `.`.
-16. **Keep to read-only use.** Nothing here writes data, so no rule is needed. If a write tool is ever added, deny it by default and give it its own policy.
+### 2. Session lookup guard (`get_session_by_code`)
+Deny the call if `code` doesn't look like a session code: letters followed by digits, such as LRN1128.
 
-Notes:
+### 3. Conflict check guard (`find_session_conflicts`)
+Deny the call if any of these is true:
+- `codes` has more than 15 entries, or is empty.
+- Any code doesn't look like a session code.
+- `minimum_transition_minutes` is negative or above 120.
+
+### 4. Transition guard (`check_transition`)
+Deny the call if any of these is true:
+- `code_a` or `code_b` doesn't look like a session code.
+- `code_a` and `code_b` are the same.
+
+### 5. Walk check guard (`check_walk`)
+Deny the call if any of these is true:
+- `gap_minutes` is negative or above 240.
+- `from_place` or `to_place` is empty or longer than 100 characters.
+
+### 6. Strict day plan guard (`plan_strict_day`)
+Deny the call if any of these is true:
+- `date` is not YYYY-MM-DD, or is outside the event week.
+- `topics` is empty, has more than 10 entries, or any entry is longer than 100 characters.
+- `late_tolerance_minutes` is above 10. Someone who accepts being 30 minutes late doesn't want a "strict" plan.
+- `lateness_basis` is not `worst` or `best`.
+- `lunch_minutes` is above 90.
+- `networking_blocks` times `networking_minutes` is above 120.
+- `day_start`, `day_end`, `lunch_from`, `lunch_until`, `networking_from` or `networking_until` is not HH:MM.
+- `fixed_commitments` has more than 10 entries.
+
+### 7. Agenda optimizer guard (`optimize_agenda`)
+Deny the call if any of these is true:
+- `date` is not YYYY-MM-DD, or is outside the event week.
+- `interests` is empty, has more than 10 entries, or any entry is longer than 100 characters.
+- `minimum_transition_minutes` is negative or above 120.
+- `fixed_commitments` has more than 10 entries, or any time in them is not HH:MM.
+
+### 8. ChatGPT search guard (`search`)
+Deny the call if the query is empty, longer than 200 characters, or a single wildcard-like value such as `*`, `%` or `.`. Only needed on a gateway that exposes this tool (tool filter 2).
+
+### 9. ChatGPT fetch guard (`fetch`)
+Deny the call if `id` doesn't look like a session code. Only needed on a gateway that exposes this tool (tool filter 2).
+
+### Notes
+- Read-only: nothing here writes data. If a write tool is ever added, give it its own policy and deny by default.
 - The gateway only sees the request. Rules about what comes back, such as hiding unconfirmed rooms, belong in the server.
 - I didn't find per-user rate limits or role rules in the policy pages I read. Check the identity page ("Propagate User Identity for MCP Tool Invocations") before promising them.
 - This server already validates some of these inputs. The gateway rules are a second layer, most useful for rules you want to change without redeploying.
+- A tool filter only decides which tools are visible. If a tool is not exposed, its policy is not needed.
 
 ## PII detection
 
@@ -97,12 +140,15 @@ Notes:
 - **Action:** Redact, using Replace with a value such as `[removed]`
 - **Why:** the tool has no use for these values and keeps no record. Redacting lets the search still run.
 
-### Policy 2: Private commitments
-- **Scope:** MCP tools `plan_strict_day` and `optimize_agenda`
+### Policy 2: Private commitments in `plan_strict_day`
+- **Scope:** MCP tool `plan_strict_day`
 - **Enforcement:** request only
 - **Fields to scan:** only the `fixed_commitments` titles, using the inclusion list if your setup offers it
 - **Action:** Block
 - **Why:** these titles are the most likely place for private information, such as a medical or personal appointment. Blocking makes the user rephrase, which is clearer than silently changing a calendar entry.
+
+### Policy 3: Private commitments in `optimize_agenda`
+Same as policy 2, with scope MCP tool `optimize_agenda`. The tool scope covers one tool, so it needs its own policy.
 
 ### Not recommended: redacting responses
 Don't apply PII detection to responses from the session tools. Speaker names, companies and email-like text in session descriptions are public, and redacting them would damage the answers. If you want to try it, limit it to one tool and test with real sessions first.
@@ -117,4 +163,4 @@ Don't apply PII detection to responses from the session tools. Speaker names, co
 1. **Authentication:** the server has no authentication today. If the gateway should be the only way in, the server needs a way to reject direct calls, such as a shared secret that only the gateway sends. Check the gateway's authentication options in the OIC documentation.
 2. **Test every rule:** the policy editor can generate rule code from a plain-language description. Review and test each generated rule before relying on it.
 3. **Keep tool names in sync:** filters and policies point at tool names. If a tool is renamed in this repo, update the policy.
-4. **Start small:** a first release could be Filter 1, rules 1, 5, 7, 10 and 11, and PII policy 1.
+4. **Start small:** a first release could be tool filter 1, business policies 1, 4, 5 and 6, and PII policy 1.
