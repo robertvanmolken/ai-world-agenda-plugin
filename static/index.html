@@ -104,8 +104,8 @@ input.codes{flex:1;min-width:260px}
 <body>
 <header class="site-header"><div class="container">
   <a class="logo" href="#top"><img src="/icon-192.png" alt="" onerror="this.style.display='none'"><span>AI World Agenda Assistant</span></a>
-  <nav class="main-nav"><a href="#search">Search</a><a href="#check">Check schedule</a><a href="#connect">Connect</a><a href="#try">Try asking</a></nav>
-  <a class="btn btn-primary" href="#search" style="padding:10px 22px">Find sessions</a>
+  <nav class="main-nav"><a href="#connect">Connect</a><a href="#search">Search</a><a href="#check">Check schedule</a><a href="#try">Try asking</a></nav>
+  <a class="btn btn-primary" href="#connect" style="padding:10px 22px">Connect</a>
 </div></header>
 
 <section class="hero" id="top"><div class="container">
@@ -113,11 +113,23 @@ input.codes{flex:1;min-width:260px}
   <h1>Plan your Oracle AI World<br>with an <em>AI assistant</em>.</h1>
   <p class="lead">Search sessions, spot schedule conflicts and build a personal agenda for Oracle AI World 2026, straight from Claude or ChatGPT.</p>
   <div class="hero-actions">
-    <a class="btn btn-primary" href="#search">Search sessions &darr;</a>
-    <a class="btn btn-ghost" href="#connect">Connect to your AI</a>
+    <a class="btn btn-primary" href="#connect">Connect to your AI &darr;</a>
+    <a class="btn btn-ghost" href="#search">Search sessions</a>
   </div>
   <div class="notice"><strong>Not affiliated with or endorsed by Oracle.</strong> The catalog is a snapshot, so verify times, rooms and availability in the official Oracle catalog.</div>
   <p class="hero-meta" id="meta">Loading catalog info&hellip;</p>
+</div></section>
+
+<section class="alt" id="connect"><div class="container">
+  <span class="eyebrow">Connect</span>
+  <h2>Use it with your AI assistant</h2>
+  <p class="lead">Add this MCP connector URL. No sign-in is needed, and every tool is read-only.</p>
+  <div class="copy-row"><code id="url"></code><button class="btn btn-ghost" id="copy" type="button" style="padding:8px 18px">Copy</button></div>
+  <div class="grid">
+    <div class="card"><h3>Claude.ai</h3><p>Settings &rarr; Connectors &rarr; Add custom connector, then paste the URL.</p></div>
+    <div class="card"><h3>Claude Code</h3><p><code id="cc"></code></p></div>
+    <div class="card"><h3>ChatGPT</h3><p>Settings &rarr; Connectors &rarr; Advanced &rarr; enable Developer mode, then create a connector with the URL (no authentication).</p></div>
+  </div>
 </div></section>
 
 <section id="search"><div class="container">
@@ -133,7 +145,7 @@ input.codes{flex:1;min-width:260px}
   <div id="results"></div>
 </div></section>
 
-<section id="check"><div class="container">
+<section class="alt" id="check"><div class="container">
   <span class="eyebrow">Schedule check</span>
   <h2>Can I make it?</h2>
   <p class="lead">Enter two or more session codes. We check overlaps and estimate the walk between sessions on the same day.</p>
@@ -149,18 +161,6 @@ input.codes{flex:1;min-width:260px}
   <div id="cstatus" class="status" aria-live="polite"></div>
   <div id="cresults"></div>
   <p class="fine" id="cfine"></p>
-</div></section>
-
-<section class="alt" id="connect"><div class="container">
-  <span class="eyebrow">Connect</span>
-  <h2>Use it with your AI assistant</h2>
-  <p class="lead">Add this MCP connector URL. No sign-in is needed, and every tool is read-only.</p>
-  <div class="copy-row"><code id="url"></code><button class="btn btn-ghost" id="copy" type="button" style="padding:8px 18px">Copy</button></div>
-  <div class="grid">
-    <div class="card"><h3>Claude.ai</h3><p>Settings &rarr; Connectors &rarr; Add custom connector, then paste the URL.</p></div>
-    <div class="card"><h3>Claude Code</h3><p><code id="cc"></code></p></div>
-    <div class="card"><h3>ChatGPT</h3><p>Settings &rarr; Connectors &rarr; Advanced &rarr; enable Developer mode, then create a connector with the URL (no authentication).</p></div>
-  </div>
 </div></section>
 
 <section id="try"><div class="container">
