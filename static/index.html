@@ -103,9 +103,12 @@ input.codes{flex:1;min-width:260px}
 .tile .add{margin-top:12px;padding:6px 16px;font-size:.85rem}
 .tile .add[disabled]{opacity:.6;cursor:default}
 .try-grid .card>p{margin-top:4px}
-.xb-logo{display:block;aspect-ratio:500/155;-webkit-mask:url(/exoblock_logo.png) center/contain no-repeat;mask:url(/exoblock_logo.png) center/contain no-repeat}
-.brand-logo{width:150px;margin-bottom:20px;background:var(--bg-dark)}
-.foot-brand{width:110px;align-self:flex-start;background:var(--on-dark-muted)}
+.brand-logo{display:block;width:150px;height:auto;margin-bottom:20px}
+.foot-brand{background:#fff;border-radius:10px;padding:8px 14px;align-self:flex-start}
+.foot-brand img{display:block;width:110px;height:auto}
+.try-grid form{display:grid;grid-template-columns:1fr 200px 130px;gap:12px}
+.try-grid form input,.try-grid form select,.try-grid form .btn{width:100%;min-width:0;justify-content:center}
+@media(max-width:640px){.try-grid form{grid-template-columns:1fr}}
 .offer .grid{margin-top:32px}
 .offer .card h3{font-size:1.15rem}
 .offer .closing{margin-top:28px;font-family:var(--font-heading);font-size:1.25rem;font-style:italic;color:var(--text);max-width:720px}
@@ -186,8 +189,8 @@ input.codes{flex:1;min-width:260px}
   </div>
 </div></section>
 
-<section class="offer" id="work-with-us"><div class="container">
-  <span class="xb-logo brand-logo" role="img" aria-label="Exoblock"></span>
+<section class="offer alt" id="work-with-us"><div class="container">
+  <img class="brand-logo" src="/exoblock_logo.png" alt="Exoblock" width="500" height="155" loading="lazy">
   <span class="eyebrow">Built by Exoblock B.V. &middot; Five-Day Sprint</span>
   <h2>Monday at your table. Friday, a working demo.</h2>
   <p class="lead">This assistant shows how we work. We can build something like it for your business, starting with the process that hurts most.</p>
@@ -206,7 +209,7 @@ input.codes{flex:1;min-width:260px}
 </div></section>
 
 <footer><div class="container foot">
-  <span class="xb-logo foot-brand" role="img" aria-label="Exoblock"></span>
+  <div class="foot-brand"><img src="/exoblock_logo.png" alt="Exoblock" width="500" height="155" loading="lazy"></div>
   <div>Built by Robert van M&ouml;lken, Exoblock B.V. Unofficial community tool, not affiliated with or endorsed by Oracle.<br>Data is a snapshot; always confirm in the official Oracle catalog.</div>
   <div><a href="/openapi.yaml">OpenAPI</a> &middot; <a href="/health">Health</a> &middot; <a href="/catalog/meta">Catalog metadata</a></div>
 </div></footer>
