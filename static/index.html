@@ -92,6 +92,8 @@ input[type=search]{flex:1;min-width:220px}
 ul.prompts{margin:14px 0 0 1.2rem;color:var(--muted)}ul.prompts li{margin-bottom:6px}
 footer{background:var(--bg-dark-3);color:var(--on-dark-muted);padding:50px 0;font-size:.9rem}
 footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
+.foot-text p+p{margin-top:8px}
+.foot-text p:first-child{color:#fff;font-weight:600}
 .foot{display:grid;grid-template-columns:auto 1fr auto;gap:40px;align-items:start}
 @media(max-width:760px){.foot{grid-template-columns:1fr;gap:24px}}
 .verdict{display:inline-block;border-radius:999px;padding:2px 12px;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
@@ -209,7 +211,11 @@ input.codes{flex:1;min-width:260px}
 
 <footer><div class="container foot">
   <div class="foot-brand"><img src="/exoblock_logo.png" alt="Exoblock" width="500" height="155" loading="lazy"></div>
-  <div>Built by Robert van M&ouml;lken, Exoblock B.V. Unofficial community tool, not affiliated with or endorsed by Oracle.<br>Data is a snapshot; always confirm in the official Oracle catalog.</div>
+  <div class="foot-text">
+    <p>Built by Robert van M&ouml;lken, Exoblock B.V.</p>
+    <p>Unofficial community tool. Not affiliated with, endorsed or sponsored by Oracle. Oracle and Oracle AI World are trademarks of Oracle and/or its affiliates.</p>
+    <p>Session data is a snapshot, and rooms and walking times are estimates, provided as is. Always confirm times, rooms and availability in the official Oracle catalog and event app.</p>
+  </div>
   <div><a href="/openapi.yaml">OpenAPI</a> &middot; <a href="/health">Health</a> &middot; <a href="/catalog/meta">Catalog metadata</a></div>
 </div></footer>
 <script>
