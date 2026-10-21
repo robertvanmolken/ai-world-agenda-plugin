@@ -313,7 +313,7 @@ $("chk").onsubmit = async e => {
     else parts.push((c.conflicts || []).length ? (c.conflicts.length + " conflict(s) found.") : "No overlaps found.");
     $("cstatus").textContent = parts.join(" ");
     out.forEach(t => $("cresults").appendChild(hop(t)));
-    $("cfine").textContent = c.disclaimer || "Walking times are estimates. Always check the official Oracle app.";
+    $("cfine").textContent = "Unofficial snapshot. Rooms come from the catalog and walking times are rough estimates, so verify times, rooms and availability in the official Oracle catalog and the event app.";
   } catch (err) { $("cstatus").textContent = "Check failed. Please try again."; }
 };
 </script>
