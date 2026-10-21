@@ -62,6 +62,13 @@ class VenueTests(unittest.TestCase):
         self.assertGreater(lo1, lo)
         self.assertGreater(hi1, hi)
 
+    def test_hub_theaters_are_on_level_two(self):
+        theaters = [s for s in sessions() if "theater" in (s.get("room") or "").lower()]
+        self.assertTrue(theaters)
+        self.assertTrue(all(s["level"] == 2 for s in theaters))
+        found = {s["code"] for s in search_sessions(sessions(), {"level": "2", "limit": 1000})}
+        self.assertIn(theaters[0]["code"], found)
+
     def test_known_conflict_pair(self):
         t = assess_transition(_s("LRN2267"), _s("MET2649"))
         self.assertEqual(t["verdict"], "overlap")

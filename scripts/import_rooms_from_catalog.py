@@ -15,10 +15,11 @@ DEFAULT_HTML = ROOT / "data" / "Session Catalog AI World.html"
 FIELDS = ["code", "room", "area", "level", "location", "source", "capturedAt"]
 HUB = "Oracle AI World Hub"
 CSC = "Customer Success Central"
+HUB_LEVEL = "2"  # all Hub theaters are on Level 2 (Level 1 is used for breakfast and lunch)
 
 
 def parse_location(text: str) -> dict[str, str]:
-    """Split a catalog room line into room, area and level (level is empty for Hub theaters)."""
+    """Split a catalog room line into room, area and level. The Hub and its theaters are on Level 2."""
     loc = re.sub(r"\s+", " ", text).strip()
     low = loc.lower()
     parts = [p.strip() for p in loc.split(",")]
@@ -27,11 +28,11 @@ def parse_location(text: str) -> dict[str, str]:
         level = parts[1][-1]
     head = parts[0]
     if "customer success" in low:
-        return {"room": head, "area": CSC, "level": "", "location": loc}
+        return {"room": head, "area": CSC, "level": HUB_LEVEL, "location": loc}
     if "hub" in low:
         if re.fullmatch(r"(?i)(oracle )?(ai world )?hub", head) or "foyer" in low:
-            return {"room": "Hub", "area": HUB, "level": "2" if level else "", "location": loc}
-        return {"room": head, "area": HUB, "level": "", "location": loc}
+            return {"room": "Hub", "area": HUB, "level": HUB_LEVEL, "location": loc}
+        return {"room": head, "area": HUB, "level": HUB_LEVEL, "location": loc}
     m = re.fullmatch(r"(Venetian Ballroom|Hall) (\S+)", head)
     if m:
         return {"room": m.group(2), "area": m.group(1), "level": level, "location": loc}
