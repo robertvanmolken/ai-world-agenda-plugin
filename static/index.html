@@ -99,8 +99,9 @@ footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
 .hop p{color:var(--muted);font-size:.92rem;margin-top:4px}
 .fine{margin-top:16px;font-size:.85rem;color:var(--muted)}
 input.codes{flex:1;min-width:260px}
-.try-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:24px;margin-top:28px;align-items:start}
-@media(max-width:480px){.try-grid{grid-template-columns:1fr}}
+.try-grid{display:grid;grid-template-columns:1fr;gap:24px;margin-top:28px}
+.tile .add{margin-top:12px;padding:6px 16px;font-size:.85rem}
+.tile .add[disabled]{opacity:.6;cursor:default}
 .try-grid .card>p{margin-top:4px}
 .brand-logo{width:150px;height:auto;margin-bottom:20px}
 .foot-brand{background:#fff;border-radius:10px;padding:8px 14px;align-self:flex-start}
@@ -157,7 +158,7 @@ input.codes{flex:1;min-width:260px}
   <p class="lead">Search the catalog snapshot, or check whether you can get from one session to the next.</p>
   <div class="try-grid">
     <div class="card" id="search">
-      <h3>Find sessions</h3>
+      <h3>1. Find sessions</h3>
       <form id="f">
         <input type="search" id="q" placeholder="e.g. AI agents, integration, MCP" aria-label="Search sessions">
         <select id="d" aria-label="Day"><option value="">All days</option></select>
@@ -167,8 +168,8 @@ input.codes{flex:1;min-width:260px}
       <div id="results"></div>
     </div>
     <div class="card" id="check">
-      <h3>Can I make it?</h3>
-      <p>Enter two or more session codes. We check overlaps and estimate the walk between sessions on the same day.</p>
+      <h3>2. Can I make it?</h3>
+      <p>Use "Add to schedule check" on a session above, or type two or more session codes. We check overlaps and estimate the walk between sessions on the same day.</p>
       <form id="chk">
         <input type="text" id="codes" class="codes" placeholder="e.g. LRN1128, LRN2162" aria-label="Session codes" autocomplete="off">
         <select id="gap" aria-label="Extra buffer between sessions">
@@ -240,6 +241,19 @@ function tile(s) {
   if (where) t.appendChild(el("div", "when", "Room: " + where));
   if (s.description) t.appendChild(el("p", "desc", s.description));
   const tags = el("div"); (s.areasOfInterest || []).slice(0, 5).forEach(a => tags.appendChild(el("span", "tag", a))); t.appendChild(tags);
+  if (s.code) {
+    const add = el("button", "btn btn-ghost add", "Add to schedule check"); add.type = "button";
+    add.onclick = ev => {
+      ev.stopPropagation();
+      const have = ($("codes").value.toUpperCase().match(/[A-Z]{2,5}\d{3,5}/g) || []);
+      if (!have.includes(s.code.toUpperCase())) have.push(s.code.toUpperCase());
+      $("codes").value = have.join(", ");
+      add.textContent = "Added \u2713";
+      $("chk").scrollIntoView({behavior: "smooth", block: "center"});
+    };
+    add.onkeydown = ev => ev.stopPropagation();
+    t.appendChild(add);
+  }
   const toggle = () => t.classList.toggle("open");
   t.onclick = toggle; t.onkeydown = e => { if (e.key === "Enter") toggle(); };
   return t;
