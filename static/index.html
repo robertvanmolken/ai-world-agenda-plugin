@@ -99,6 +99,9 @@ footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
 .hop p{color:var(--muted);font-size:.92rem;margin-top:4px}
 .fine{margin-top:16px;font-size:.85rem;color:var(--muted)}
 input.codes{flex:1;min-width:260px}
+.try-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:24px;margin-top:28px;align-items:start}
+@media(max-width:480px){.try-grid{grid-template-columns:1fr}}
+.try-grid .card>p{margin-top:4px}
 .offer .grid{margin-top:32px}
 .offer .card h3{font-size:1.15rem}
 .offer .closing{margin-top:28px;font-family:var(--font-heading);font-size:1.25rem;font-style:italic;color:var(--text);max-width:720px}
@@ -110,7 +113,7 @@ input.codes{flex:1;min-width:260px}
 <body>
 <header class="site-header"><div class="container">
   <a class="logo" href="#top"><img src="/icon-192.png" alt="" onerror="this.style.display='none'"><span>AI World Agenda Assistant</span></a>
-  <nav class="main-nav"><a href="#connect">Connect</a><a href="#search">Search</a><a href="#check">Check schedule</a><a href="#work-with-us">Work with us</a></nav>
+  <nav class="main-nav"><a href="#connect">How to connect</a><a href="#try">Try it</a><a href="#work-with-us">Work with us</a></nav>
   <a class="btn btn-primary" href="#connect" style="padding:10px 22px">Connect</a>
 </div></header>
 
@@ -119,18 +122,18 @@ input.codes{flex:1;min-width:260px}
   <h1>Plan your Oracle AI World<br>with an <em>AI assistant</em>.</h1>
   <p class="lead">Search sessions, spot schedule conflicts and build a personal agenda for Oracle AI World 2026, straight from Claude or ChatGPT.</p>
   <div class="hero-actions">
-    <a class="btn btn-primary" href="#connect">Connect to your AI &darr;</a>
-    <a class="btn btn-ghost" href="#search">Search sessions</a>
+    <a class="btn btn-primary" href="#connect">Add to your AI &darr;</a>
+    <a class="btn btn-ghost" href="#try">Or try it right here</a>
   </div>
-  <div class="notice"><strong>Not affiliated with or endorsed by Oracle.</strong> The catalog is a snapshot, so verify times, rooms and availability in the official Oracle catalog.</div>
+  <div class="copy-row"><code id="url"></code><button class="btn btn-ghost" id="copy" type="button" style="padding:8px 18px">Copy</button></div>
+  <div class="notice"><strong>Not affiliated with or endorsed by Oracle.</strong> The catalog is a snapshot, so verify details in the official Oracle catalog.</div>
   <p class="hero-meta" id="meta">Loading catalog info&hellip;</p>
 </div></section>
 
 <section class="alt" id="connect"><div class="container">
   <span class="eyebrow">Connect</span>
-  <h2>Use it with your AI assistant</h2>
-  <p class="lead">Add this MCP connector URL. No sign-in is needed, and every tool is read-only.</p>
-  <div class="copy-row"><code id="url"></code><button class="btn btn-ghost" id="copy" type="button" style="padding:8px 18px">Copy</button></div>
+  <h2>How to add it</h2>
+  <p class="lead">Paste the connector URL from the top of the page. No sign-in is needed, and every tool is read-only.</p>
   <div class="grid">
     <div class="card"><h3>Claude.ai</h3><p>Settings &rarr; Connectors &rarr; Add custom connector, then paste the URL.</p></div>
     <div class="card"><h3>Claude Code</h3><p><code id="cc"></code></p></div>
@@ -145,35 +148,38 @@ input.codes{flex:1;min-width:260px}
   </ul>
 </div></section>
 
-<section id="search"><div class="container">
-  <span class="eyebrow">Search</span>
-  <h2>Find sessions</h2>
-  <p class="lead">Search the catalog snapshot by topic and day.</p>
-  <form id="f">
-    <input type="search" id="q" placeholder="e.g. AI agents, integration, MCP" aria-label="Search sessions">
-    <select id="d" aria-label="Day"><option value="">All days</option></select>
-    <button class="btn btn-primary" type="submit">Search</button>
-  </form>
-  <div id="status" class="status" aria-live="polite"></div>
-  <div id="results"></div>
-</div></section>
-
-<section class="alt" id="check"><div class="container">
-  <span class="eyebrow">Schedule check</span>
-  <h2>Can I make it?</h2>
-  <p class="lead">Enter two or more session codes. We check overlaps and estimate the walk between sessions on the same day.</p>
-  <form id="chk">
-    <input type="text" id="codes" class="codes" placeholder="e.g. LRN1128, LRN2162" aria-label="Session codes" autocomplete="off">
-    <select id="gap" aria-label="Extra buffer between sessions">
-      <option value="0">No extra buffer</option>
-      <option value="5">5 min buffer</option>
-      <option value="10">10 min buffer</option>
-    </select>
-    <button class="btn btn-primary" type="submit">Check</button>
-  </form>
-  <div id="cstatus" class="status" aria-live="polite"></div>
-  <div id="cresults"></div>
-  <p class="fine" id="cfine"></p>
+<section id="try"><div class="container">
+  <span class="eyebrow">Try it</span>
+  <h2>Try it before you connect</h2>
+  <p class="lead">Search the catalog snapshot, or check whether you can get from one session to the next.</p>
+  <div class="try-grid">
+    <div class="card" id="search">
+      <h3>Find sessions</h3>
+      <form id="f">
+        <input type="search" id="q" placeholder="e.g. AI agents, integration, MCP" aria-label="Search sessions">
+        <select id="d" aria-label="Day"><option value="">All days</option></select>
+        <button class="btn btn-primary" type="submit">Search</button>
+      </form>
+      <div id="status" class="status" aria-live="polite"></div>
+      <div id="results"></div>
+    </div>
+    <div class="card" id="check">
+      <h3>Can I make it?</h3>
+      <p>Enter two or more session codes. We check overlaps and estimate the walk between sessions on the same day.</p>
+      <form id="chk">
+        <input type="text" id="codes" class="codes" placeholder="e.g. LRN1128, LRN2162" aria-label="Session codes" autocomplete="off">
+        <select id="gap" aria-label="Extra buffer between sessions">
+          <option value="0">No extra buffer</option>
+          <option value="5">5 min buffer</option>
+          <option value="10">10 min buffer</option>
+        </select>
+        <button class="btn btn-primary" type="submit">Check</button>
+      </form>
+      <div id="cstatus" class="status" aria-live="polite"></div>
+      <div id="cresults"></div>
+      <p class="fine" id="cfine"></p>
+    </div>
+  </div>
 </div></section>
 
 <section class="offer" id="work-with-us"><div class="container">
