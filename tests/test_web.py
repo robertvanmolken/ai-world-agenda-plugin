@@ -29,6 +29,8 @@ class WebTest(unittest.TestCase):
         self.assertIn("https://www.linkedin.com/company/exoblock", r)
         self.assertIn("mailto:hello@exoblock.it?subject=Five-Day%20Sprint%3A%20introduction&body=", r)
         self.assertIn("Five-Day Sprint", r)
+        cta = r[r.index('class="cta"'):r.index("separate agreement")]
+        self.assertEqual(3, cta.count("<svg"))
         self.assertIn("https://calendly.com/exoblock/meet-at-ai-world", r)
         self.assertNotIn("github.com/robertvanmolken\"", r)
         self.assertIn("not affiliated with or endorsed by Oracle", r)
