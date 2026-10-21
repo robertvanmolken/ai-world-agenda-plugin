@@ -75,6 +75,7 @@ _ICONS = {
     "/og-image.png": "og-image.png",
     "/favicon.png": "favicon.png",
     "/favicon.ico": "favicon.png",
+    "/exoblock_logo.png": "exoblock_logo.png",
 }
 
 
