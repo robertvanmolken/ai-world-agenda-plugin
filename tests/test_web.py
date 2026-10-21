@@ -21,6 +21,13 @@ class WebTest(unittest.TestCase):
         self.assertIn('id="f"', r.text)
         self.assertIn('id="chk"', r.text)
 
+    def test_offer_section(self):
+        r = self.client.get("/").text
+        self.assertIn('id="work-with-us"', r)
+        self.assertIn("Monday at your table. Friday, a working demo.", r)
+        self.assertIn("Built by Exoblock B.V.", r)
+        self.assertIn("not affiliated with or endorsed by Oracle", r)
+
     def test_icons_served_but_not_original(self):
         for p in ["/icon.png", "/icon-192.png", "/favicon.ico", "/logo.png"]:
             r = self.client.get(p)

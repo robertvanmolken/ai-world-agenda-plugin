@@ -99,12 +99,17 @@ footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
 .hop p{color:var(--muted);font-size:.92rem;margin-top:4px}
 .fine{margin-top:16px;font-size:.85rem;color:var(--muted)}
 input.codes{flex:1;min-width:260px}
+.offer .grid{margin-top:32px}
+.offer .card h3{font-size:1.15rem}
+.offer .closing{margin-top:28px;font-family:var(--font-heading);font-size:1.25rem;font-style:italic;color:var(--text);max-width:720px}
+.offer .cta{margin-top:26px}
+.offer .small{margin-top:12px;font-size:.85rem;color:var(--muted)}
 </style>
 </head>
 <body>
 <header class="site-header"><div class="container">
   <a class="logo" href="#top"><img src="/icon-192.png" alt="" onerror="this.style.display='none'"><span>AI World Agenda Assistant</span></a>
-  <nav class="main-nav"><a href="#connect">Connect</a><a href="#search">Search</a><a href="#check">Check schedule</a></nav>
+  <nav class="main-nav"><a href="#connect">Connect</a><a href="#search">Search</a><a href="#check">Check schedule</a><a href="#work-with-us">Work with us</a></nav>
   <a class="btn btn-primary" href="#connect" style="padding:10px 22px">Connect</a>
 </div></header>
 
@@ -170,8 +175,22 @@ input.codes{flex:1;min-width:260px}
   <p class="fine" id="cfine"></p>
 </div></section>
 
+<section class="offer" id="work-with-us"><div class="container">
+  <span class="eyebrow">Built by Exoblock B.V.</span>
+  <h2>Monday at your table. Friday, a working demo.</h2>
+  <p class="lead">This assistant shows how we work. We can build something like it for your business, starting with the process that hurts most.</p>
+  <div class="grid">
+    <div class="card"><h3>Talk to the developer, not a middleman</h3><p>The person who sits down with you on Monday writes the code on Tuesday. Nothing gets lost between your problem and the solution.</p></div>
+    <div class="card"><h3>AI agents do the routine work</h3><p>Under our supervision, AI agents take care of the repetitive coding. That leaves us time to understand your processes and build the integrations.</p></div>
+    <div class="card"><h3>Start with one process, not a whole system</h3><p>We pick the part that causes the most trouble. By Friday you see it running on your own data. After that we grow it step by step until it is live.</p></div>
+  </div>
+  <p class="closing">Something small in production next month beats a complete system in six months.</p>
+  <div class="cta"><a class="btn btn-primary" id="contact" href="https://github.com/robertvanmolken" rel="noopener">Talk to us</a></div>
+  <p class="small">Customer solutions are built under a separate agreement.</p>
+</div></section>
+
 <footer><div class="container foot">
-  <div>Unofficial community tool. Not affiliated with or endorsed by Oracle.<br>Data is a snapshot; always confirm in the official Oracle catalog.</div>
+  <div>Built by Exoblock B.V. Unofficial community tool, not affiliated with or endorsed by Oracle.<br>Data is a snapshot; always confirm in the official Oracle catalog.</div>
   <div><a href="/openapi.yaml">OpenAPI</a> &middot; <a href="/health">Health</a> &middot; <a href="/catalog/meta">Catalog metadata</a></div>
 </div></footer>
 <script>

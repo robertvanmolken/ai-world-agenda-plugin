@@ -221,6 +221,18 @@ This project deliberately:
 Add an authenticated **admin-only upload endpoint** that accepts a newly saved HTML snapshot, sanitizes it, rebuilds `sessions.json`, and discards the raw HTML. This would make refreshing the catalog easy without solving Oracle SSO.
 
 
+## Built by Exoblock B.V.
+
+**Monday at your table. Friday, a working demo.**
+
+This assistant shows how we work. We can build something like it for your business, starting with the process that hurts most.
+
+- **Talk to the developer, not a middleman.** The person who sits down with you on Monday writes the code on Tuesday. Nothing gets lost between your problem and the solution.
+- **AI agents do the routine work.** Under our supervision, AI agents take care of the repetitive coding. That leaves us time to understand your processes and build the integrations.
+- **Start with one process, not a whole system.** We pick the part that causes the most trouble. By Friday you see it running on your own data. After that we grow it step by step until it is live.
+
+Something small in production next month beats a complete system in six months. Customer solutions are built under a separate agreement.
+
 ## License
 
 The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, modify and share it for noncommercial purposes. Commercial use needs permission from the author.
