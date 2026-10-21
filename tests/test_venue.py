@@ -35,23 +35,6 @@ class VenueTests(unittest.TestCase):
         self.assertLessEqual(_walk("hall_a", "titian"), cap)
         self.assertLessEqual(_walk("hall_g", "marco_polo"), cap)
 
-    def test_not_in_app_sessions_are_flagged(self):
-        gone = _s("LRN6071")
-        self.assertIs(gone.get("inApp"), False)
-        self.assertIn("mobile app", gone["appNote"])
-        self.assertNotIn("inApp", _s("LRN6072"))
-        result = assess_transition(_s("LRN2418"), gone)
-        self.assertEqual(result["verdict"], "unknown")
-        self.assertIn("LRN6071", result["reason"])
-
-    def test_time_overrides_applied(self):
-        s = _s("LRN6072")
-        self.assertTrue(s["timeCorrected"])
-        self.assertEqual((s["date"], s["startTime"], s["endTime"]), ("2026-10-28", "09:00", "09:45"))
-        self.assertEqual(s["dateLabel"], "Wednesday, Oct 28")
-        self.assertEqual(_s("LRN1381")["date"], "2026-10-26")
-        self.assertEqual(_s("LRN6060")["startTime"], "10:30")
-
     def test_no_room_clashes(self):
         from scripts.validate_rooms import validate
 

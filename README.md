@@ -112,10 +112,10 @@ The parser extracts only catalog tiles and ignores Oracle SSO/account metadata o
 
 ## Rooms and "can I make it?" checks
 
-Rooms come from the Oracle AI World mobile app, not from the catalog HTML (the catalog has no room data).
-They are stored separately in `data/rooms.csv` (`code,room,area,level,location,source,capturedAt`) and merged
-into the sessions by code on load, so refreshing the catalog never overwrites them.
-Rooms are from the mobile app as of 2026-10-13 and cover only the sessions listed in that file; others show no room yet.
+Rooms come from the room line of each tile in the saved catalog HTML (for example "Titian 2204, Level 2").
+`python scripts/import_rooms_from_catalog.py` extracts them into `data/rooms.csv` (`code,room,area,level,location,source,capturedAt`),
+which is merged into the sessions by code on load. After saving a new catalog, run `python -m app.catalog_parser "data/Session Catalog AI World.html"`,
+then the room import, then `python scripts/validate_rooms.py`.
 
 - `data/venue.json` models the Venetian Expo (levels 1-5) from the [official floor plans](https://www.venetianlasvegas.com/meetings/planning/spaces/expo-halls/expo-map-floor-plan.html). The map images themselves are not stored in the repo.
 - The maps have no scale, so walking minutes are **rough estimates**, tuned in `venue.json` (`model` and each zone's `x`).
@@ -130,7 +130,6 @@ To add rooms: append rows to `data/rooms.csv`, then run `python scripts/validate
 
 - MCP tool `plan_strict_day` (REST `POST /agenda/plan`) picks the best-scoring sessions for your topics so that no two overlap and every move can be walked within `late_tolerance_minutes` (default 2). `lateness_basis` is `worst` (safe, default) or `best` (you hurry). It adds a 30-minute lunch in Hall G (window 12:00-14:00) and two 20-minute networking blocks in the Hub, and returns the moves (gap, walking range, minutes late), the best sessions it dropped with reasons, and warnings. The keynote and Hub talks are options (`include_keynote`, `include_hub_talks`).
 - MCP tool `check_walk(from_place, to_place, gap_minutes)` checks a custom stop such as lunch. `check_transition` also returns `lateIfWalking`.
-- Sessions in `data/not_in_app.csv` (not found in the mobile app) are flagged `inApp: false` and never planned. `data/session_overrides.csv` corrects dates and times taken from the app.
 - All walking times are estimates; the Hub location is unconfirmed.
 
 ## Connecting it to Claude and ChatGPT (MCP, recommended)
@@ -226,6 +225,6 @@ Add an authenticated **admin-only upload endpoint** that accepts a newly saved H
 
 The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, modify and share it for noncommercial purposes. Commercial use needs permission from the author.
 
-The license covers the code and my own data files (`venue.json`, `not_in_app.csv`, `session_overrides.csv`). Session information in `data/sessions.json` and the room assignments in `data/rooms.csv` come from Oracle's public catalog and mobile app. Oracle's content is not covered by this license. The saved catalog pages and screenshots I used as sources are not published. This is an unofficial community project and is not affiliated with Oracle.
+The license covers the code and my own data file (`venue.json`). Session information in `data/sessions.json` and the room assignments in `data/rooms.csv` come from Oracle's public catalog. Oracle's content is not covered by this license. The saved catalog pages and screenshots I used as sources are not published. This is an unofficial community project and is not affiliated with Oracle.
 
 Author: Robert van Molken, Senior AI Solution Architect, Exoblock B.V.

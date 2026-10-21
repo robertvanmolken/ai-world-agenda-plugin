@@ -34,7 +34,7 @@ def _build_nodes(sessions, date, topics, include_hub_talks, include_keynote, lun
     nodes: list[dict[str, Any]] = []
     candidates: list[dict[str, Any]] = []
     for s in sessions:
-        if s.get("date") != date or s.get("inApp") is False or not (s.get("startTime") and s.get("endTime")):
+        if s.get("date") != date or not (s.get("startTime") and s.get("endTime")):
             continue
         st = s.get("sessionType") or ""
         is_key = st == "Keynote"
@@ -194,5 +194,5 @@ def plan_day(
                   "lunchMinutes": lunch_minutes, "networkingBlocks": networking_blocks,
                   "networkingMinutes": networking_minutes, "networkingWindow": list(networking_window)},
         "schedule": schedule, "moves": moves, "dropped": dropped, "warnings": warnings,
-        "note": "Walking times are rough estimates. Sessions marked inApp=false are excluded.",
+        "note": "Walking times are rough estimates.",
     }

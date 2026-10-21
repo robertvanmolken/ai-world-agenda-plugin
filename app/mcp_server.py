@@ -19,17 +19,7 @@ from starlette.responses import JSONResponse, Response
 
 from .catalog import find_conflicts, get_by_code, load_catalog, optimize_agenda, search_sessions
 from .planner import plan_day
-from .venue import (
-    apply_overrides,
-    assess_transition,
-    check_move,
-    load_not_in_app,
-    load_overrides,
-    load_rooms,
-    mark_not_in_app,
-    merge_rooms,
-    venue,
-)
+from .venue import assess_transition, check_move, load_rooms, merge_rooms, venue
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_FILE = Path(os.environ.get("AI_WORLD_DATA", ROOT / "data" / "sessions.json"))
@@ -43,9 +33,7 @@ def catalog() -> dict[str, Any]:
     global _catalog
     if _catalog is None:
         _catalog = load_catalog(DATA_FILE)
-        apply_overrides(_catalog["sessions"], load_overrides())
         merge_rooms(_catalog["sessions"], load_rooms())
-        mark_not_in_app(_catalog["sessions"], load_not_in_app())
     return _catalog
 
 
@@ -67,8 +55,8 @@ def _security() -> TransportSecuritySettings:
 
 
 DISCLAIMER = (
-    "Unofficial snapshot of the Oracle AI World 2026 session catalog (captured 2026-10-13). Rooms come from the "
-    "mobile app and walking times are rough estimates, so verify times, rooms and availability in the official "
+    "Unofficial snapshot of the Oracle AI World 2026 session catalog (captured 2026-10-21). Rooms come from the "
+    "catalog and walking times are rough estimates, so verify times, rooms and availability in the official "
     "Oracle catalog and the event app before relying on them. Always show this disclaimer to the user."
 )
 
@@ -180,7 +168,7 @@ def plan_strict_day(
 ) -> dict[str, Any]:
     """Plan one day with no overlaps and a limit on how late you may arrive (the best plan by topic score).
     Includes a lunch block in Hall G and networking blocks in the Hub. lateness_basis is 'worst' (safe) or
-    'best' (hurrying) walking time. Sessions not in the mobile app are excluded. HH:MM times; estimates only.
+    'best' (hurrying) walking time. HH:MM times; estimates only.
     Returns schedule, moves (gap, walking range, lateIfWalking), dropped sessions with reasons, and warnings."""
     return with_disclaimer(plan_day(
         sessions(), date, topics, late_tolerance_minutes, lateness_basis, include_hub_talks, include_keynote,

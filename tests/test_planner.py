@@ -40,10 +40,6 @@ class PlannerTests(unittest.TestCase):
         self.assertEqual(types.count("lunch"), 1)
         self.assertEqual(types.count("networking"), 2)
 
-    def test_strict_plan_excludes_not_in_app(self):
-        r = plan_day(sessions(), MON, ["warehouse", "agents"])
-        self.assertNotIn("THR1579", {x["code"] for x in r["schedule"]})
-
     def test_zero_tolerance_is_stricter(self):
         loose = plan_day(sessions(), MON, ["agent"], late_tolerance_minutes=10)
         tight = plan_day(sessions(), MON, ["agent"], late_tolerance_minutes=0)
