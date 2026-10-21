@@ -233,6 +233,8 @@ This assistant shows how we work. We can build something like it for your busine
 
 Something small in production next month beats a complete system in six months. Customer solutions are built under a separate agreement.
 
+Follow Exoblock B.V. on [LinkedIn](https://www.linkedin.com/company/exoblock).
+
 ## License
 
 The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, modify and share it for noncommercial purposes. Commercial use needs permission from the author.

@@ -26,6 +26,8 @@ class WebTest(unittest.TestCase):
         self.assertIn('id="work-with-us"', r)
         self.assertIn("Monday at your table. Friday, a working demo.", r)
         self.assertIn("Built by Exoblock B.V.", r)
+        self.assertIn("https://www.linkedin.com/company/exoblock", r)
+        self.assertNotIn("github.com/robertvanmolken\"", r)
         self.assertIn("not affiliated with or endorsed by Oracle", r)
 
     def test_icons_served_but_not_original(self):
