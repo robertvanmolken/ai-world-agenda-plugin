@@ -45,7 +45,7 @@ a{color:var(--accent);text-decoration:none}a:hover{color:var(--accent-hover)}
 h1,h2,h3{font-family:var(--font-heading);font-weight:600;line-height:1.15;letter-spacing:-.01em}
 h1{font-size:clamp(2.2rem,5vw,3.8rem)}h2{font-size:clamp(1.8rem,3.4vw,2.6rem);margin-bottom:.6rem}h3{font-size:1.3rem;margin-bottom:.5rem}
 .container{max-width:var(--max-w);margin:0 auto;padding:0 24px}
-section{padding:80px 0}
+section{padding:48px 0}
 .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);background:var(--accent-subtle);border:1px solid var(--accent-soft);border-radius:999px;padding:6px 16px;margin-bottom:22px}
 .eyebrow.on-dark{color:var(--link-on-dark);background:rgba(255,255,255,.06);border-color:var(--border-dark)}
 .lead{font-size:1.15rem;color:var(--muted);max-width:640px}
@@ -63,7 +63,7 @@ section{padding:80px 0}
 .logo:hover{color:var(--text)}.logo img{height:44px;width:44px;border-radius:10px}
 .main-nav{display:flex;gap:28px}.main-nav a{color:var(--muted);font-weight:600;font-size:.95rem}.main-nav a:hover{color:var(--accent)}
 @media(max-width:760px){.main-nav{display:none}.logo span{font-size:1rem}}
-.hero{background-color:var(--bg-dark);background-image:linear-gradient(180deg,var(--bg-dark),var(--bg-dark-3));color:var(--on-dark);padding:100px 0 90px}
+.hero{background-color:var(--bg-dark);background-image:linear-gradient(180deg,var(--bg-dark),var(--bg-dark-3));color:var(--on-dark);padding:72px 0 60px}
 .hero h1 em{color:var(--accent-bright);font-style:italic}
 .hero .lead{color:var(--on-dark-muted);margin-top:22px}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
@@ -103,9 +103,9 @@ input.codes{flex:1;min-width:260px}
 .tile .add{margin-top:12px;padding:6px 16px;font-size:.85rem}
 .tile .add[disabled]{opacity:.6;cursor:default}
 .try-grid .card>p{margin-top:4px}
-.brand-logo{width:150px;height:auto;margin-bottom:20px}
-.foot-brand{background:#fff;border-radius:10px;padding:8px 14px;align-self:flex-start}
-.foot-brand img{width:110px;height:auto}
+.xb-logo{display:block;aspect-ratio:500/155;-webkit-mask:url(/exoblock_logo.png) center/contain no-repeat;mask:url(/exoblock_logo.png) center/contain no-repeat}
+.brand-logo{width:150px;margin-bottom:20px;background:var(--bg-dark)}
+.foot-brand{width:110px;align-self:flex-start;background:var(--on-dark-muted)}
 .offer .grid{margin-top:32px}
 .offer .card h3{font-size:1.15rem}
 .offer .closing{margin-top:28px;font-family:var(--font-heading);font-size:1.25rem;font-style:italic;color:var(--text);max-width:720px}
@@ -187,7 +187,7 @@ input.codes{flex:1;min-width:260px}
 </div></section>
 
 <section class="offer" id="work-with-us"><div class="container">
-  <img class="brand-logo" src="/exoblock_logo.png" alt="Exoblock" width="500" height="155" loading="lazy">
+  <span class="xb-logo brand-logo" role="img" aria-label="Exoblock"></span>
   <span class="eyebrow">Built by Exoblock B.V. &middot; Five-Day Sprint</span>
   <h2>Monday at your table. Friday, a working demo.</h2>
   <p class="lead">This assistant shows how we work. We can build something like it for your business, starting with the process that hurts most.</p>
@@ -206,7 +206,7 @@ input.codes{flex:1;min-width:260px}
 </div></section>
 
 <footer><div class="container foot">
-  <div class="foot-brand"><img src="/exoblock_logo.png" alt="Exoblock" width="500" height="155" loading="lazy"></div>
+  <span class="xb-logo foot-brand" role="img" aria-label="Exoblock"></span>
   <div>Built by Robert van M&ouml;lken, Exoblock B.V. Unofficial community tool, not affiliated with or endorsed by Oracle.<br>Data is a snapshot; always confirm in the official Oracle catalog.</div>
   <div><a href="/openapi.yaml">OpenAPI</a> &middot; <a href="/health">Health</a> &middot; <a href="/catalog/meta">Catalog metadata</a></div>
 </div></footer>
