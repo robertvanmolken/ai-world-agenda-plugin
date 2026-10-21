@@ -23,7 +23,7 @@ class WebTest(unittest.TestCase):
 
     def test_offer_section(self):
         r = self.client.get("/").text
-        self.assertIn('id="work-with-us"', r)
+        self.assertIn('id="lets-build-yours"', r)
         self.assertIn("Monday at your table. Friday, a working demo.", r)
         self.assertIn("Built by Exoblock B.V.", r)
         self.assertIn("https://www.linkedin.com/company/exoblock", r)
