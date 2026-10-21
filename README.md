@@ -123,7 +123,7 @@ then the room import, then `python scripts/validate_rooms.py`.
 - MCP tool `check_transition(code_a, code_b)` and REST `POST /sessions/transition` return `ok`, `tight`, `unlikely`, `overlap` or `unknown`. `find_session_conflicts` also returns `travel`, and `optimize_agenda` skips sessions that are unlikely to be reachable.
 - `search_sessions` accepts `room` and `level` filters.
 
-To add rooms: append rows to `data/rooms.csv`, then run `python scripts/validate_rooms.py` (add `--missing` to list sessions without a room).
+To fix a room by hand, edit `data/rooms.csv` (the next import overwrites it), then run `python scripts/validate_rooms.py` (add `--missing` to list sessions without a room).
 
 
 ## Strict day planning (no overlaps, limited lateness, lunch and networking)
