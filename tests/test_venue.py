@@ -42,10 +42,25 @@ class VenueTests(unittest.TestCase):
         self.assertEqual([e for e in errors if "same room" in e], [])
 
     def test_travel_ranges(self):
-        lo, hi = travel_minutes("veronese", "hub")
+        lo, hi = travel_minutes("marco_polo", "hub")  # Hub hall unknown, so a range from a Level 1 room
         self.assertLess(lo, hi)
         self.assertEqual(travel_minutes("hub", "hub")[0], travel_minutes("hub", "hub")[1])
         self.assertGreater(travel_minutes("veronese", "galileo")[0], travel_minutes("veronese", "bellini")[0])
+
+    def test_hub_is_on_level_two(self):
+        from app.venue import venue
+
+        hub = venue()["hub"]
+        self.assertEqual(hub["level"], 2)
+        for z in hub["candidates"]:
+            self.assertEqual(venue()["zones"][z]["level"], 2)
+        # Level 2 room: walk to the Hub is a same-level walk, so the range is tight.
+        lo, hi = travel_minutes("titian", "hub")
+        self.assertLessEqual(hi - lo, 1)
+        # Level 1 room: always includes a level change, so even the best case is longer.
+        lo1, hi1 = travel_minutes("marco_polo", "hub")
+        self.assertGreater(lo1, lo)
+        self.assertGreater(hi1, hi)
 
     def test_known_conflict_pair(self):
         t = assess_transition(_s("LRN2267"), _s("MET2649"))

@@ -119,7 +119,7 @@ then the room import, then `python scripts/validate_rooms.py`.
 
 - `data/venue.json` models the Venetian Expo (levels 1-5) from the [official floor plans](https://www.venetianlasvegas.com/meetings/planning/spaces/expo-halls/expo-map-floor-plan.html). The map images themselves are not stored in the repo.
 - The maps have no scale, so walking minutes are **rough estimates**, tuned in `venue.json` (`model` and each zone's `x`).
-- The Oracle AI World Hub location is unconfirmed (`hub.confirmed: false`), so Hub transitions return a best/worst range over Halls A-D and G. Set `confirmed` and the `candidates` list once it is known.
+- The Oracle AI World Hub is on Level 2 (from the catalog), but its exact hall is unconfirmed (`hub.confirmed: false`), so Hub transitions return a best/worst range over Halls A-D. Set `confirmed` and the `candidates` list once the hall is known.
 - MCP tool `check_transition(code_a, code_b)` and REST `POST /sessions/transition` return `ok`, `tight`, `unlikely`, `overlap` or `unknown`. `find_session_conflicts` also returns `travel`, and `optimize_agenda` skips sessions that are unlikely to be reachable.
 - `search_sessions` accepts `room` and `level` filters.
 
@@ -130,7 +130,7 @@ To fix a room by hand, edit `data/rooms.csv` (the next import overwrites it), th
 
 - MCP tool `plan_strict_day` (REST `POST /agenda/plan`) picks the best-scoring sessions for your topics so that no two overlap and every move can be walked within `late_tolerance_minutes` (default 2). `lateness_basis` is `worst` (safe, default) or `best` (you hurry). It adds a 30-minute lunch in Hall G (window 12:00-14:00) and two 20-minute networking blocks in the Hub, and returns the moves (gap, walking range, minutes late), the best sessions it dropped with reasons, and warnings. The keynote and Hub talks are options (`include_keynote`, `include_hub_talks`).
 - MCP tool `check_walk(from_place, to_place, gap_minutes)` checks a custom stop such as lunch. `check_transition` also returns `lateIfWalking`.
-- All walking times are estimates; the Hub location is unconfirmed.
+- All walking times are estimates; the Hub is on Level 2 but its exact hall is unconfirmed.
 
 ## Connecting it to Claude and ChatGPT (MCP, recommended)
 

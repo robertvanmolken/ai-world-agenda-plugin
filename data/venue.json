@@ -50,7 +50,8 @@
   "hub": {
     "name": "Oracle AI World Hub",
     "confirmed": false,
-    "note": "The app only says e.g. 'Theater 6, Oracle AI World Hub'. The exact hall is not known, so travel is computed as a range over all candidates.",
-    "candidates": ["hall_a", "hall_b", "hall_c", "hall_d", "hall_g"]
+    "level": 2,
+    "note": "The catalog places the Hub on Level 2 (for example 'Oracle AI World Hub, Level 2'), but the exact hall is not known, so travel is computed as a range over the Level 2 halls A-D.",
+    "candidates": ["hall_a", "hall_b", "hall_c", "hall_d"]
   }
 }

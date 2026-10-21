@@ -186,7 +186,7 @@ def plan_day(
     if placed < networking_blocks:
         warnings.append(f"Only {placed} of {networking_blocks} networking blocks fit.")
     if any(n["zone"] == "hub" for n in chain):
-        warnings.append("The Oracle AI World Hub location is unconfirmed, so Hub walking times are a range over Halls A-D and G.")
+        warnings.append("The Oracle AI World Hub is on Level 2, but its exact hall is unconfirmed, so Hub walking times are a range over Halls A-D.")
     return {
         "date": date,
         "rules": {"lateToleranceMinutes": late_tolerance_minutes, "latenessBasis": basis,

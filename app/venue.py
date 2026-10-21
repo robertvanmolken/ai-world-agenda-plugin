@@ -156,7 +156,7 @@ def check_move(from_place: str, to_place: str, gap_minutes: int) -> dict[str, An
     )
     out["verdict"] = "overlap" if gap_minutes < 0 else "ok" if hi <= gap_minutes else "tight" if lo <= gap_minutes else "unlikely"
     if "hub" in (za, zb):
-        out["note"] = "The Oracle AI World Hub location is unconfirmed, so this is a range over Halls A-D and G."
+        out["note"] = "The Oracle AI World Hub is on Level 2, but its exact hall is unconfirmed, so this is a range over Halls A-D."
     return out
 
 
@@ -197,5 +197,5 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
     out["lateIfWalking"] = late_minutes(gap, lo, hi)
     out["route"] = f"{_label(za)} -> {_label(zb)}" + (" (via escalator/elevator)" if len(levels) > 1 else "")
     if "hub" in (za, zb):
-        out["note"] = "The Oracle AI World Hub location is unconfirmed, so this is a range over Halls A-D and G."
+        out["note"] = "The Oracle AI World Hub is on Level 2, but its exact hall is unconfirmed, so this is a range over Halls A-D."
     return out
