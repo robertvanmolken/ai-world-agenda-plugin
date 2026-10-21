@@ -233,7 +233,7 @@ This assistant shows how we work. We can build something like it for your busine
 
 Something small in production next month beats a complete system in six months. Customer solutions are built under a separate agreement.
 
-Follow Exoblock B.V. on [LinkedIn](https://www.linkedin.com/company/exoblock).
+Contact: [hello@exoblock.it](mailto:hello@exoblock.it) or follow Exoblock B.V. on [LinkedIn](https://www.linkedin.com/company/exoblock).
 
 ## License
 
