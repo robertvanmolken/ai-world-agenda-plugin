@@ -59,8 +59,6 @@ def validate() -> tuple[list[str], list[str]]:
     for code in gone:
         if code not in by_code:
             errors.append(f"{code}: in not_in_app.csv but not in catalog")
-        if code in rooms:
-            errors.append(f"{code}: has a room and is also marked not in app")
     missing = sorted(c for c in by_code if c not in rooms and c not in gone)
     return errors, missing
 

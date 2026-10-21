@@ -69,8 +69,9 @@ class VenueTests(unittest.TestCase):
         self.assertEqual(t["verdict"], "overlap")
 
     def test_unknown_when_no_room(self):
-        other = next(s for s in sessions() if not s.get("room") and s.get("date") == "2026-10-26" and s.get("startTime"))
-        self.assertEqual(assess_transition(_s("LRN2267"), other)["verdict"] in {"unknown", "overlap"}, True)
+        a = _s("LRN2267")
+        no_room = {"code": "X1", "date": a["date"], "startTime": "23:00", "endTime": "23:45"}
+        self.assertEqual(assess_transition(a, no_room)["verdict"], "unknown")
 
     def test_conflicts_include_travel(self):
         res = find_conflicts(sessions(), ["LRN2267", "MET2649"])

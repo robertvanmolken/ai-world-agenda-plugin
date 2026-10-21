@@ -185,13 +185,8 @@ class CatalogHTMLParser(HTMLParser):
 
 def parse_catalog_html(path: str | Path) -> list[dict[str, Any]]:
     parser = CatalogHTMLParser()
-    with open(path, "r", encoding="utf-8", errors="replace") as f:
-        # Stream to avoid loading a potentially large SSO page into memory twice.
-        while True:
-            chunk = f.read(1024 * 512)
-            if not chunk:
-                break
-            parser.feed(chunk)
+    # Read the whole file: feeding it in chunks lost a session whose tile straddled a chunk boundary.
+    parser.feed(Path(path).read_text(encoding="utf-8", errors="replace"))
     parser.close()
     # Keep only actual sessions; malformed/navigation tiles have no title/date.
     return [s for s in parser.sessions if s.get("title") and s.get("date")]
