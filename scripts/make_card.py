@@ -150,43 +150,55 @@ def px_font(fn: Fonts, name: str, px: int, weight: int, fit: int | None = None, 
 
 
 def og_image(fn: Fonts) -> Image.Image:
-    """1200x630 share image (Slack, LinkedIn): the previous layout plus a scannable QR code on the right."""
+    """1200x630 share image (Slack, LinkedIn). Emblem, text and QR share one band (top T to bottom B),
+    centred on the canvas, with equal 60 px side margins."""
     img = Image.new("RGB", (1200, 630), BURGUNDY)
     d = ImageDraw.Draw(img)
-    emblem = Image.open(ROOT / "AI World Agenda Assistant Emblem.png").convert("RGB").resize((330, 330), Image.LANCZOS)
-    img.paste(emblem, (60, 150))
-    tx, width = 430, 430
-    y = 150
-    f1 = px_font(fn, "source-serif-4", 46, 600, width, "Oracle AI World 2026")
-    d.text((tx, y), "Oracle AI World 2026", font=f1, fill="#FFFFFF")
-    y += round(f1.size * 1.3)
-    f2 = px_font(fn, "source-serif-4", 60, 600, width, "Agenda Assistant")
-    d.text((tx, y), "Agenda Assistant", font=f2, fill=SOFT)
-    y += round(f2.size * 1.45)
-    f3 = px_font(fn, "plus-jakarta-sans", 24, 400)
+    T, B, M = 150, 480, 60
+    emblem = Image.open(ROOT / "AI World Agenda Assistant Emblem.png").convert("RGB").resize((B - T, B - T), Image.LANCZOS)
+    img.paste(emblem, (M, T))
+
+    # text column: first glyph top at T, tag bottom at B
+    tx, width = M + (B - T) + 40, 420
+
+    def top_at(text: str, font: ImageFont.FreeTypeFont, y: float) -> float:
+        return y - font.getbbox(text)[1]  # so the ink starts exactly at y
+
+    f1 = px_font(fn, "source-serif-4", 44, 600, width, "Oracle AI World 2026")
+    d.text((tx, top_at("Oracle AI World 2026", f1, T)), "Oracle AI World 2026", font=f1, fill="#FFFFFF")
+    y = T + round(f1.size * 1.25)
+    f2 = px_font(fn, "source-serif-4", 58, 600, width, "Agenda Assistant")
+    d.text((tx, top_at("Agenda Assistant", f2, y)), "Agenda Assistant", font=f2, fill=SOFT)
+    y += round(f2.size * 1.35)
+    f3 = px_font(fn, "plus-jakarta-sans", 23, 400)
     for line in wrap(d, "Search sessions, check rooms, check if you can walk between sessions and plan your day. "
                         "Works with Claude and ChatGPT.", f3, width):
-        d.text((tx, y), line, font=f3, fill="#E3D3D6")
+        d.text((tx, top_at(line, f3, y)), line, font=f3, fill="#E3D3D6")
         y += round(f3.size * 1.45)
     f4 = px_font(fn, "plus-jakarta-sans", 21, 700)
     label = "Unofficial community tool"
     tw = d.textlength(label, font=f4)
-    ty = 482
-    d.rounded_rectangle([tx, ty, tx + tw + 36, ty + 44], radius=10, fill=ACCENT)
-    d.text((tx + 18, ty + 22), label, font=f4, fill="#FFFFFF", anchor="lm")
+    d.rounded_rectangle([tx, B - 44, tx + tw + 36, B], radius=10, fill=ACCENT)
+    d.text((tx + 18, B - 22), label, font=f4, fill="#FFFFFF", anchor="lm")
+
+    # QR column: tile top at T, URL baseline at B, right edge at the same margin as the emblem
     code = segno.make(URL, error="q")
     scale = max(1, 214 // code.symbol_size(scale=1, border=4)[0])
     buf = io.BytesIO()
     code.save(buf, kind="png", scale=scale, border=4, dark=BURGUNDY, light="#FFFFFF")
     qr = Image.open(buf).convert("RGB")
-    qx, qy = 1140 - qr.width - 14, 130
-    d.rounded_rectangle([qx - 14, qy - 14, qx + qr.width + 14, qy + qr.height + 14], radius=16, fill="#FFFFFF")
-    img.paste(qr, (qx, qy))
-    cx = qx + qr.width // 2
+    pad = 14
+    tile_w, tile_h = qr.width + 2 * pad, qr.height + 2 * pad
+    f6 = px_font(fn, "plus-jakarta-sans", 22, 700, tile_w, SHOW_URL)
+    col_w = max(tile_w, round(f6.getlength(SHOW_URL)))
+    cx = 1200 - M - col_w / 2
+    tile_x = round(cx - tile_w / 2)
+    d.rounded_rectangle([tile_x, T, tile_x + tile_w, T + tile_h], radius=16, fill="#FFFFFF")
+    img.paste(qr, (tile_x + pad, T + pad))
+    d.text((cx, B), SHOW_URL, font=f6, fill=SOFT, anchor="ms")
+    url_top = B - f6.size * 0.72
     f5 = px_font(fn, "source-serif-4", 28, 600)
-    d.text((cx, qy + qr.height + 46), "Scan to try it", font=f5, fill="#FFFFFF", anchor="mm")
-    f6 = px_font(fn, "plus-jakarta-sans", 22, 700, qr.width + 28, SHOW_URL)
-    d.text((cx, qy + qr.height + 86), SHOW_URL, font=f6, fill=SOFT, anchor="mm")
+    d.text((cx, (T + tile_h + url_top) / 2), "Scan to try it", font=f5, fill="#FFFFFF", anchor="mm")
     return img
 
 
