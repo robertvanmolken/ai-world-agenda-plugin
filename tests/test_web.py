@@ -33,6 +33,14 @@ class WebTest(unittest.TestCase):
         # scrolling only happens from the tray's Check button
         self.assertEqual(1, r.count('$("chk").scrollIntoView'))
 
+    def test_check_form_layout(self):
+        r = self.client.get("/").text
+        form = r.split('id="chk">')[1].split("</form>")[0]
+        # the checkbox comes after the button, on its own full-width grid row
+        self.assertLess(form.index('type="submit"'), form.index('id="stepfree"'))
+        self.assertIn(".try-grid form .stepfree{grid-column:1/-1", r)
+        self.assertIn("body.has-tray", r)
+
     def test_header_menu(self):
         r = self.client.get("/").text
         nav = r.split('<nav class="main-nav">')[1].split("</nav>")[0]

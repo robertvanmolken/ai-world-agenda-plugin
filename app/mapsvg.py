@@ -14,6 +14,12 @@ _ICON = ("escalator", "elevator")
 _ELEV = "#2F6DB5"  # elevators are blue, escalators use the plan colour
 
 
+def _stairs(x: float, y: float, color: str) -> str:
+    """Small staircase glyph, drawn to the right of an escalator that has stairs next to it."""
+    return (f'<path d="M{x + 20} {y + 8} h6 v-5 h6 v-5 h6 v-5 h6" fill="none" stroke="{color}" '
+            f'stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')
+
+
 def _marker(kind: str, x: float, y: float, used: bool) -> str:
     """Escalator: round, two arrows side by side. Elevator: blue rounded square, one up and one down arrow."""
     ring = _ACCENT if used else (_ELEV if kind == "elevator" else _STROKE)
@@ -32,9 +38,10 @@ def _marker(kind: str, x: float, y: float, used: bool) -> str:
 def _legend(vx: int, vy: int, vw: int, vh: int) -> str:
     x, y = vx + 24, vy + vh - 70
     return (
-        f'<rect x="{x - 10}" y="{y - 24}" width="250" height="80" rx="10" fill="#fff" fill-opacity=".85" stroke="#E5D9D0"/>'
+        f'<rect x="{x - 10}" y="{y - 24}" width="270" height="118" rx="10" fill="#fff" fill-opacity=".85" stroke="#E5D9D0"/>'
         + _marker("escalator", x + 14, y, False) + f'<text x="{x + 38}" y="{y + 1}" font-size="17" fill="#2B1A20" dominant-baseline="middle">Escalator</text>'
         + _marker("elevator", x + 14, y + 38, False) + f'<text x="{x + 38}" y="{y + 39}" font-size="17" fill="#2B1A20" dominant-baseline="middle">Elevator (step-free)</text>'
+        + _stairs(x - 6, y + 66, _STROKE) + f'<text x="{x + 38}" y="{y + 77}" font-size="17" fill="#2B1A20" dominant-baseline="middle">Stairs next to escalator</text>'
     )
 
 
@@ -45,10 +52,14 @@ def _rooms_svg(zone: str, hi: set[str]) -> str:
         out.append(
             f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="2" fill="{"#F6D4CF" if on else "#F7FBFC"}" '
             f'stroke="{_ACCENT if on else "#9DB4BA"}" stroke-width="{1.6 if on else .8}"/>'
-            f'<text x="{x + w / 2}" y="{y + h / 2}" font-size="{12 if zone == "venetian_ballroom" else 8.5}" '
-            f'fill="{_ACCENT if on else "#4A6168"}" text-anchor="middle" dominant-baseline="middle" '
-            f'font-weight="{700 if on else 500}">{escape(name)}</text>'
+            + (f'<text x="{x + w / 2}" y="{y + h / 2}" font-size="{12 if zone == "venetian_ballroom" else 8.5}" '
+               f'fill="#4A6168" text-anchor="middle" dominant-baseline="middle">{escape(name)}</text>' if not on and not hi else "")
         )
+        if on:
+            out.append(
+                f'<text x="{x + w / 2}" y="{y - 14}" font-size="22" fill="{_ACCENT}" text-anchor="middle" font-weight="700" '
+                f'stroke="#fff" stroke-width="5" paint-order="stroke" stroke-linejoin="round">{escape(name)}</text>'
+            )
     return "".join(out)
 
 
@@ -130,7 +141,10 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
     used = set(route.get("path", [])) if route else set()
     for nid, n in nodes.items():
         if n["level"] == level and n["type"] in _ICON:
-            out.append(_marker(n["type"], n["x"], n["y"], nid in used and _boards(route, nid)))
+            hot = nid in used and _boards(route, nid)
+            out.append(_marker(n["type"], n["x"], n["y"], hot))
+            if n.get("stairs"):
+                out.append(_stairs(n["x"], n["y"], _ACCENT if hot else _STROKE))
     if route:
         for pl in route.get("polylines", []):
             if pl["level"] != level or len(pl["points"]) < 2:

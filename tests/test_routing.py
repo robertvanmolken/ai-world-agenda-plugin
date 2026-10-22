@@ -144,6 +144,14 @@ class RoutingWebTests(unittest.TestCase):
         self.assertLess(near["meters"], far["meters"])
         self.assertEqual(route("galileo", "galileo")["meters"], 0)
 
+    def test_stairs_wording_and_markers(self):
+        steps = " ".join(s["text"] for s in route_range("hall_g", "hall_b")["steps"])
+        self.assertIn("escalator or stairs up to Level 2", steps)
+        self.assertIn("Take the escalator up", " ".join(s["text"] for s in route_range("hall_g", "titian")["steps"]))
+        self.assertNotIn("stairs", " ".join(s["text"] for s in route_range("hall_g", "hall_b", True)["steps"]))
+        self.assertEqual(sorted(k for k, n in graph()["nodes"].items() if n.get("stairs")), ["g_esc_n", "g_esc_s", "l2_esc_ba", "l2_esc_hc"])
+        self.assertIn("Stairs next to escalator", render_level(1))
+
     def test_room_maps(self):
         r = route("titian", "casanova", False, "2204", "607")
         svg = render_level(2, r)

@@ -62,6 +62,14 @@ def marker(d: ImageDraw.ImageDraw, kind: str, cx: float, cy: float, used: bool) 
         d.polygon([(cx + 6 * _SS, cy + 9 * _SS), (cx + 1 * _SS, cy - 5 * _SS), (cx + 11 * _SS, cy - 5 * _SS)], fill=ring)
 
 
+def stairs(d: ImageDraw.ImageDraw, x: float, y: float, color: str) -> None:
+    pts = [(x + 20, y + 8)]
+    for _ in range(4):
+        px, py = pts[-1]
+        pts += [(px + 6, py), (px + 6, py - 5)]
+    d.line([(px * _SS, py * _SS) for px, py in pts], fill=color, width=3 * _SS, joint="curve")
+
+
 def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
     g = graph()
     nodes = g["nodes"]
@@ -107,8 +115,10 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
             on = name in hi
             d.rectangle([P(rx, ry), P(rx + rw, ry + rh)], fill="#F6D4CF" if on else "#F7FBFC",
                         outline=_ACCENT if on else "#9DB4BA", width=int((1.6 if on else .8) * _SS) or 1)
-            d.text(P(rx + rw / 2, ry + rh / 2), name, font=_font(12 if zid == "venetian_ballroom" else 9),
-                   fill=_ACCENT if on else "#4A6168", anchor="mm")
+            if on:
+                d.text(P(rx + rw / 2, ry - 14), name, font=_font(22), fill=_ACCENT, anchor="mm", stroke_width=5, stroke_fill="#FFFFFF")
+            elif not hi:
+                d.text(P(rx + rw / 2, ry + rh / 2), name, font=_font(12 if zid == "venetian_ballroom" else 9), fill="#4A6168", anchor="mm")
         labels.append((n["x"], n["rect"][1] - 12 if rooms else n["y"] + (30 if active else 0),
                        zones.get(zid, {}).get("name", zid), size))
     for a, b in g["edges"]:
@@ -119,7 +129,10 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
     used = set(route.get("path", [])) if route else set()
     for nid, n in nodes.items():
         if n["level"] == level and n["type"] in _KIND:
-            marker(d, n["type"], *P(n["x"], n["y"]), nid in used and _boards(route, nid))
+            hot = nid in used and _boards(route, nid)
+            marker(d, n["type"], *P(n["x"], n["y"]), hot)
+            if n.get("stairs"):
+                stairs(d, n["x"] - vx, n["y"] - vy, _ACCENT if hot else _STROKE)
     if route:
         for pl in route.get("polylines", []):
             if pl["level"] != level or len(pl["points"]) < 2:
@@ -140,11 +153,13 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
     for x, y, name, size in labels:
         text(x, y, name, size, "#2B1A20", halo=True)
     lx, ly = vx + 24, vy + vh - 70
-    d.rounded_rectangle([P(lx - 10, ly - 24), P(lx + 240, ly + 56)], radius=10 * _SS, fill="#FFFFFF", outline="#E5D9D0")
+    d.rounded_rectangle([P(lx - 10, ly - 24), P(lx + 260, ly + 94)], radius=10 * _SS, fill="#FFFFFF", outline="#E5D9D0")
     marker(d, "escalator", *P(lx + 14, ly), False)
     d.text(P(lx + 38, ly + 1), "Escalator", font=_font(17), fill="#2B1A20", anchor="lm")
     marker(d, "elevator", *P(lx + 14, ly + 38), False)
     d.text(P(lx + 38, ly + 39), "Elevator (step-free)", font=_font(17), fill="#2B1A20", anchor="lm")
+    stairs(d, lx - 6 - vx, ly + 66 - vy, _STROKE)
+    d.text(P(lx + 38, ly + 77), "Stairs next to escalator", font=_font(17), fill="#2B1A20", anchor="lm")
     d.text(P(vx + vw - 16, vy + vh - 16), "Schematic, not to scale. Estimates only.", font=_font(16), fill=_STROKE, anchor="rm")
     img = img.resize((vw, vh), Image.LANCZOS)
     buf = io.BytesIO()

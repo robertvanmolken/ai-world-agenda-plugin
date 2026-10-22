@@ -168,8 +168,9 @@ def _steps(path: list[str]) -> list[dict[str, Any]]:
                 steps[-1]["meters"] = round(meters)
             meters = 0.0
             direction = "up" if cur["level"] > prev["level"] else "down"
+            what = "escalator or stairs" if kind == "escalator" and (prev.get("stairs") or cur.get("stairs")) else kind
             steps.append({
-                "text": f"Take the {kind} {direction} to Level {cur['level']}",
+                "text": f"Take the {what} {direction} to Level {cur['level']}",
                 "level": cur["level"], "levelChange": True,
             })
             continue

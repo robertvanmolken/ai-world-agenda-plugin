@@ -111,7 +111,9 @@ footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
 .tray .chip button{font:inherit;border:0;background:none;cursor:pointer;color:var(--muted);font-size:1rem;line-height:1;padding:0 4px}
 .tray .btn{padding:6px 16px;font-size:.85rem}
 .tray-hint{font-size:.85rem;color:var(--muted)}
-.stepfree{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--muted);cursor:pointer}
+.try-grid form .stepfree{grid-column:1/-1;justify-self:start;display:flex;align-items:center;gap:8px;width:auto;font-size:.9rem;color:var(--muted);cursor:pointer}
+.try-grid form .stepfree input{width:auto;margin:0}
+body.has-tray{padding-bottom:84px}
 .rt[hidden]{display:none}
 .rt-err{font-size:.9rem;color:var(--muted);margin:8px 0}
 .rt-map img{width:100%;max-height:520px;object-fit:contain;border:1px solid var(--border-light);border-radius:12px;background:var(--warm-white)}
@@ -203,8 +205,8 @@ input.codes{flex:1;min-width:260px}
           <option value="5">5 min buffer</option>
           <option value="10">10 min buffer</option>
         </select>
-        <label class="stepfree"><input type="checkbox" id="stepfree"> Step-free route (elevators only)</label>
         <button class="btn btn-primary" type="submit">Check</button>
+        <label class="stepfree"><input type="checkbox" id="stepfree"> Step-free route (elevators only)</label>
       </form>
       <div id="cstatus" class="status" aria-live="polite"></div>
       <div id="cresults"></div>
@@ -312,6 +314,7 @@ function setCodes(list) {
 function renderTray() {
   const list = currentCodes(), tray = $("tray");
   tray.replaceChildren(); tray.hidden = list.length === 0;
+  document.body.classList.toggle("has-tray", list.length > 0);
   list.forEach(c => {
     const chip = el("span", "chip", c);
     const x = el("button", "", "\u00d7"); x.type = "button"; x.setAttribute("aria-label", "Remove " + c);
