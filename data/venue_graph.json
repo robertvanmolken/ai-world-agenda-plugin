@@ -21,7 +21,7 @@
     "galileo":     {"level": 1, "x": 1250, "y": 150,  "type": "zone", "rect": [1140,98,225,100]},
     "g_esc_n":     {"level": 1, "x": 897,  "y": 772,  "type": "escalator", "label": "the Hall G escalators (north)"},
     "g_esc_s":     {"level": 1, "x": 897,  "y": 952,  "type": "escalator", "label": "the Hall G escalators (south)"},
-    "l1_door":     {"level": 1, "x": 1180, "y": 690,  "type": "junction", "label": "the Hall G east exit"},
+    "l1_door":     {"level": 1, "x": 1212, "y": 695,  "type": "junction", "label": "the Hall G east exit"},
     "l1_foyer":    {"level": 1, "x": 1250, "y": 610,  "type": "junction", "label": "the Level 1 east foyer"},
     "l1_esc_e":    {"level": 1, "x": 1318, "y": 565,  "type": "escalator", "label": "the Level 1 east escalator"},
     "l1_elev":     {"level": 1, "x": 1295, "y": 685,  "type": "elevator", "label": "the Level 1 east elevators"},
