@@ -10,5 +10,7 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.7
+      - key: PUBLIC_URL
+        value: https://aiworld.exoblock.it
       - key: HOST
         value: 0.0.0.0

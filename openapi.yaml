@@ -8,7 +8,7 @@ info:
     users should verify critical details in the official Oracle catalog. This is an unofficial
     community tool and is not affiliated with or endorsed by Oracle.
 servers:
-  - url: https://ai-world-agenda-plugin.onrender.com
+  - url: https://aiworld.exoblock.it
     description: Production API hosted on Render.
 paths:
   /health:

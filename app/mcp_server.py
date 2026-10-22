@@ -25,7 +25,7 @@ from .venue import assess_transition, check_move, load_rooms, merge_rooms, resol
 ROOT = Path(__file__).resolve().parents[1]
 DATA_FILE = Path(os.environ.get("AI_WORLD_DATA", ROOT / "data" / "sessions.json"))
 
-PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://ai-world-agenda-plugin.onrender.com").rstrip("/")
+PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://aiworld.exoblock.it").rstrip("/")
 
 _catalog: dict[str, Any] | None = None
 

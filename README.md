@@ -170,7 +170,7 @@ claude mcp add --transport http ai-world https://YOUR-SERVICE.onrender.com/mcp
 Optional environment variables:
 
 - `ALLOWED_HOSTS` — comma-separated hostnames (for example `YOUR-SERVICE.onrender.com`) to enable host validation on `/mcp`. Unset by default; a wrong value makes `/mcp` fail.
-- `PUBLIC_URL` — public base URL used for the MCP icon and website URLs (default `https://ai-world-agenda-plugin.onrender.com`). Set it if your hostname differs.
+- `PUBLIC_URL` — public base URL used for the MCP icon and website URLs (default `https://aiworld.exoblock.it`). Set it if your hostname differs.
 - `AI_WORLD_DATA` — path to an alternate catalog JSON.
 - `HOST`, `PORT` — bind address/port (`PORT` is set by Render).
 
@@ -178,7 +178,7 @@ Optional environment variables:
 
 Only needed if your ChatGPT workspace still uses OpenAPI actions instead of MCP. Register `https://YOUR-SERVICE.onrender.com/openapi.yaml`.
 
-`openapi.yaml` currently lists `https://ai-world-agenda-plugin.onrender.com` under `servers:`. If your Render service has a different hostname, update that entry. The plugin manifest at `/.well-known/ai-plugin.json` is generated from the incoming host, so it needs no edit. `localhost` is only for development; a hosted integration needs an HTTPS URL.
+`openapi.yaml` currently lists `https://aiworld.exoblock.it` under `servers:`. If your Render service has a different hostname, update that entry. The plugin manifest at `/.well-known/ai-plugin.json` is generated from the incoming host, so it needs no edit. `localhost` is only for development; a hosted integration needs an HTTPS URL.
 
 ## Deploy on Render
 
@@ -249,3 +249,15 @@ The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). 
 The license covers the code and my own data file (`venue.json`). Session information in `data/sessions.json` and the room assignments in `data/rooms.csv` come from Oracle's public catalog. Oracle's content is not covered by this license. The saved catalog pages and screenshots I used as sources are not published. This is an unofficial community project and is not affiliated with Oracle.
 
 Author: Robert van Molken, Senior AI Solution Architect, Exoblock B.V.
+
+## Business card
+
+`scripts/make_card.py` draws a 85 x 55 mm card (3 mm bleed, 300 dpi) with a QR code to `https://aiworld.exoblock.it/`.
+Install the dev-only extras and run it:
+
+```
+pip install -r requirements-dev.txt
+python scripts/make_card.py          # writes dist/card/: card-front.png, card-back.png, card-print.pdf, qr-aiworld.svg/png
+```
+
+The QR is burgundy on white with error correction Q and a 4-module quiet zone. Print it at least 25 mm wide.
