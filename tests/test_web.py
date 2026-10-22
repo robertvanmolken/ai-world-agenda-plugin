@@ -21,6 +21,11 @@ class WebTest(unittest.TestCase):
         self.assertIn('id="f"', r.text)
         self.assertIn('id="chk"', r.text)
 
+    def test_route_panel_can_be_hidden(self):
+        r = self.client.get("/").text
+        self.assertIn(".rt[hidden]{display:none}", r)
+        self.assertIn("rt-err", r)
+
     def test_offer_section(self):
         r = self.client.get("/").text
         self.assertIn('id="lets-build-yours"', r)

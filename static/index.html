@@ -104,6 +104,8 @@ footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
 .hop p{color:var(--muted);font-size:.92rem;margin-top:4px}
 .rt-btn{margin-top:10px;padding:6px 16px;font-size:.85rem}
 .rt{margin-top:12px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:start}
+.rt[hidden]{display:none}
+.rt-err{font-size:.9rem;color:var(--muted);margin:8px 0}
 .rt-map img{width:100%;max-height:520px;object-fit:contain;border:1px solid var(--border-light);border-radius:12px;background:var(--warm-white)}
 .rt-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .rt-tabs button{font:inherit;font-size:.85rem;font-weight:600;border:1px solid var(--border);background:#fff;color:var(--text);border-radius:999px;padding:4px 14px;cursor:pointer}
@@ -300,23 +302,26 @@ function routeView(rd) {
   const mapBox = el("div", "rt-map");
   const tabs = el("div", "rt-tabs");
   const img = el("img"); img.alt = "Schematic floor plan with your walking route";
+  const err = el("p", "rt-err", "The map could not be loaded. The steps on the right still apply."); err.hidden = true;
+  img.onerror = () => { err.hidden = false; }; img.onload = () => { err.hidden = true; };
   const buttons = [];
   const show = i => { img.src = rd.mapUrls[i].url; buttons.forEach((b, j) => b.setAttribute("aria-pressed", String(i === j))); };
   rd.mapUrls.forEach((m, i) => {
     const b = el("button", "", "Level " + m.level); b.type = "button"; b.onclick = () => show(i);
     buttons.push(b); tabs.appendChild(b);
   });
-  mapBox.appendChild(tabs); mapBox.appendChild(img);
+  mapBox.appendChild(tabs); mapBox.appendChild(err); mapBox.appendChild(img);
   const info = el("div");
   info.appendChild(el("p", "rt-sum", "About " + rd.meters + " m, " + (rd.levels.length > 1 ? "via Level " + rd.levels.join(" \u2192 ") : "on Level " + rd.levels[0]) + (rd.viaHub ? ". Hub hall unconfirmed, so the route shown is the shortest option." : ".")));
   const ol = el("ol", "rt-steps");
   rd.steps.forEach(st => { const li = el("li", "", st.text); if (st.meters) li.appendChild(el("small", "", " (" + st.meters + " m)")); ol.appendChild(li); });
   info.appendChild(ol);
   panel.appendChild(mapBox); panel.appendChild(info);
+  show(0);
   btn.onclick = () => {
     panel.hidden = !panel.hidden;
     btn.textContent = panel.hidden ? "Show route" : "Hide route";
-    if (!panel.hidden && !img.src) show(0);
+    
   };
   wrap.appendChild(btn); wrap.appendChild(panel);
   return wrap;
