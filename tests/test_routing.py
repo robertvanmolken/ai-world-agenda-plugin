@@ -152,7 +152,7 @@ class RoutingWebTests(unittest.TestCase):
         self.assertIn("/venue/route.png?from=hall_g&amp;to=titian&amp;level=2", r.text)
         self.assertIn("<li>", r.text)
         self.assertEqual(404, self.client.get("/venue/route/page?from=zzz&to=titian").status_code)
-        d = get_walk_route("Hall G", "Titian")["routeDetail"]
+        d = get_walk_route("Hall G", "Titian").structuredContent["routeDetail"]
         self.assertTrue(d["pageUrl"].startswith("http") and "/venue/route/page?from=hall_g&to=titian" in d["pageUrl"])
         imgs = get_route_map_images("Hall G", "Titian")
         self.assertEqual(2, len(imgs))
@@ -210,7 +210,7 @@ class RoutingWebTests(unittest.TestCase):
     def test_step_free_in_mcp_tools(self):
         from app.mcp_server import check_walk, get_walk_route
 
-        r = get_walk_route("Galileo", "Zeno", step_free=True)
+        r = get_walk_route("Galileo", "Zeno", step_free=True).structuredContent
         self.assertTrue(r["routeDetail"]["stepFree"])
         self.assertIn("stepFree=1", r["routeDetail"]["mapUrls"][0]["url"])
         w = check_walk("Hall G", "Titian", 5, step_free=True)
@@ -235,13 +235,30 @@ class McpRouteTests(unittest.TestCase):
     def test_tool(self):
         from app.mcp_server import get_walk_route
 
-        r = get_walk_route("Hall G", "Titian")
+        r = get_walk_route("Hall G", "Titian").structuredContent
         self.assertIn("disclaimer", r)
         m = r["routeDetail"]["mapUrls"][0]
         self.assertTrue(m["url"].startswith("http") and ".png" in m["url"])
         self.assertIn("/venue/route?", m["svgUrl"])
         self.assertNotIn("polylines", r["routeDetail"])
-        self.assertIn("error", get_walk_route("nowhere", "Titian"))
+        self.assertIn("error", get_walk_route("nowhere", "Titian").structuredContent)
+
+    def test_tool_returns_image_blocks(self):
+        import base64
+        from app.mcp_server import check_transition, get_walk_route
+
+        for res in (get_walk_route("Titian 2204", "Casanova 607"), check_transition("LRN2138", "LRN6075")):
+            kinds = [c.type for c in res.content]
+            self.assertEqual("text", kinds[0])
+            imgs = [c for c in res.content if c.type == "image"]
+            self.assertEqual(len(res.structuredContent["routeDetail"]["mapUrls"]), len(imgs))
+            self.assertTrue(imgs)
+            for c in imgs:
+                self.assertEqual("image/png", c.mimeType)
+                self.assertFalse(c.data.startswith("data:"))
+                self.assertEqual(b"\x89PNG", base64.b64decode(c.data)[:4])
+            self.assertIn("pageUrl", res.content[0].text)
+        self.assertEqual(["text"], [c.type for c in get_walk_route("nowhere", "Titian").content])
 
 
 if __name__ == "__main__":

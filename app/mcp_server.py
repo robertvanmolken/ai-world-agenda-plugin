@@ -13,7 +13,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP, Image
 from mcp.server.transport_security import TransportSecuritySettings
-from mcp.types import Icon, ToolAnnotations
+from mcp.types import CallToolResult, ImageContent, Icon, TextContent, ToolAnnotations
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
@@ -74,6 +74,30 @@ def absolute_maps(result: dict[str, Any]) -> dict[str, Any]:
         d.pop("polylines", None)
         result = {**result, "routeDetail": d}
     return result
+
+
+def with_map_images(result: dict[str, Any]) -> CallToolResult:
+    """Tool result with the JSON as structuredContent, a text summary, and one raw-base64 PNG image block per level.
+
+    Many chat clients never fetch image URLs, but they do show image content blocks."""
+    import base64
+    from urllib.parse import parse_qs, urlsplit
+
+    from .mappng import render_level_png
+    from .routing import route_range
+
+    text = json.dumps(result, ensure_ascii=False)
+    blocks: list[Any] = []
+    d = result.get("routeDetail") or {}
+    for m in d.get("mapUrls", []):
+        q = {k: v[0] for k, v in parse_qs(urlsplit(m["url"]).query).items()}
+        r = route_range(q.get("from", ""), q.get("to", ""), q.get("stepFree") == "1", q.get("fromRoom"), q.get("toRoom"))
+        if r:
+            png = render_level_png(int(q["level"]), r)
+            blocks.append(ImageContent(type="image", mimeType="image/png", data=base64.b64encode(png).decode("ascii")))
+    summary = (f"Walking route maps follow ({len(blocks)} image(s), one per level). Show them to the user and also give "
+               f"the link {d.get('pageUrl', '')}. Data: ")
+    return CallToolResult(content=[TextContent(type="text", text=summary + text), *blocks], structuredContent=result)
 
 
 def with_disclaimer(result: dict[str, Any]) -> dict[str, Any]:
@@ -144,7 +168,7 @@ def find_session_conflicts(codes: list[str], minimum_transition_minutes: int = 0
 
 
 @mcp.tool(annotations=READ_ONLY)
-def check_transition(code_a: str, code_b: str, step_free: bool = False) -> dict[str, Any]:
+def check_transition(code_a: str, code_b: str, step_free: bool = False) -> CallToolResult:
     """Can someone walk from one session to the other? Uses venue maps; the result is an estimate.
     Verdict: ok, tight, unlikely, overlap or unknown (room not yet published).
     lateIfWalking gives the minutes late on arrival for the best and worst walking estimate.
@@ -152,12 +176,12 @@ def check_transition(code_a: str, code_b: str, step_free: bool = False) -> dict[
     the route then avoids escalators and includes the wait for the lift."""
     a, b = get_by_code(sessions(), code_a), get_by_code(sessions(), code_b)
     if not a or not b:
-        return {"error": "Session not found"}
-    return with_disclaimer(absolute_maps(assess_transition(a, b, step_free) | {"venueWarning": venue()["warning"]}))
+        return with_map_images({"error": "Session not found"})
+    return with_map_images(with_disclaimer(absolute_maps(assess_transition(a, b, step_free) | {"venueWarning": venue()["warning"]})))
 
 
 @mcp.tool(annotations=READ_ONLY)
-def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> dict[str, Any]:
+def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> CallToolResult:
     """Step-by-step walking route between two places at the Venetian Expo, with distance, levels and
     schematic floor plan image URLs (one per level, route drawn on it). Places are free text such as
     'Hall G', 'Titian', 'Galileo 1001, Level 1', 'Hub' or a room number. Estimates only; show the map
@@ -166,12 +190,12 @@ def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> d
     elevators or step-free access: the route then uses elevators, never escalators."""
     za, zb = resolve_place(from_place), resolve_place(to_place)
     if not za or not zb:
-        return with_disclaimer({"error": "Could not place: " + ", ".join(p for p, z in ((from_place, za), (to_place, zb)) if not z)})
+        return with_map_images(with_disclaimer({"error": "Could not place: " + ", ".join(p for p, z in ((from_place, za), (to_place, zb)) if not z)}))
     detail = route_details(za, zb, step_free, place_room(from_place, za), place_room(to_place, zb))
     if not detail:
-        return with_disclaimer({"error": "No walking route known between these places"})
-    return with_disclaimer(absolute_maps({"from": from_place, "to": to_place, "routeDetail": detail,
-                                          "venueWarning": venue()["warning"]}))
+        return with_map_images(with_disclaimer({"error": "No walking route known between these places"}))
+    return with_map_images(with_disclaimer(absolute_maps({"from": from_place, "to": to_place, "routeDetail": detail,
+                                                          "venueWarning": venue()["warning"]})))
 
 
 @mcp.tool(annotations=READ_ONLY)

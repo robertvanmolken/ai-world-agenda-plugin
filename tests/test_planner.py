@@ -68,7 +68,7 @@ class DisclaimerTests(unittest.TestCase):
             m.get_session_by_code("LRN2138"),
             m.get_session_by_code("NOPE"),
             m.find_session_conflicts(["LRN2138", "LRN6075"]),
-            m.check_transition("LRN2138", "LRN6075"),
+            m.check_transition("LRN2138", "LRN6075").structuredContent,
             m.check_walk("Hall G", "Titian 2204", 10),
             m.plan_strict_day("2026-10-26", ["integration"]),
             m.optimize_agenda_tool("2026-10-26", ["integration"]),
