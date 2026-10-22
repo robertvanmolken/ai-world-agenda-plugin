@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from mcp.server.fastmcp import FastMCP, Image
+from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import CallToolResult, ImageContent, Icon, TextContent, ToolAnnotations
 from starlette.requests import Request
@@ -199,17 +199,15 @@ def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> C
 
 
 @mcp.tool(annotations=READ_ONLY)
-def get_route_map_images(from_place: str, to_place: str, step_free: bool = False) -> list[Any]:
-    """The floor plan images (one PNG per level, route drawn on it) for a walk between two places, returned as
-    image content. Use after get_walk_route when the user wants to see the map; places are free text as there."""
-    from .mappng import render_level_png
-    from .routing import route_range
-
+def get_route_map_images(from_place: str, to_place: str, step_free: bool = False) -> CallToolResult:
+    """The floor plan images (one PNG per level, route drawn on it) for a walk between two places, as image
+    content. get_walk_route already returns these images; use this only to get the maps alone."""
     za, zb = resolve_place(from_place), resolve_place(to_place)
-    r = route_range(za, zb, step_free, place_room(from_place, za), place_room(to_place, zb)) if za and zb else None
-    if not r:
-        return ["No walking route known between these places"]
-    return [Image(data=render_level_png(lv, r), format="png") for lv in r["levels"]]
+    detail = route_details(za, zb, step_free, place_room(from_place, za), place_room(to_place, zb)) if za and zb else None
+    if not detail:
+        return CallToolResult(content=[TextContent(type="text", text="No walking route known between these places")], isError=True)
+    res = with_map_images(with_disclaimer(absolute_maps({"from": from_place, "to": to_place, "routeDetail": detail})))
+    return CallToolResult(content=[c for c in res.content if c.type == "image"] + [TextContent(type="text", text=DISCLAIMER)])
 
 
 @mcp.tool(annotations=READ_ONLY)

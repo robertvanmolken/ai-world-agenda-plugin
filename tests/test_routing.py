@@ -154,10 +154,13 @@ class RoutingWebTests(unittest.TestCase):
         self.assertEqual(404, self.client.get("/venue/route/page?from=zzz&to=titian").status_code)
         d = get_walk_route("Hall G", "Titian").structuredContent["routeDetail"]
         self.assertTrue(d["pageUrl"].startswith("http") and "/venue/route/page?from=hall_g&to=titian" in d["pageUrl"])
-        imgs = get_route_map_images("Hall G", "Titian")
-        self.assertEqual(2, len(imgs))
-        self.assertEqual("image/png", imgs[0].to_image_content().mimeType)
-        self.assertEqual(["No walking route known between these places"], get_route_map_images("zzz", "Titian"))
+        import asyncio
+        from app.mcp_server import mcp
+
+        res = asyncio.run(mcp.call_tool("get_route_map_images", {"from_place": "Hall G", "to_place": "Titian"}))
+        self.assertEqual(["image", "image", "text"], [c.type for c in res.content])
+        self.assertEqual("image/png", res.content[0].mimeType)
+        self.assertTrue(get_route_map_images("zzz", "Titian").isError)
 
     def test_stairs_wording_and_markers(self):
         steps = " ".join(s["text"] for s in route_range("hall_g", "hall_b")["steps"])
