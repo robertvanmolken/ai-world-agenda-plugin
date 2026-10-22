@@ -260,4 +260,6 @@ pip install -r requirements-dev.txt
 python scripts/make_card.py          # writes dist/card/: card-front.png, card-back.png, card-print.pdf, qr-aiworld.svg/png
 ```
 
+It also writes `og-image.png` (the 1200x630 share image with the QR code); copy it to `static/og-image.png` to update the link preview.
+
 The QR is burgundy on white with error correction Q and a 4-module quiet zone. Print it at least 25 mm wide.

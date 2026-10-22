@@ -27,3 +27,8 @@ class CardTests(unittest.TestCase):
         self.assertGreaterEqual(img.width, make_card.mm(31) - 40)
         code = segno.make(make_card.URL, error="q")
         self.assertEqual("q", code.error.lower())
+
+    def test_og_image_has_qr(self):
+        with tempfile.TemporaryDirectory() as t:
+            make_card.main(Path(t))
+            self.assertEqual((1200, 630), Image.open(Path(t) / "og-image.png").size)
