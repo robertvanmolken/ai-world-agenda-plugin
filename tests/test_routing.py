@@ -97,6 +97,16 @@ class RoutingWebTests(unittest.TestCase):
         self.assertEqual(404, self.client.get("/venue/route?from=zzz&to=titian").status_code)
         self.assertEqual(400, self.client.get("/venue/route?from=hall_g&to=titian&level=x").status_code)
 
+    def test_png_endpoints(self):
+        for url in ("/venue/map/2.png", "/venue/route.png?from=hall_g&to=titian&level=2", "/venue/route.png?from=hall_g&to=titian"):
+            r = self.client.get(url)
+            self.assertEqual(200, r.status_code, url)
+            self.assertEqual("image/png", r.headers["content-type"])
+            self.assertEqual(b"\x89PNG", r.content[:4])
+        self.assertEqual(404, self.client.get("/venue/map/9.png").status_code)
+        self.assertEqual(404, self.client.get("/venue/route.png?from=zzz&to=titian").status_code)
+        self.assertEqual(400, self.client.get("/venue/route.png?from=hall_g&to=titian&level=x").status_code)
+
     def test_route_endpoint(self):
         r = self.client.post("/sessions/route", json={"from": "Hall G", "to": "Titian"})
         self.assertEqual(200, r.status_code)
@@ -117,7 +127,9 @@ class McpRouteTests(unittest.TestCase):
 
         r = get_walk_route("Hall G", "Titian")
         self.assertIn("disclaimer", r)
-        self.assertTrue(r["routeDetail"]["mapUrls"][0]["url"].startswith("http"))
+        m = r["routeDetail"]["mapUrls"][0]
+        self.assertTrue(m["url"].startswith("http") and ".png" in m["url"])
+        self.assertIn("/venue/route?", m["svgUrl"])
         self.assertNotIn("polylines", r["routeDetail"])
         self.assertIn("error", get_walk_route("nowhere", "Titian"))
 

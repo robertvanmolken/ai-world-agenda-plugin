@@ -122,6 +122,17 @@ paths:
       responses:
         '200': {description: SVG image}
         '404': {description: No route}
+  /venue/route.png:
+    get:
+      operationId: getRouteMapPng
+      summary: PNG floor plan of one level with the walking route drawn on it (use this one to display the map).
+      parameters:
+        - {name: from, in: query, required: true, schema: {type: string}}
+        - {name: to, in: query, required: true, schema: {type: string}}
+        - {name: level, in: query, required: false, schema: {type: integer}}
+      responses:
+        '200': {description: PNG image}
+        '404': {description: No route}
   /agenda/plan:
     post:
       operationId: planStrictDay

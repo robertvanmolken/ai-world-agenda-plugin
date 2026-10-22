@@ -11,6 +11,7 @@ from .catalog import find_conflicts, get_by_code, optimize_agenda, search_sessio
 from .mcp_server import ROOT, catalog, mcp, sessions, with_disclaimer
 from .planner import plan_day
 from .mapsvg import levels as map_levels, render_level
+from .mappng import render_level_png
 from .routing import route_range
 from .venue import assess_transition, resolve_place, route_details, venue
 
@@ -201,6 +202,37 @@ async def venue_route(request: Request) -> Response:
     if level not in map_levels():
         return JSONResponse({"error": "Not found"}, status_code=404)
     return Response(render_level(level, r), media_type="image/svg+xml", headers=_SVG)
+
+
+_PNG = {"Cache-Control": "public, max-age=3600"}
+
+
+@mcp.custom_route("/venue/map/{level}.png", methods=["GET"])
+async def venue_map_png(request: Request) -> Response:
+    try:
+        level = int(request.path_params["level"])
+    except ValueError:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    if level not in map_levels():
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    return Response(render_level_png(level), media_type="image/png", headers=_PNG)
+
+
+@mcp.custom_route("/venue/route.png", methods=["GET"])
+async def venue_route_png(request: Request) -> Response:
+    """PNG twin of /venue/route, for clients that cannot show SVG (ChatGPT)."""
+    q = request.query_params
+    za, zb = resolve_place(q.get("from", "")), resolve_place(q.get("to", ""))
+    r = route_range(za, zb) if za and zb else None
+    if not r:
+        return JSONResponse({"error": "No route"}, status_code=404)
+    try:
+        level = int(q.get("level") or r["levels"][0])
+    except ValueError:
+        return JSONResponse({"error": "Invalid level"}, status_code=400)
+    if level not in map_levels():
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    return Response(render_level_png(level, r), media_type="image/png", headers=_PNG)
 
 
 @mcp.custom_route("/agenda/plan", methods=["POST"])

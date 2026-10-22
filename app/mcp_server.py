@@ -65,7 +65,9 @@ def absolute_maps(result: dict[str, Any]) -> dict[str, Any]:
     """Make map URLs in routeDetail absolute so MCP clients can open them."""
     d = result.get("routeDetail")
     if d and d.get("mapUrls"):
-        d = {**d, "mapUrls": [{**m, "url": PUBLIC_URL + m["url"]} for m in d["mapUrls"]]}
+        # PNG first: ChatGPT cannot show SVG. The SVG stays available as svgUrl.
+        d = {**d, "mapUrls": [{"level": m["level"], "url": PUBLIC_URL + m["pngUrl"], "svgUrl": PUBLIC_URL + m["url"]}
+                              for m in d["mapUrls"]]}
         d.pop("polylines", None)
         result = {**result, "routeDetail": d}
     return result
@@ -154,7 +156,7 @@ def get_walk_route(from_place: str, to_place: str) -> dict[str, Any]:
     """Step-by-step walking route between two places at the Venetian Expo, with distance, levels and
     schematic floor plan image URLs (one per level, route drawn on it). Places are free text such as
     'Hall G', 'Titian', 'Galileo 1001, Level 1', 'Hub' or a room number. Estimates only; show the map
-    URLs to the user as links or images."""
+    URLs (PNG images) to the user as images or links."""
     za, zb = resolve_place(from_place), resolve_place(to_place)
     if not za or not zb:
         return with_disclaimer({"error": "Could not place: " + ", ".join(p for p, z in ((from_place, za), (to_place, zb)) if not z)})

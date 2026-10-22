@@ -90,7 +90,7 @@ REST:
 - `GET /` (landing page), `GET /status`, `GET /health`, `GET /catalog/meta`
 - `GET /sessions`, `GET /sessions/code/{code}`
 - `POST /sessions/search`, `POST /sessions/conflicts`, `POST /agenda/optimize`
-- `POST /sessions/route` (steps, levels, distance, map URLs), `GET /venue/route?from=&to=&level=` and `GET /venue/map/{level}.svg` (schematic floor plans as SVG)
+- `POST /sessions/route` (steps, levels, distance, map URLs), `GET /venue/route?from=&to=&level=` and `GET /venue/map/{level}.svg` (schematic floor plans as SVG), plus PNG twins `GET /venue/route.png` and `GET /venue/map/{level}.png` for clients that cannot show SVG, such as ChatGPT (the MCP tools return the PNG links)
 - `GET /openapi.yaml`, `GET /.well-known/ai-plugin.json`, `GET /logo.png`
 
 MCP (`/mcp`) tools, all read-only: `search_sessions`, `get_session_by_code`, `find_session_conflicts`, `optimize_agenda`, `get_walk_route`, `get_catalog_metadata`, plus ChatGPT-style `search` and `fetch` (the session code is the id).

@@ -124,7 +124,9 @@ def route_details(a: str, b: str) -> dict[str, Any] | None:
     return {
         "steps": r["steps"], "levels": r["levels"], "meters": r["meters"], "polylines": r["polylines"],
         "mapUrls": [
-            {"level": lv, "url": f"/venue/route?from={r['from']}&to={r['to']}&level={lv}"} for lv in r["levels"]
+            {"level": lv, "url": f"/venue/route?from={r['from']}&to={r['to']}&level={lv}",
+             "pngUrl": f"/venue/route.png?from={r['from']}&to={r['to']}&level={lv}"}
+            for lv in r["levels"]
         ],
         "viaHub": "hub" in (a, b),
     }
