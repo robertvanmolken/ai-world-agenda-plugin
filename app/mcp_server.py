@@ -128,6 +128,22 @@ mcp = FastMCP(
 
 READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
 
+# Inline route-map widget (MCP Apps). Tools stay useful without it: they still return image blocks and JSON.
+ROUTE_WIDGET_URI = "ui://widget/route-map.html"
+ROUTE_WIDGET_MIME = "text/html;profile=mcp-app"
+ROUTE_WIDGET_TOOL_META = {"ui": {"resourceUri": ROUTE_WIDGET_URI}, "openai/outputTemplate": ROUTE_WIDGET_URI}
+
+
+@mcp.resource(
+    ROUTE_WIDGET_URI, name="route-map-widget", title="Walking route maps",
+    description="Shows the walking route steps and the floor plan of every level inline.",
+    mime_type=ROUTE_WIDGET_MIME,
+    meta={"ui": {"prefersBorder": True, "csp": {"resourceDomains": [PUBLIC_URL], "connectDomains": []}},
+          "openai/widgetDescription": "Walking route steps with the floor plan of each level."},
+)
+def route_widget() -> str:
+    return (ROOT / "app" / "route_widget.html").read_text(encoding="utf-8")
+
 
 @mcp.tool(name="search_sessions", annotations=READ_ONLY)
 def search_sessions_tool(
@@ -167,7 +183,7 @@ def find_session_conflicts(codes: list[str], minimum_transition_minutes: int = 0
     return with_disclaimer(find_conflicts(sessions(), codes, minimum_transition_minutes))
 
 
-@mcp.tool(annotations=READ_ONLY)
+@mcp.tool(annotations=READ_ONLY, meta=ROUTE_WIDGET_TOOL_META)
 def check_transition(code_a: str, code_b: str, step_free: bool = False) -> CallToolResult:
     """Can someone walk from one session to the other? Uses venue maps; the result is an estimate.
     Verdict: ok, tight, unlikely, overlap or unknown (room not yet published).
@@ -180,7 +196,7 @@ def check_transition(code_a: str, code_b: str, step_free: bool = False) -> CallT
     return with_map_images(with_disclaimer(absolute_maps(assess_transition(a, b, step_free) | {"venueWarning": venue()["warning"]})))
 
 
-@mcp.tool(annotations=READ_ONLY)
+@mcp.tool(annotations=READ_ONLY, meta=ROUTE_WIDGET_TOOL_META)
 def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> CallToolResult:
     """Step-by-step walking route between two places at the Venetian Expo, with distance, levels and
     schematic floor plan image URLs (one per level, route drawn on it). Places are free text such as

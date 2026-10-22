@@ -246,6 +246,24 @@ class McpRouteTests(unittest.TestCase):
         self.assertNotIn("polylines", r["routeDetail"])
         self.assertIn("error", get_walk_route("nowhere", "Titian").structuredContent)
 
+    def test_route_widget_registered(self):
+        import asyncio
+        from app.mcp_server import PUBLIC_URL, mcp
+
+        async def go():
+            tools = {t.name: t for t in await mcp.list_tools()}
+            res = await mcp.read_resource("ui://widget/route-map.html")
+            return tools, res
+
+        tools, res = asyncio.run(go())
+        for name in ("get_walk_route", "check_transition"):
+            self.assertEqual("ui://widget/route-map.html", tools[name].meta["ui"]["resourceUri"])
+        self.assertIsNone(tools["check_walk"].meta)
+        self.assertEqual("text/html;profile=mcp-app", res[0].mime_type)
+        self.assertEqual([PUBLIC_URL], res[0].meta["ui"]["csp"]["resourceDomains"])
+        for needle in ("ui/initialize", "ui/notifications/tool-result", "Open the route maps", "mapUrls", "disclaimer"):
+            self.assertIn(needle, res[0].content)
+
     def test_tool_returns_image_blocks(self):
         import base64
         from app.mcp_server import check_transition, get_walk_route

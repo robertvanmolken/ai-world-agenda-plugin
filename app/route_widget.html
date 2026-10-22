@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Walking route</title>
+<style>
+  :root{color-scheme:light dark}
+  body{margin:0;padding:12px;font:15px/1.5 system-ui,-apple-system,sans-serif;color:#2B1A20;background:transparent}
+  h2{font-size:1rem;margin:16px 0 6px}
+  .sum{color:#76686B;margin:0 0 8px}
+  ol{margin:6px 0 0 1.2rem;padding:0}li{margin-bottom:4px}
+  img{display:block;width:100%;height:auto;border:1px solid #E5D9D0;border-radius:12px;background:#fff}
+  a.open{display:inline-block;margin-top:14px;font-weight:600;color:#C74634}
+  .fine{margin-top:12px;font-size:.8rem;color:#76686B}
+  .err{color:#9a3412}
+  @media(prefers-color-scheme:dark){body{color:#f3eeee}img{border-color:#4a3a3f}}
+</style>
+</head>
+<body>
+<div id="app"><p class="sum">Loading route maps…</p></div>
+<script>
+(function () {
+  var app = document.getElementById("app");
+  var nextId = 1;
+
+  function post(msg) { window.parent.postMessage(Object.assign({ jsonrpc: "2.0" }, msg), "*"); }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function safeUrl(u) { return typeof u === "string" && /^https?:\/\//.test(u) ? u : null; }
+
+  function resize() {
+    post({ method: "ui/notifications/size-changed", params: { width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight } });
+  }
+
+  function render(data) {
+    app.replaceChildren();
+    if (!data) { app.appendChild(el("p", "sum", "No route data.")); return; }
+    if (data.error) { app.appendChild(el("p", "err", data.error)); return; }
+    var d = data.routeDetail;
+    if (!d) { app.appendChild(el("p", "sum", "No route maps for this result.")); return; }
+
+    var parts = [];
+    if (data.from && data.to) parts.push(data.from + " to " + data.to);
+    if (d.meters != null) parts.push("about " + d.meters + " m");
+    if (d.stepFree) parts.push("step-free (elevators only)");
+    if (parts.length) app.appendChild(el("p", "sum", parts.join(", ")));
+
+    if (d.steps && d.steps.length) {
+      var ol = el("ol");
+      d.steps.forEach(function (s) { ol.appendChild(el("li", null, s.text)); });
+      app.appendChild(ol);
+    }
+
+    (d.mapUrls || []).forEach(function (m) {
+      var url = safeUrl(m.url);
+      if (!url) return;
+      app.appendChild(el("h2", null, "Level " + m.level));
+      var img = el("img");
+      img.alt = "Route on Level " + m.level;
+      img.src = url;
+      img.addEventListener("load", resize);
+      app.appendChild(img);
+    });
+
+    var page = safeUrl(d.pageUrl);
+    if (page) {
+      var a = el("a", "open", "Open the route maps");
+      a.href = page; a.target = "_blank"; a.rel = "noopener noreferrer";
+      app.appendChild(a);
+    }
+    if (data.disclaimer) app.appendChild(el("p", "fine", data.disclaimer));
+    resize();
+  }
+
+  window.addEventListener("message", function (ev) {
+    var m = ev.data;
+    if (!m || m.jsonrpc !== "2.0") return;
+    if (m.method === "ui/notifications/tool-result" && m.params) {
+      render(m.params.structuredContent || null);
+    }
+  });
+
+  // MCP Apps handshake: initialize, then tell the host we are ready.
+  var initId = nextId++;
+  window.addEventListener("message", function onInit(ev) {
+    var m = ev.data;
+    if (m && m.jsonrpc === "2.0" && m.id === initId && (m.result || m.error)) {
+      window.removeEventListener("message", onInit);
+      post({ method: "ui/notifications/initialized", params: {} });
+    }
+  });
+  post({
+    id: initId, method: "ui/initialize",
+    params: {
+      protocolVersion: "2026-01-26",
+      appInfo: { name: "ai-world-route-map", version: "1.0.0" },
+      appCapabilities: {}
+    }
+  });
+
+  // ChatGPT compatibility alias: the result may already be on window.openai.
+  if (window.openai && window.openai.toolOutput) render(window.openai.toolOutput);
+  window.addEventListener("openai:set_globals", function () {
+    if (window.openai && window.openai.toolOutput) render(window.openai.toolOutput);
+  });
+})();
+</script>
+</body>
+</html>
