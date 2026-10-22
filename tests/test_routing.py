@@ -51,6 +51,13 @@ class RoutingTests(unittest.TestCase):
         self.assertGreater(route("hall_a", "hall_d")["walkMinutes"], route("hall_a", "hall_b")["walkMinutes"])
         self.assertGreater(route("marco_polo", "palazzo_ballroom")["walkMinutes"], route("marco_polo", "casanova")["walkMinutes"])
 
+    def test_north_core_connects_level_one_and_two(self):
+        r = route("marco_polo", "titian")
+        self.assertEqual(r["levels"], [1, 2])
+        self.assertIn("l1_esc_n", r["path"])
+        self.assertLess(r["meters"], 150)
+        self.assertLess(route("galileo", "veronese")["walkMinutes"], 3)
+
     def test_hub_range(self):
         r = route_range("marco_polo", "hub")
         self.assertLess(r["bestMinutes"], r["worstMinutes"])

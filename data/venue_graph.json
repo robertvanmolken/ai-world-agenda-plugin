@@ -29,6 +29,8 @@
     "l1_ec":       {"level": 1, "x": 1400, "y": 400,  "type": "junction"},
     "l1_em":       {"level": 1, "x": 1400, "y": 275,  "type": "junction"},
     "l1_eg":       {"level": 1, "x": 1400, "y": 150,  "type": "junction"},
+    "l1_esc_n":    {"level": 1, "x": 1410, "y": 262,  "type": "escalator", "label": "the Level 1 north escalator"},
+    "l1_elev_n":   {"level": 1, "x": 1410, "y": 307,  "type": "elevator", "label": "the Level 1 north elevator"},
 
     "hall_d":      {"level": 2, "x": 800,  "y": 420,  "type": "zone", "poly": [[650,298],[955,298],[955,390],[1030,390],[1030,545],[650,545]]},
     "hall_c":      {"level": 2, "x": 800,  "y": 650,  "type": "zone", "poly": [[480,545],[1030,545],[1198,600],[1198,705],[1150,762],[480,762]]},
@@ -76,7 +78,7 @@
   "edges": [
     ["hall_g", "g_esc_n"], ["hall_g", "g_esc_s"], ["hall_g", "l1_door"],
     ["l1_door", "l1_foyer"], ["l1_foyer", "l1_esc_e"], ["l1_foyer", "l1_elev"], ["l1_foyer", "l1_rooms"], ["l1_foyer", "l1_e1"],
-    ["l1_e1", "l1_ec"], ["l1_ec", "l1_em"], ["l1_em", "l1_eg"],
+    ["l1_e1", "l1_ec"], ["l1_ec", "l1_em"], ["l1_em", "l1_eg"], ["l1_em", "l1_esc_n"], ["l1_em", "l1_elev_n"],
     ["l1_ec", "casanova"], ["l1_em", "marco_polo"], ["l1_eg", "galileo"],
 
     ["hall_d", "hall_c"], ["hall_c", "hall_b"], ["hall_b", "hall_a"],
@@ -100,6 +102,8 @@
     ["g_esc_s", "l2_esc_ba", "escalator"],
     ["l1_esc_e", "l2_esc_e", "escalator"],
     ["l1_elev", "l2_elev_e", "elevator"],
+    ["l1_esc_n", "l2_esc_n", "escalator"],
+    ["l1_elev_n", "l2_elev_n", "elevator"],
     ["l2_esc_n", "l3_esc", "escalator"],
     ["l2_elev_n", "l3_elev", "elevator"],
     ["l3_esc", "l4_esc", "escalator"],
