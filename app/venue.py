@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 import re
 from datetime import datetime
 from functools import lru_cache
@@ -92,8 +93,14 @@ def travel_minutes(a: str, b: str) -> tuple[int, int]:
     if a == "hub" and b == "hub":
         lo = hi = venue()["model"]["sameZoneMinutes"]
     else:
-        vals = [_walk(x, y) for x in _candidates(a) for y in _candidates(b)]
-        lo, hi = min(vals), max(vals)
+        from .routing import route_range  # local import: routing imports this module
+
+        r = route_range(a, b)
+        if r:
+            lo, hi = max(1, math.floor(r["bestMinutes"])), max(1, math.ceil(r["worstMinutes"]))
+        else:  # zone missing from the walking graph: fall back to the coarse model
+            vals = [_walk(x, y) for x in _candidates(a) for y in _candidates(b)]
+            lo, hi = min(vals), max(vals)
     buf = venue()["model"]["bufferMinutes"]
     return lo + buf, hi + buf
 
@@ -105,6 +112,22 @@ def _mins(t: str) -> int:
 
 def _label(zone: str) -> str:
     return venue()["hub"]["name"] if zone == "hub" else venue()["zones"][zone]["name"]
+
+
+def route_details(a: str, b: str) -> dict[str, Any] | None:
+    """Steps, levels, distance and map link for a walk between two zones (None when not routable)."""
+    from .routing import route_range
+
+    r = route_range(a, b)
+    if not r:
+        return None
+    return {
+        "steps": r["steps"], "levels": r["levels"], "meters": r["meters"], "polylines": r["polylines"],
+        "mapUrls": [
+            {"level": lv, "url": f"/venue/route?from={r['from']}&to={r['to']}&level={lv}"} for lv in r["levels"]
+        ],
+        "viaHub": "hub" in (a, b),
+    }
 
 
 def late_minutes(gap: int, best: int, worst: int) -> dict[str, int]:
@@ -196,6 +219,9 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
     levels = {venue()["zones"][z]["level"] for z in _candidates(za) + _candidates(zb)}
     out["lateIfWalking"] = late_minutes(gap, lo, hi)
     out["route"] = f"{_label(za)} -> {_label(zb)}" + (" (via escalator/elevator)" if len(levels) > 1 else "")
+    detail = route_details(za, zb)
+    if detail:
+        out["routeDetail"] = detail
     if "hub" in (za, zb):
         out["note"] = "The Oracle AI World Hub is on Level 2, but its exact hall is unconfirmed, so this is a range over Halls A-D."
     return out

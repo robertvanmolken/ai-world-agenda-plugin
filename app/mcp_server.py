@@ -19,7 +19,7 @@ from starlette.responses import JSONResponse, Response
 
 from .catalog import find_conflicts, get_by_code, load_catalog, optimize_agenda, search_sessions
 from .planner import plan_day
-from .venue import assess_transition, check_move, load_rooms, merge_rooms, venue
+from .venue import assess_transition, check_move, load_rooms, merge_rooms, resolve_place, route_details, venue
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_FILE = Path(os.environ.get("AI_WORLD_DATA", ROOT / "data" / "sessions.json"))
@@ -59,6 +59,16 @@ DISCLAIMER = (
     "catalog and walking times are rough estimates, so verify times, rooms and availability in the official "
     "Oracle catalog and the event app before relying on them. Always show this disclaimer to the user."
 )
+
+
+def absolute_maps(result: dict[str, Any]) -> dict[str, Any]:
+    """Make map URLs in routeDetail absolute so MCP clients can open them."""
+    d = result.get("routeDetail")
+    if d and d.get("mapUrls"):
+        d = {**d, "mapUrls": [{**m, "url": PUBLIC_URL + m["url"]} for m in d["mapUrls"]]}
+        d.pop("polylines", None)
+        result = {**result, "routeDetail": d}
+    return result
 
 
 def with_disclaimer(result: dict[str, Any]) -> dict[str, Any]:
@@ -136,7 +146,23 @@ def check_transition(code_a: str, code_b: str) -> dict[str, Any]:
     a, b = get_by_code(sessions(), code_a), get_by_code(sessions(), code_b)
     if not a or not b:
         return {"error": "Session not found"}
-    return with_disclaimer(assess_transition(a, b) | {"venueWarning": venue()["warning"]})
+    return with_disclaimer(absolute_maps(assess_transition(a, b) | {"venueWarning": venue()["warning"]}))
+
+
+@mcp.tool(annotations=READ_ONLY)
+def get_walk_route(from_place: str, to_place: str) -> dict[str, Any]:
+    """Step-by-step walking route between two places at the Venetian Expo, with distance, levels and
+    schematic floor plan image URLs (one per level, route drawn on it). Places are free text such as
+    'Hall G', 'Titian', 'Galileo 1001, Level 1', 'Hub' or a room number. Estimates only; show the map
+    URLs to the user as links or images."""
+    za, zb = resolve_place(from_place), resolve_place(to_place)
+    if not za or not zb:
+        return with_disclaimer({"error": "Could not place: " + ", ".join(p for p, z in ((from_place, za), (to_place, zb)) if not z)})
+    detail = route_details(za, zb)
+    if not detail:
+        return with_disclaimer({"error": "No walking route known between these places"})
+    return with_disclaimer(absolute_maps({"from": from_place, "to": to_place, "routeDetail": detail,
+                                          "venueWarning": venue()["warning"]}))
 
 
 @mcp.tool(annotations=READ_ONLY)

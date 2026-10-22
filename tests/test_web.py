@@ -33,7 +33,8 @@ class WebTest(unittest.TestCase):
         self.assertEqual(3, cta.count("<svg"))
         self.assertIn("https://calendly.com/exoblock/meet-at-ai-world", r)
         self.assertNotIn("github.com/robertvanmolken\"", r)
-        self.assertIn("not affiliated with or endorsed by Oracle", r)
+        self.assertIn("Not affiliated with or endorsed by Oracle", r)
+        self.assertIn("Not affiliated with, endorsed or sponsored by Oracle", r)
 
     def test_icons_served_but_not_original(self):
         for p in ["/icon.png", "/icon-192.png", "/favicon.ico", "/logo.png"]:

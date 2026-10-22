@@ -56,7 +56,7 @@ class VenueTests(unittest.TestCase):
             self.assertEqual(venue()["zones"][z]["level"], 2)
         # Level 2 room: walk to the Hub is a same-level walk, so the range is tight.
         lo, hi = travel_minutes("titian", "hub")
-        self.assertLessEqual(hi - lo, 1)
+        self.assertLessEqual(hi - lo, 2)
         # Level 1 room: always includes a level change, so even the best case is longer.
         lo1, hi1 = travel_minutes("marco_polo", "hub")
         self.assertGreater(lo1, lo)

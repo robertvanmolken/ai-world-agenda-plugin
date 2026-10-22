@@ -10,7 +10,9 @@ from starlette.responses import JSONResponse, Response
 from .catalog import find_conflicts, get_by_code, optimize_agenda, search_sessions
 from .mcp_server import ROOT, catalog, mcp, sessions, with_disclaimer
 from .planner import plan_day
-from .venue import assess_transition, venue
+from .mapsvg import levels as map_levels, render_level
+from .routing import route_range
+from .venue import assess_transition, resolve_place, route_details, venue
 
 
 def _origin(request: Request) -> str:
@@ -154,6 +156,51 @@ async def rest_transition(request: Request) -> Response:
     if not a or not b:
         return JSONResponse({"error": "Session not found"}, status_code=404)
     return JSONResponse(with_disclaimer(assess_transition(a, b) | {"venueWarning": venue()["warning"]}))
+
+
+@mcp.custom_route("/sessions/route", methods=["POST"])
+async def rest_route(request: Request) -> Response:
+    body = await _json_body(request)
+    if body is None:
+        return _BAD
+    za, zb = resolve_place(str(body.get("from") or "")), resolve_place(str(body.get("to") or ""))
+    if not za or not zb:
+        return JSONResponse({"error": "Could not place from/to"}, status_code=404)
+    detail = route_details(za, zb)
+    if not detail:
+        return JSONResponse({"error": "No walking route known"}, status_code=404)
+    return JSONResponse(with_disclaimer({"from": za, "to": zb, "routeDetail": detail, "venueWarning": venue()["warning"]}))
+
+
+_SVG = {"Cache-Control": "public, max-age=3600"}
+
+
+@mcp.custom_route("/venue/map/{level}.svg", methods=["GET"])
+async def venue_map(request: Request) -> Response:
+    try:
+        level = int(request.path_params["level"])
+    except ValueError:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    if level not in map_levels():
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    return Response(render_level(level), media_type="image/svg+xml", headers=_SVG)
+
+
+@mcp.custom_route("/venue/route", methods=["GET"])
+async def venue_route(request: Request) -> Response:
+    """SVG floor plan with the walking route drawn on it. Query: from, to (zone ids or places), level."""
+    q = request.query_params
+    za, zb = resolve_place(q.get("from", "")), resolve_place(q.get("to", ""))
+    r = route_range(za, zb) if za and zb else None
+    if not r:
+        return JSONResponse({"error": "No route"}, status_code=404)
+    try:
+        level = int(q.get("level") or r["levels"][0])
+    except ValueError:
+        return JSONResponse({"error": "Invalid level"}, status_code=400)
+    if level not in map_levels():
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    return Response(render_level(level, r), media_type="image/svg+xml", headers=_SVG)
 
 
 @mcp.custom_route("/agenda/plan", methods=["POST"])

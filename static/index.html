@@ -102,6 +102,15 @@ footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
 .v-ok{background:var(--sage);color:var(--sage-text)}.v-tight{background:#F9E3B4;color:#6B4A00}.v-unlikely,.v-overlap{background:var(--accent-soft);color:var(--accent-active)}.v-unknown{background:var(--surface-soft);color:var(--muted);border:1px solid var(--border)}
 .hop{background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius);padding:16px 22px;margin-top:10px}
 .hop p{color:var(--muted);font-size:.92rem;margin-top:4px}
+.rt-btn{margin-top:10px;padding:6px 16px;font-size:.85rem}
+.rt{margin-top:12px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:start}
+.rt-map img{width:100%;max-height:520px;object-fit:contain;border:1px solid var(--border-light);border-radius:12px;background:var(--warm-white)}
+.rt-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.rt-tabs button{font:inherit;font-size:.85rem;font-weight:600;border:1px solid var(--border);background:#fff;color:var(--text);border-radius:999px;padding:4px 14px;cursor:pointer}
+.rt-tabs button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.rt-steps{margin-left:1.2rem;font-size:.92rem}.rt-steps li{margin-bottom:6px}.rt-steps small{color:var(--muted)}
+.rt-sum{font-size:.9rem;color:var(--muted);margin-bottom:8px}
+@media(max-width:760px){.rt{grid-template-columns:1fr}}
 .fine{margin-top:16px;font-size:.85rem;color:var(--muted)}
 input.codes{flex:1;min-width:260px}
 .try-grid{display:grid;grid-template-columns:1fr;gap:24px;margin-top:28px}
@@ -284,6 +293,35 @@ $("f").onsubmit = async e => {
 };
 
 const verdictText = {ok: "OK", tight: "Tight", unlikely: "Unlikely", overlap: "Overlap", unknown: "Unknown"};
+function routeView(rd) {
+  const wrap = el("div");
+  const btn = el("button", "btn btn-ghost rt-btn", "Show route"); btn.type = "button";
+  const panel = el("div", "rt"); panel.hidden = true;
+  const mapBox = el("div", "rt-map");
+  const tabs = el("div", "rt-tabs");
+  const img = el("img"); img.alt = "Schematic floor plan with your walking route";
+  const buttons = [];
+  const show = i => { img.src = rd.mapUrls[i].url; buttons.forEach((b, j) => b.setAttribute("aria-pressed", String(i === j))); };
+  rd.mapUrls.forEach((m, i) => {
+    const b = el("button", "", "Level " + m.level); b.type = "button"; b.onclick = () => show(i);
+    buttons.push(b); tabs.appendChild(b);
+  });
+  mapBox.appendChild(tabs); mapBox.appendChild(img);
+  const info = el("div");
+  info.appendChild(el("p", "rt-sum", "About " + rd.meters + " m, " + (rd.levels.length > 1 ? "via Level " + rd.levels.join(" \u2192 ") : "on Level " + rd.levels[0]) + (rd.viaHub ? ". Hub hall unconfirmed, so the route shown is the shortest option." : ".")));
+  const ol = el("ol", "rt-steps");
+  rd.steps.forEach(st => { const li = el("li", "", st.text); if (st.meters) li.appendChild(el("small", "", " (" + st.meters + " m)")); ol.appendChild(li); });
+  info.appendChild(ol);
+  panel.appendChild(mapBox); panel.appendChild(info);
+  btn.onclick = () => {
+    panel.hidden = !panel.hidden;
+    btn.textContent = panel.hidden ? "Show route" : "Hide route";
+    if (!panel.hidden && !img.src) show(0);
+  };
+  wrap.appendChild(btn); wrap.appendChild(panel);
+  return wrap;
+}
+
 function hop(t) {
   const d = el("div", "hop");
   const v = el("span", "verdict v-" + (t.verdict || "unknown"), verdictText[t.verdict] || "Unknown");
@@ -296,6 +334,7 @@ function hop(t) {
   if (bits.length) d.appendChild(el("p", "", bits.join(" \u00b7 ")));
   if (t.lateIfWalking && t.lateIfWalking.worst > 0) d.appendChild(el("p", "", "If you walk, you could be " + (t.lateIfWalking.best === t.lateIfWalking.worst ? t.lateIfWalking.worst : t.lateIfWalking.best + "\u2013" + t.lateIfWalking.worst) + " min late."));
   if (t.reason) d.appendChild(el("p", "", t.reason));
+  if (t.routeDetail && t.routeDetail.steps) d.appendChild(routeView(t.routeDetail));
   return d;
 }
 

@@ -1,0 +1,111 @@
+{
+  "about": "Walking graph for the Venetian Expo. Coordinates are pixels on the official level plans (1920x1440), placed by eye from the plan symbols. Distances are estimates; refine them with scripts/calibrate.html.",
+  "metersPerPixel": 0.235,
+  "model": {
+    "walkMetersPerMinute": 80,
+    "escalatorMinutes": 0.6,
+    "elevatorMinutes": 1.2
+  },
+  "levels": {
+    "1": {"name": "Level 1", "view": [380, 50, 1200, 1230]},
+    "2": {"name": "Level 2", "view": [440, 150, 1100, 1130]},
+    "3": {"name": "Level 3", "view": [560, 130, 800, 1220]},
+    "4": {"name": "Level 4", "view": [560, 110, 800, 1200]},
+    "5": {"name": "Level 5", "view": [540, 130, 820, 1220]}
+  },
+  "nodes": {
+    "hall_g":      {"level": 1, "x": 820,  "y": 850,  "type": "zone", "poly": [[470,500],[670,500],[670,480],[750,480],[750,535],[925,535],[925,695],[1190,695],[1250,745],[1170,960],[1210,990],[1195,1050],[1150,1100],[1175,1200],[1100,1250],[470,1250]]},
+    "l1_rooms":    {"level": 1, "x": 990,  "y": 560,  "type": "zone", "rect": [826,405,330,295]},
+    "casanova":    {"level": 1, "x": 1250, "y": 400,  "type": "zone", "rect": [1140,350,225,100]},
+    "marco_polo":  {"level": 1, "x": 1250, "y": 275,  "type": "zone", "rect": [1140,225,225,100]},
+    "galileo":     {"level": 1, "x": 1250, "y": 150,  "type": "zone", "rect": [1140,98,225,100]},
+    "g_esc_n":     {"level": 1, "x": 897,  "y": 772,  "type": "escalator", "label": "the Hall G escalators (north)"},
+    "g_esc_s":     {"level": 1, "x": 897,  "y": 952,  "type": "escalator", "label": "the Hall G escalators (south)"},
+    "l1_door":     {"level": 1, "x": 1180, "y": 690,  "type": "junction", "label": "the Hall G east exit"},
+    "l1_foyer":    {"level": 1, "x": 1250, "y": 610,  "type": "junction", "label": "the Level 1 east foyer"},
+    "l1_esc_e":    {"level": 1, "x": 1318, "y": 565,  "type": "escalator", "label": "the Level 1 east escalator"},
+    "l1_elev":     {"level": 1, "x": 1295, "y": 685,  "type": "elevator", "label": "the Level 1 east elevators"},
+    "l1_e1":       {"level": 1, "x": 1390, "y": 520,  "type": "junction"},
+    "l1_ec":       {"level": 1, "x": 1400, "y": 400,  "type": "junction"},
+    "l1_em":       {"level": 1, "x": 1400, "y": 275,  "type": "junction"},
+    "l1_eg":       {"level": 1, "x": 1400, "y": 150,  "type": "junction"},
+
+    "hall_d":      {"level": 2, "x": 800,  "y": 420,  "type": "zone", "poly": [[650,298],[955,298],[955,390],[1030,390],[1030,545],[650,545]]},
+    "hall_c":      {"level": 2, "x": 800,  "y": 650,  "type": "zone", "poly": [[480,545],[1030,545],[1198,600],[1198,705],[1150,762],[480,762]]},
+    "hall_b":      {"level": 2, "x": 800,  "y": 880,  "type": "zone", "poly": [[480,762],[1150,762],[1120,900],[1080,1040],[480,1040]]},
+    "hall_a":      {"level": 2, "x": 800,  "y": 1130, "type": "zone", "poly": [[480,1040],[1090,1040],[1075,1200],[1040,1257],[480,1257]]},
+    "venetian_ballroom": {"level": 2, "x": 1135, "y": 400, "type": "zone", "rect": [1042,222,190,358]},
+    "bellini":     {"level": 2, "x": 1395, "y": 288,  "type": "zone", "rect": [1322,250,145,78]},
+    "titian":      {"level": 2, "x": 1395, "y": 388,  "type": "zone", "rect": [1322,348,145,78]},
+    "veronese":    {"level": 2, "x": 1395, "y": 483,  "type": "zone", "rect": [1322,445,145,78]},
+    "bassano":     {"level": 2, "x": 1395, "y": 580,  "type": "zone", "rect": [1325,545,145,75]},
+    "l2_esc_hc":   {"level": 2, "x": 836,  "y": 763,  "type": "escalator", "label": "the Hall B/C escalators"},
+    "l2_esc_ba":   {"level": 2, "x": 836,  "y": 1007, "type": "escalator", "label": "the Hall A/B escalators"},
+    "l2_door":     {"level": 2, "x": 1190, "y": 640,  "type": "junction", "label": "the Hall C east exit"},
+    "l2_elev_e":   {"level": 2, "x": 1137, "y": 785,  "type": "elevator", "label": "the Level 2 east elevators"},
+    "l2_esc_e":    {"level": 2, "x": 1219, "y": 657,  "type": "escalator", "label": "the Level 2 east escalator"},
+    "l2_foyer":    {"level": 2, "x": 1290, "y": 620,  "type": "junction", "label": "the Level 2 east foyer"},
+    "l2_elev_n":   {"level": 2, "x": 1282, "y": 473,  "type": "elevator", "label": "the Level 2 elevator by Artist Registration"},
+    "l2_esc_n":    {"level": 2, "x": 1282, "y": 385,  "type": "escalator", "label": "the Level 2 escalator by Titian"},
+    "l2_fn":       {"level": 2, "x": 1290, "y": 300,  "type": "junction"},
+
+    "lido":        {"level": 3, "x": 850,  "y": 392,  "type": "zone", "rect": [740,287,420,210]},
+    "murano":      {"level": 3, "x": 850,  "y": 632,  "type": "zone", "rect": [740,528,420,210]},
+    "san_polo":    {"level": 3, "x": 850,  "y": 880,  "type": "zone", "rect": [740,774,420,210]},
+    "toscana":     {"level": 3, "x": 850,  "y": 1120, "type": "zone", "rect": [740,1018,420,210]},
+    "l3_c_lido":   {"level": 3, "x": 690,  "y": 392,  "type": "junction"},
+    "l3_esc":      {"level": 3, "x": 652,  "y": 642,  "type": "escalator", "label": "the Level 3 west escalator"},
+    "l3_elev":     {"level": 3, "x": 652,  "y": 810,  "type": "elevator", "label": "the Level 3 west elevator"},
+    "l3_c_sp":     {"level": 3, "x": 690,  "y": 880,  "type": "junction"},
+    "l3_c_tos":    {"level": 3, "x": 690,  "y": 1120, "type": "junction"},
+
+    "delfino":     {"level": 4, "x": 850,  "y": 340,  "type": "zone", "rect": [736,233,426,215]},
+    "lando":       {"level": 4, "x": 850,  "y": 585,  "type": "zone", "rect": [736,479,426,215]},
+    "marcello":    {"level": 4, "x": 850,  "y": 840,  "type": "zone", "rect": [736,730,426,215]},
+    "zeno":        {"level": 4, "x": 850,  "y": 1085, "type": "zone", "rect": [736,977,426,215]},
+    "l4_c_del":    {"level": 4, "x": 690,  "y": 340,  "type": "junction"},
+    "l4_esc":      {"level": 4, "x": 647,  "y": 565,  "type": "escalator", "label": "the Level 4 west escalator"},
+    "l4_elev":     {"level": 4, "x": 648,  "y": 747,  "type": "elevator", "label": "the Level 4 west elevator"},
+    "l4_c_mar":    {"level": 4, "x": 690,  "y": 840,  "type": "junction"},
+    "l4_c_zen":    {"level": 4, "x": 690,  "y": 1085, "type": "junction"},
+
+    "palazzo_ballroom": {"level": 5, "x": 850, "y": 730, "type": "zone", "rect": [718,254,508,948]},
+    "l5_esc":      {"level": 5, "x": 622,  "y": 661,  "type": "escalator", "label": "the Level 5 west escalator"},
+    "l5_elev":     {"level": 5, "x": 620,  "y": 851,  "type": "elevator", "label": "the Level 5 west elevator"}
+  },
+  "edges": [
+    ["hall_g", "g_esc_n"], ["hall_g", "g_esc_s"], ["hall_g", "l1_door"],
+    ["l1_door", "l1_foyer"], ["l1_foyer", "l1_esc_e"], ["l1_foyer", "l1_elev"], ["l1_foyer", "l1_rooms"], ["l1_foyer", "l1_e1"],
+    ["l1_e1", "l1_ec"], ["l1_ec", "l1_em"], ["l1_em", "l1_eg"],
+    ["l1_ec", "casanova"], ["l1_em", "marco_polo"], ["l1_eg", "galileo"],
+
+    ["hall_d", "hall_c"], ["hall_c", "hall_b"], ["hall_b", "hall_a"],
+    ["hall_c", "l2_esc_hc"], ["hall_b", "l2_esc_hc"], ["hall_b", "l2_esc_ba"], ["hall_a", "l2_esc_ba"],
+    ["hall_c", "l2_door"], ["hall_b", "l2_elev_e"],
+    ["l2_door", "l2_esc_e"], ["l2_esc_e", "l2_foyer"], ["l2_elev_e", "l2_foyer"],
+    ["l2_foyer", "bassano"], ["l2_foyer", "l2_elev_n"], ["l2_elev_n", "veronese"], ["l2_elev_n", "l2_esc_n"],
+    ["l2_esc_n", "titian"], ["l2_esc_n", "l2_fn"], ["l2_fn", "bellini"],
+    ["venetian_ballroom", "l2_esc_n"], ["venetian_ballroom", "l2_elev_n"],
+
+    ["lido", "l3_c_lido"], ["l3_c_lido", "l3_esc"], ["murano", "l3_esc"], ["l3_esc", "l3_elev"],
+    ["l3_elev", "l3_c_sp"], ["san_polo", "l3_c_sp"], ["l3_c_sp", "l3_c_tos"], ["toscana", "l3_c_tos"],
+
+    ["delfino", "l4_c_del"], ["l4_c_del", "l4_esc"], ["lando", "l4_esc"], ["l4_esc", "l4_elev"],
+    ["l4_elev", "l4_c_mar"], ["marcello", "l4_c_mar"], ["l4_c_mar", "l4_c_zen"], ["zeno", "l4_c_zen"],
+
+    ["palazzo_ballroom", "l5_esc"], ["palazzo_ballroom", "l5_elev"], ["l5_esc", "l5_elev"]
+  ],
+  "links": [
+    ["g_esc_n", "l2_esc_hc", "escalator"],
+    ["g_esc_s", "l2_esc_ba", "escalator"],
+    ["l1_esc_e", "l2_esc_e", "escalator"],
+    ["l1_elev", "l2_elev_e", "elevator"],
+    ["l2_esc_n", "l3_esc", "escalator"],
+    ["l2_elev_n", "l3_elev", "elevator"],
+    ["l3_esc", "l4_esc", "escalator"],
+    ["l3_elev", "l4_elev", "elevator"],
+    ["l4_esc", "l5_esc", "escalator"],
+    ["l4_elev", "l5_elev", "elevator"]
+  ]
+}
+

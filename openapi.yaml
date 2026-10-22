@@ -94,6 +94,34 @@ paths:
                 minimumTransitionMinutes: {type: integer, default: 0}
       responses:
         '200': {description: Conflict report}
+  /sessions/route:
+    post:
+      operationId: getWalkRoute
+      summary: Step-by-step walking route between two places at the Venetian Expo, with schematic floor plan URLs (estimates).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from, to]
+              properties:
+                from: {type: string, description: "Free text such as 'Hall G', 'Titian' or 'Hub'"}
+                to: {type: string}
+      responses:
+        '200': {description: Route with steps, levels, distance and mapUrls (SVG per level)}
+        '404': {description: Place not found or no route}
+  /venue/route:
+    get:
+      operationId: getRouteMap
+      summary: SVG floor plan of one level with the walking route drawn on it.
+      parameters:
+        - {name: from, in: query, required: true, schema: {type: string}}
+        - {name: to, in: query, required: true, schema: {type: string}}
+        - {name: level, in: query, required: false, schema: {type: integer}}
+      responses:
+        '200': {description: SVG image}
+        '404': {description: No route}
   /agenda/plan:
     post:
       operationId: planStrictDay

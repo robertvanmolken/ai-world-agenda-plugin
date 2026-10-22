@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Venue graph calibration</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;display:flex;height:100vh}
+#side{width:300px;padding:14px;overflow:auto;border-right:1px solid #ccc;font-size:14px}
+#stage{flex:1;overflow:auto;background:#eee}
+#wrap{position:relative;display:inline-block}
+#plan{display:block;width:1920px;opacity:.55}
+svg{position:absolute;left:0;top:0;width:1920px;height:1440px}
+.node{cursor:grab}
+button,select,input{font:inherit;margin:3px 0}
+code{background:#f2f2f2;padding:1px 4px}
+</style>
+</head>
+<body>
+<div id="side">
+  <h3>Venue graph calibration</h3>
+  <ol>
+    <li>Load <code>data/venue_graph.json</code>.</li>
+    <li>Load the matching plan image from <code>data/room-screenshots/</code> (level-1-1.png and so on).</li>
+    <li>Pick the level, then drag nodes onto the right spot. Edges follow.</li>
+    <li>Save, then replace <code>data/venue_graph.json</code> and run the tests.</li>
+  </ol>
+  <label>Graph JSON <input type="file" id="gfile" accept=".json"></label><br>
+  <label>Plan image <input type="file" id="pfile" accept="image/*"></label><br>
+  <label>Level <select id="level"></select></label><br>
+  <label><input type="checkbox" id="labels" checked> Show labels</label><br>
+  <button id="save">Save graph JSON</button>
+  <p id="info">No node selected.</p>
+  <p>Zone shapes (rect or poly) are not moved by dragging. Edit them in the JSON, or tick "move shape with zone" below.</p>
+  <label><input type="checkbox" id="moveShape" checked> move shape with zone</label>
+</div>
+<div id="stage"><div id="wrap"><img id="plan" alt=""><svg id="svg"></svg></div></div>
+<script>
+let g = null, sel = null;
+const $ = id => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+const color = {zone: "#481F2B", escalator: "#B8321F", elevator: "#1F6FB8", junction: "#888"};
+$("gfile").onchange = async e => { g = JSON.parse(await e.target.files[0].text()); fillLevels(); draw(); };
+$("pfile").onchange = e => { $("plan").src = URL.createObjectURL(e.target.files[0]); };
+$("level").onchange = draw; $("labels").onchange = draw;
+$("save").onclick = () => {
+  if (!g) return;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(g, null, 2)], {type: "application/json"}));
+  a.download = "venue_graph.json"; a.click();
+};
+function fillLevels() { $("level").replaceChildren(...Object.keys(g.levels).map(l => { const o = document.createElement("option"); o.value = l; o.textContent = "Level " + l; return o; })); }
+function mk(tag, attrs) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+function draw() {
+  if (!g) return;
+  const svg = $("svg"), lv = +$("level").value; svg.replaceChildren();
+  const N = g.nodes;
+  for (const [id, n] of Object.entries(N)) {
+    if (n.level !== lv || n.type !== "zone") continue;
+    if (n.rect) svg.appendChild(mk("rect", {x: n.rect[0], y: n.rect[1], width: n.rect[2], height: n.rect[3], fill: "rgba(72,31,43,.08)", stroke: "#481F2B", "stroke-dasharray": "6 4"}));
+    if (n.poly) svg.appendChild(mk("polygon", {points: n.poly.map(p => p.join(",")).join(" "), fill: "rgba(72,31,43,.08)", stroke: "#481F2B", "stroke-dasharray": "6 4"}));
+  }
+  for (const [a, b] of g.edges) if (N[a].level === lv && N[b].level === lv) svg.appendChild(mk("line", {x1: N[a].x, y1: N[a].y, x2: N[b].x, y2: N[b].y, stroke: "#B8321F", "stroke-width": 2}));
+  for (const [id, n] of Object.entries(N)) {
+    if (n.level !== lv) continue;
+    const c = mk("circle", {cx: n.x, cy: n.y, r: n.type === "zone" ? 12 : 9, fill: color[n.type] || "#000", stroke: "#fff", "stroke-width": 2, class: "node"});
+    c.onpointerdown = ev => start(ev, id);
+    svg.appendChild(c);
+    if ($("labels").checked) { const t = mk("text", {x: n.x + 14, y: n.y + 5, "font-size": 16, fill: "#000", stroke: "#fff", "stroke-width": 4, "paint-order": "stroke"}); t.textContent = id; t.style.pointerEvents = "none"; svg.appendChild(t); }
+  }
+}
+function start(ev, id) {
+  sel = id; const n = g.nodes[id]; ev.target.setPointerCapture(ev.pointerId);
+  $("info").textContent = id + " (" + n.type + ") at " + n.x + ", " + n.y;
+  const rect = $("svg").getBoundingClientRect();
+  ev.target.onpointermove = m => {
+    const x = Math.round(m.clientX - rect.left), y = Math.round(m.clientY - rect.top);
+    const dx = x - n.x, dy = y - n.y; n.x = x; n.y = y;
+    if (n.type === "zone" && $("moveShape").checked) {
+      if (n.rect) { n.rect[0] += dx; n.rect[1] += dy; }
+      if (n.poly) n.poly = n.poly.map(p => [p[0] + dx, p[1] + dy]);
+    }
+    $("info").textContent = id + " (" + n.type + ") at " + x + ", " + y;
+    draw(); const c = [...$("svg").querySelectorAll("circle")].find(el => +el.getAttribute("cx") === x && +el.getAttribute("cy") === y);
+    if (c) { c.setPointerCapture(m.pointerId); c.onpointermove = ev.target.onpointermove; c.onpointerup = () => { c.onpointermove = null; }; }
+  };
+  ev.target.onpointerup = () => { ev.target.onpointermove = null; };
+}
+</script>
+</body>
+</html>

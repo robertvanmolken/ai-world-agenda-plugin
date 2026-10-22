@@ -90,9 +90,10 @@ REST:
 - `GET /` (landing page), `GET /status`, `GET /health`, `GET /catalog/meta`
 - `GET /sessions`, `GET /sessions/code/{code}`
 - `POST /sessions/search`, `POST /sessions/conflicts`, `POST /agenda/optimize`
+- `POST /sessions/route` (steps, levels, distance, map URLs), `GET /venue/route?from=&to=&level=` and `GET /venue/map/{level}.svg` (schematic floor plans as SVG)
 - `GET /openapi.yaml`, `GET /.well-known/ai-plugin.json`, `GET /logo.png`
 
-MCP (`/mcp`) tools, all read-only: `search_sessions`, `get_session_by_code`, `find_session_conflicts`, `optimize_agenda`, `get_catalog_metadata`, plus ChatGPT-style `search` and `fetch` (the session code is the id).
+MCP (`/mcp`) tools, all read-only: `search_sessions`, `get_session_by_code`, `find_session_conflicts`, `optimize_agenda`, `get_walk_route`, `get_catalog_metadata`, plus ChatGPT-style `search` and `fetch` (the session code is the id).
 
 ## Refresh from a newer HTML snapshot
 
@@ -122,6 +123,12 @@ then the room import, then `python scripts/validate_rooms.py`.
 - The Oracle AI World Hub is on Level 2 (from the catalog), but its exact hall is unconfirmed (`hub.confirmed: false`), so Hub transitions return a best/worst range over Halls A-D. Set `confirmed` and the `candidates` list once the hall is known.
 - MCP tool `check_transition(code_a, code_b)` and REST `POST /sessions/transition` return `ok`, `tight`, `unlikely`, `overlap` or `unknown`. `find_session_conflicts` also returns `travel`, and `optimize_agenda` skips sessions that are unlikely to be reachable.
 - `search_sessions` accepts `room` and `level` filters.
+
+### Walking routes and floor plans
+
+`data/venue_graph.json` is a walking graph of the expo: zones, escalators, elevators and corridor junctions with pixel coordinates on the official level plans, plus edges and level links. `app/routing.py` runs Dijkstra over it (distances from `metersPerPixel`, 80 m/min, plus escalator/elevator time) and `app/mapsvg.py` draws schematic SVG plans with the route. Walking times in `check_transition` and the planners come from this router (with the old `venue.json` model as fallback for zones missing from the graph).
+
+The coordinates were placed by eye, so refine them: open `scripts/calibrate.html` in a browser, load `data/venue_graph.json` and a plan image from `data/room-screenshots/`, drag nodes to the right spot and save the JSON back to `data/venue_graph.json`. Then run the tests.
 
 To fix a room by hand, edit `data/rooms.csv` (the next import overwrites it), then run `python scripts/validate_rooms.py` (add `--missing` to list sessions without a room).
 
