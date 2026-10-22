@@ -144,6 +144,21 @@ class RoutingWebTests(unittest.TestCase):
         self.assertLess(near["meters"], far["meters"])
         self.assertEqual(route("galileo", "galileo")["meters"], 0)
 
+    def test_route_page_and_images(self):
+        from app.mcp_server import get_route_map_images, get_walk_route
+        r = self.client.get("/venue/route/page?from=hall_g&to=titian")
+        self.assertEqual(200, r.status_code)
+        self.assertIn("text/html", r.headers["content-type"])
+        self.assertIn("/venue/route.png?from=hall_g&amp;to=titian&amp;level=2", r.text)
+        self.assertIn("<li>", r.text)
+        self.assertEqual(404, self.client.get("/venue/route/page?from=zzz&to=titian").status_code)
+        d = get_walk_route("Hall G", "Titian")["routeDetail"]
+        self.assertTrue(d["pageUrl"].startswith("http") and "/venue/route/page?from=hall_g&to=titian" in d["pageUrl"])
+        imgs = get_route_map_images("Hall G", "Titian")
+        self.assertEqual(2, len(imgs))
+        self.assertEqual("image/png", imgs[0].to_image_content().mimeType)
+        self.assertEqual(["No walking route known between these places"], get_route_map_images("zzz", "Titian"))
+
     def test_stairs_wording_and_markers(self):
         steps = " ".join(s["text"] for s in route_range("hall_g", "hall_b")["steps"])
         self.assertIn("escalator or stairs up to Level 2", steps)

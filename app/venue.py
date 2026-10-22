@@ -137,6 +137,7 @@ def route_details(a: str, b: str, step_free: bool = False, room_a: str | None = 
              "pngUrl": f"/venue/route.png?from={r['from']}&to={r['to']}&level={lv}{sf}"}
             for lv in r["levels"]
         ],
+        "pageUrl": f"/venue/route/page?from={r['from']}&to={r['to']}{sf}",
         "viaHub": "hub" in (a, b),
     }
 

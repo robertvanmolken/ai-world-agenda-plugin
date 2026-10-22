@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP, Image
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import Icon, ToolAnnotations
 from starlette.requests import Request
@@ -68,7 +68,9 @@ def absolute_maps(result: dict[str, Any]) -> dict[str, Any]:
     if d and d.get("mapUrls"):
         # PNG first: ChatGPT cannot show SVG. The SVG stays available as svgUrl.
         d = {**d, "mapUrls": [{"level": m["level"], "url": PUBLIC_URL + m["pngUrl"], "svgUrl": PUBLIC_URL + m["url"]}
-                              for m in d["mapUrls"]]}
+                              for m in d["mapUrls"]],
+             # ChatGPT often cannot embed images; this page shows steps and all maps and opens when clicked.
+             "pageUrl": PUBLIC_URL + d["pageUrl"]}
         d.pop("polylines", None)
         result = {**result, "routeDetail": d}
     return result
@@ -159,7 +161,8 @@ def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> d
     """Step-by-step walking route between two places at the Venetian Expo, with distance, levels and
     schematic floor plan image URLs (one per level, route drawn on it). Places are free text such as
     'Hall G', 'Titian', 'Galileo 1001, Level 1', 'Hub' or a room number. Estimates only; show the map
-    URLs (PNG images) to the user as images or links. Set step_free=true only when the user asks for
+    URLs (PNG images) to the user as images or links. ALWAYS also give the user routeDetail.pageUrl as a
+    clickable link ("Open the route maps"): many chat clients cannot embed images. Set step_free=true only when the user asks for
     elevators or step-free access: the route then uses elevators, never escalators."""
     za, zb = resolve_place(from_place), resolve_place(to_place)
     if not za or not zb:
@@ -169,6 +172,20 @@ def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> d
         return with_disclaimer({"error": "No walking route known between these places"})
     return with_disclaimer(absolute_maps({"from": from_place, "to": to_place, "routeDetail": detail,
                                           "venueWarning": venue()["warning"]}))
+
+
+@mcp.tool(annotations=READ_ONLY)
+def get_route_map_images(from_place: str, to_place: str, step_free: bool = False) -> list[Any]:
+    """The floor plan images (one PNG per level, route drawn on it) for a walk between two places, returned as
+    image content. Use after get_walk_route when the user wants to see the map; places are free text as there."""
+    from .mappng import render_level_png
+    from .routing import route_range
+
+    za, zb = resolve_place(from_place), resolve_place(to_place)
+    r = route_range(za, zb, step_free, place_room(from_place, za), place_room(to_place, zb)) if za and zb else None
+    if not r:
+        return ["No walking route known between these places"]
+    return [Image(data=render_level_png(lv, r), format="png") for lv in r["levels"]]
 
 
 @mcp.tool(annotations=READ_ONLY)

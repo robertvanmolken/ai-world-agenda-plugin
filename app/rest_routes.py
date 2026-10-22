@@ -1,6 +1,7 @@
 """Legacy REST routes (ChatGPT OpenAPI/plugin flow), registered on the MCP app."""
 from __future__ import annotations
 
+import html
 import json
 from typing import Any
 
@@ -18,6 +19,10 @@ from .venue import assess_transition, resolve_place, route_details, venue
 
 def _flag(value: Any) -> bool:
     return str(value).strip().lower() in ("1", "true", "yes", "on")
+
+
+def _label_of(zone: str) -> str:
+    return venue()["hub"]["name"] if zone == "hub" else venue()["zones"][zone]["name"]
 
 
 def _room(q: Any, side: str, zone: str | None) -> str | None:
@@ -215,6 +220,36 @@ async def venue_route(request: Request) -> Response:
 
 
 _PNG = {"Cache-Control": "public, max-age=3600"}
+
+
+@mcp.custom_route("/venue/route/page", methods=["GET"])
+async def venue_route_page(request: Request) -> Response:
+    """Small HTML page with the steps and the map of every level, to open from a chat link."""
+    q = request.query_params
+    za, zb = resolve_place(q.get("from", "")), resolve_place(q.get("to", ""))
+    ra, rb = _room(q, "from", za), _room(q, "to", zb)
+    sf = _flag(q.get("stepFree"))
+    r = route_range(za, zb, sf, ra, rb) if za and zb else None
+    if not r:
+        return JSONResponse({"error": "No route"}, status_code=404)
+    d = route_details(za, zb, sf, ra, rb) or {}
+    steps = "".join(f"<li>{html.escape(s['text'])}</li>" for s in r["steps"])
+    maps = "".join(
+        f'<h2>Level {m["level"]}</h2><a href="{html.escape(m["pngUrl"])}"><img src="{html.escape(m["pngUrl"])}" alt="Route on Level {m["level"]}"></a>'
+        for m in d.get("mapUrls", [])
+    )
+    title = f"{html.escape(q.get('from', ''))} to {html.escape(q.get('to', ''))}"
+    body = (
+        "<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
+        f"<title>Walking route {title}</title>"
+        "<style>body{font:16px/1.5 system-ui,sans-serif;max-width:900px;margin:24px auto;padding:0 16px;color:#2B1A20}"
+        "img{width:100%;border:1px solid #E5D9D0;border-radius:12px}h1{font-size:1.4rem}h2{font-size:1.1rem;margin-top:24px}"
+        "small{color:#76686B}</style>"
+        f"<h1>Walking route: {html.escape(_label_of(za))} to {html.escape(_label_of(zb))}</h1>"
+        f"<p>About {r['meters']} m{' (step-free, elevators only)' if sf else ''}.</p><ol>{steps}</ol>{maps}"
+        "<p><small>Schematic floor plans, not to scale. Estimates only; verify in the official event app.</small></p>"
+    )
+    return Response(body, media_type="text/html; charset=utf-8", headers=_PNG)
 
 
 @mcp.custom_route("/venue/map/{level}.png", methods=["GET"])
