@@ -76,25 +76,37 @@ def qr_image(size_mm: float) -> Image.Image:
 
 
 def front(fn: Fonts) -> Image.Image:
+    """Same layout as static/og-image.png (emblem left, heading and text right, red tag), rebuilt sharp for print."""
     img = Image.new("RGB", (W, H), BURGUNDY)
     d = ImageDraw.Draw(img)
-    d.rectangle([0, H - BLEED - mm(3), W, H], fill=DARK)  # footer band runs into the bleed
-    emblem = Image.open(ROOT / "AI World Agenda Assistant Emblem.png").convert("RGB")
-    tile = mm(18)
-    emblem = emblem.resize((tile, tile), Image.LANCZOS)
-    d.rounded_rectangle([X0, Y0, X0 + tile, Y0 + tile], radius=mm(2.5), fill="#FFFFFF")
-    img.paste(emblem, (X0, Y0))
-    tag = fn.get("plus-jakarta-sans", 6.5, 700)
-    d.text((X0 + tile + mm(4), Y0 + tile // 2), "UNOFFICIAL COMMUNITY TOOL", font=tag, fill=SOFT, anchor="lm")
-    title = fn.get("source-serif-4", 19, 600)
-    y = Y0 + tile + mm(5)
-    for line in ("AI World", "Agenda Assistant"):
-        d.text((X0, y), line, font=title, fill="#FFFFFF")
-        y += round(title.size * 1.1)
-    body = fn.get("plus-jakarta-sans", 8, 400)
-    for line in wrap(d, "Plan your Oracle AI World days from Claude or ChatGPT.", body, X1 - X0):
-        d.text((X0, y + mm(1.5)), line, font=body, fill="#E3D3D6")
-        y += round(body.size * 1.35)
+    tile = mm(27)
+    ty = (H - tile) // 2 - mm(2)
+    emblem = Image.open(ROOT / "AI World Agenda Assistant Emblem.png").convert("RGB").resize((tile, tile), Image.LANCZOS)
+    img.paste(emblem, (X0, ty))
+    tx = X0 + tile + mm(5)
+    right = X1 - tx
+    y = ty
+    small = fn.get("source-serif-4", 11, 600)
+    d.text((tx, y), "Oracle AI World 2026", font=small, fill="#FFFFFF")
+    y += round(small.size * 1.25)
+    big = fn.get("source-serif-4", 15.5, 600)
+    d.text((tx, y), "Agenda", font=big, fill=SOFT)
+    y += round(big.size * 1.0)
+    d.text((tx, y), "Assistant", font=big, fill=SOFT)
+    y += round(big.size * 1.2)
+    body = fn.get("plus-jakarta-sans", 6.5, 400)
+    text = "Search sessions, check rooms, check if you can walk between sessions and plan your day. Works with Claude and ChatGPT."
+    for line in wrap(d, text, body, right):
+        d.text((tx, y), line, font=body, fill="#E3D3D6")
+        y += round(body.size * 1.4)
+    tag = fn.get("plus-jakarta-sans", 6, 700)
+    label = "Unofficial community tool"
+    tw = d.textlength(label, font=tag)
+    px_, py_ = mm(2.6), mm(1.4)
+    ph = tag.size + 2 * py_
+    by = Y1 - ph
+    d.rounded_rectangle([tx, by, tx + tw + 2 * px_, by + ph], radius=mm(1.2), fill=ACCENT)
+    d.text((tx + px_, by + py_ - 2), label, font=tag, fill="#FFFFFF")
     return img
 
 
@@ -134,6 +146,8 @@ def main(out: Path) -> None:
     f.save(out / "card-front.png", dpi=(DPI, DPI))
     b.save(out / "card-back.png", dpi=(DPI, DPI))
     f.save(out / "card-print.pdf", save_all=True, append_images=[b], resolution=DPI)
+    f.save(out / "card-front.pdf", resolution=DPI)
+    b.save(out / "card-back.pdf", resolution=DPI)
     code = segno.make(URL, error="q")
     code.save(str(out / "qr-aiworld.svg"), scale=10, border=4, dark=BURGUNDY, light="#FFFFFF")
     code.save(str(out / "qr-aiworld.png"), scale=40, border=4, dark=BURGUNDY, light="#FFFFFF")
