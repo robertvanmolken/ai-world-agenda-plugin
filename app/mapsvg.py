@@ -4,7 +4,7 @@ from __future__ import annotations
 from html import escape
 from typing import Any
 
-from .routing import graph, route_range
+from .routing import graph, room_parts, room_rect, route_range
 from .venue import venue
 
 _FILL = {"hall": "#E9DCE0", "ballroom": "#E9DCE0", "meeting": "#DCEBEE"}
@@ -36,6 +36,25 @@ def _legend(vx: int, vy: int, vw: int, vh: int) -> str:
         + _marker("escalator", x + 14, y, False) + f'<text x="{x + 38}" y="{y + 1}" font-size="17" fill="#2B1A20" dominant-baseline="middle">Escalator</text>'
         + _marker("elevator", x + 14, y + 38, False) + f'<text x="{x + 38}" y="{y + 39}" font-size="17" fill="#2B1A20" dominant-baseline="middle">Elevator (step-free)</text>'
     )
+
+
+def _rooms_svg(zone: str, hi: set[str]) -> str:
+    out = []
+    for name, (x, y, w, h) in graph().get("rooms", {}).get(zone, {}).items():
+        on = name in hi
+        out.append(
+            f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="2" fill="{"#F6D4CF" if on else "#F7FBFC"}" '
+            f'stroke="{_ACCENT if on else "#9DB4BA"}" stroke-width="{1.6 if on else .8}"/>'
+            f'<text x="{x + w / 2}" y="{y + h / 2}" font-size="{12 if zone == "venetian_ballroom" else 8.5}" '
+            f'fill="{_ACCENT if on else "#4A6168"}" text-anchor="middle" dominant-baseline="middle" '
+            f'font-weight="{700 if on else 500}">{escape(name)}</text>'
+        )
+    return "".join(out)
+
+
+def _end_point(route: dict[str, Any], key: str, node: dict[str, Any]) -> tuple[float, float]:
+    rect = room_rect(route[key], route.get("fromRoom" if key == "from" else "toRoom"))
+    return (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2) if rect else (node["x"], node["y"])
 
 
 def levels() -> list[int]:
@@ -86,10 +105,21 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
             continue
         kind = zones.get(zid, {}).get("kind", "meeting")
         out.append(_shape(n, kind, zid if zid in ends else ""))
+        has_rooms = zid in graph().get("rooms", {})
+        hi: set[str] = set()
+        if route and has_rooms:
+            if zid == route["from"]:
+                hi |= set(room_parts(zid, route.get("fromRoom")))
+            if zid == route["to"]:
+                hi |= set(room_parts(zid, route.get("toRoom")))
+            out.append(_rooms_svg(zid, hi))
+        elif has_rooms:
+            out.append(_rooms_svg(zid, hi))
         name = zones.get(zid, {}).get("name", zid)
         size = 30 if kind == "hall" else 17 if kind == "ballroom" else 20
+        label_y = n["rect"][1] - 12 if has_rooms else n["y"] + (30 if zid in ends else 0)
         labels.append(
-            f'<text x="{n["x"]}" y="{n["y"] + (30 if zid in ends else 0)}" font-size="{size}" fill="#2B1A20" '
+            f'<text x="{n["x"]}" y="{label_y}" font-size="{size}" fill="#2B1A20" '
             f'text-anchor="middle" dominant-baseline="middle" font-weight="600" stroke="#fff" stroke-width="5" '
             f'paint-order="stroke" stroke-linejoin="round">{escape(name)}</text>'
         )
@@ -111,9 +141,10 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
         for key, label in (("from", "A"), ("to", "B")):
             n = nodes.get(route[key])
             if n and n["level"] == level:
+                px, py = _end_point(route, key, n)
                 out.append(
-                    f'<circle cx="{n["x"]}" cy="{n["y"] - 38}" r="20" fill="{_ACCENT}" stroke="#fff" stroke-width="4"/>'
-                    f'<text x="{n["x"]}" y="{n["y"] - 37}" font-size="22" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">{label}</text>'
+                    f'<circle cx="{px}" cy="{py - 38}" r="20" fill="{_ACCENT}" stroke="#fff" stroke-width="4"/>'
+                    f'<text x="{px}" y="{py - 37}" font-size="22" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">{label}</text>'
                 )
     out.extend(labels)
     out.append(_legend(vx, vy, vw, vh))

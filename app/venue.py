@@ -66,6 +66,13 @@ def resolve_zone(room: str, area: str, level: int | None) -> str | None:
     return None
 
 
+def session_room(s: dict[str, Any], zone: str | None) -> str | None:
+    """Room key on the plan for a session ('2204'), or None for halls and the Hub."""
+    from .routing import room_key
+
+    return room_key(zone, s.get("room")) if zone and zone != "hub" else None
+
+
 def session_zone(s: dict[str, Any]) -> str | None:
     if not s.get("room"):
         return None
@@ -88,14 +95,14 @@ def _candidates(zone: str) -> list[str]:
     return venue()["hub"]["candidates"] if zone == "hub" else [zone]
 
 
-def travel_minutes(a: str, b: str, step_free: bool = False) -> tuple[int, int]:
+def travel_minutes(a: str, b: str, step_free: bool = False, room_a: str | None = None, room_b: str | None = None) -> tuple[int, int]:
     """(best, worst) estimated minutes, including the buffer. Hub = range over candidate halls."""
     if a == "hub" and b == "hub":
         lo = hi = venue()["model"]["sameZoneMinutes"]
     else:
         from .routing import route_range  # local import: routing imports this module
 
-        r = route_range(a, b, step_free)
+        r = route_range(a, b, step_free, room_a, room_b)
         if r:
             lo, hi = max(1, math.floor(r["bestMinutes"])), max(1, math.ceil(r["worstMinutes"]))
         else:  # zone missing from the walking graph: fall back to the coarse model
@@ -114,14 +121,14 @@ def _label(zone: str) -> str:
     return venue()["hub"]["name"] if zone == "hub" else venue()["zones"][zone]["name"]
 
 
-def route_details(a: str, b: str, step_free: bool = False) -> dict[str, Any] | None:
+def route_details(a: str, b: str, step_free: bool = False, room_a: str | None = None, room_b: str | None = None) -> dict[str, Any] | None:
     """Steps, levels, distance and map link for a walk between two zones (None when not routable)."""
     from .routing import route_range
 
-    r = route_range(a, b, step_free)
+    r = route_range(a, b, step_free, room_a, room_b)
     if not r:
         return None
-    sf = "&stepFree=1" if step_free else ""
+    sf = ("&stepFree=1" if step_free else "") + (f"&fromRoom={r['fromRoom']}" if r.get("fromRoom") else "") + (f"&toRoom={r['toRoom']}" if r.get("toRoom") else "")
     return {
         "stepFree": step_free,
         "steps": r["steps"], "levels": r["levels"], "meters": r["meters"], "polylines": r["polylines"],
@@ -170,12 +177,14 @@ def resolve_place(text: str) -> str | None:
 
 def check_move(from_place: str, to_place: str, gap_minutes: int, step_free: bool = False) -> dict[str, Any]:
     """Walking check between two free-text places (for lunch, networking or any custom stop)."""
+    from .routing import place_room
+
     za, zb = resolve_place(from_place), resolve_place(to_place)
     out: dict[str, Any] = {"from": from_place, "to": to_place, "gapMinutes": gap_minutes, "estimate": True}
     if not za or not zb:
         out.update(verdict="unknown", reason="Could not place: " + ", ".join(p for p, z in ((from_place, za), (to_place, zb)) if not z))
         return out
-    lo, hi = travel_minutes(za, zb, step_free)
+    lo, hi = travel_minutes(za, zb, step_free, place_room(from_place, za), place_room(to_place, zb))
     out["stepFree"] = step_free
     out.update(
         estimatedMinutes={"best": lo, "worst": hi},
@@ -209,7 +218,8 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any], step_free: bool = Fa
     if not za or not zb:
         out.update(verdict="unknown", reason="Room not yet published for one or both sessions.")
         return out
-    lo, hi = travel_minutes(za, zb, step_free)
+    ra, rb = session_room(first, za), session_room(second, zb)
+    lo, hi = travel_minutes(za, zb, step_free, ra, rb)
     out["stepFree"] = step_free
     out.update(
         fromRoom=first.get("roomLocation") or first.get("room"),
@@ -225,7 +235,7 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any], step_free: bool = Fa
     levels = {venue()["zones"][z]["level"] for z in _candidates(za) + _candidates(zb)}
     out["lateIfWalking"] = late_minutes(gap, lo, hi)
     out["route"] = f"{_label(za)} -> {_label(zb)}" + ((" (via elevator)" if step_free else " (via escalator/elevator)") if len(levels) > 1 else "")
-    detail = route_details(za, zb, step_free)
+    detail = route_details(za, zb, step_free, ra, rb)
     if detail:
         out["routeDetail"] = detail
     if "hub" in (za, zb):

@@ -19,6 +19,7 @@ from starlette.responses import JSONResponse, Response
 
 from .catalog import find_conflicts, get_by_code, load_catalog, optimize_agenda, search_sessions
 from .planner import plan_day
+from .routing import place_room
 from .venue import assess_transition, check_move, load_rooms, merge_rooms, resolve_place, route_details, venue
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -163,7 +164,7 @@ def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> d
     za, zb = resolve_place(from_place), resolve_place(to_place)
     if not za or not zb:
         return with_disclaimer({"error": "Could not place: " + ", ".join(p for p, z in ((from_place, za), (to_place, zb)) if not z)})
-    detail = route_details(za, zb, step_free)
+    detail = route_details(za, zb, step_free, place_room(from_place, za), place_room(to_place, zb))
     if not detail:
         return with_disclaimer({"error": "No walking route known between these places"})
     return with_disclaimer(absolute_maps({"from": from_place, "to": to_place, "routeDetail": detail,

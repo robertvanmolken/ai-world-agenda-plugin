@@ -8,7 +8,7 @@ from typing import Any
 from PIL import Image, ImageDraw, ImageFont
 
 from .mapsvg import _boards
-from .routing import graph
+from .routing import graph, room_parts, room_rect
 from .venue import venue
 
 _FILL = {"hall": "#E9DCE0", "ballroom": "#E9DCE0", "meeting": "#DCEBEE"}
@@ -96,7 +96,21 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
             x, y, w, h = n["rect"]
             d.rounded_rectangle([P(x, y), P(x + w, y + h)], radius=6 * _SS, fill=fill, outline=outline, width=width * _SS)
         size = 30 if kind == "hall" else 17 if kind == "ballroom" else 20
-        labels.append((n["x"], n["y"] + (30 if active else 0), zones.get(zid, {}).get("name", zid), size))
+        rooms = g.get("rooms", {}).get(zid)
+        hi: set[str] = set()
+        if rooms and route:
+            if zid == route["from"]:
+                hi |= set(room_parts(zid, route.get("fromRoom")))
+            if zid == route["to"]:
+                hi |= set(room_parts(zid, route.get("toRoom")))
+        for name, (rx, ry, rw, rh) in (rooms or {}).items():
+            on = name in hi
+            d.rectangle([P(rx, ry), P(rx + rw, ry + rh)], fill="#F6D4CF" if on else "#F7FBFC",
+                        outline=_ACCENT if on else "#9DB4BA", width=int((1.6 if on else .8) * _SS) or 1)
+            d.text(P(rx + rw / 2, ry + rh / 2), name, font=_font(12 if zid == "venetian_ballroom" else 9),
+                   fill=_ACCENT if on else "#4A6168", anchor="mm")
+        labels.append((n["x"], n["rect"][1] - 12 if rooms else n["y"] + (30 if active else 0),
+                       zones.get(zid, {}).get("name", zid), size))
     for a, b in g["edges"]:
         na, nb = nodes[a], nodes[b]
         if na["level"] == level and nb["level"] == level and not (na["type"] == "zone" and nb["type"] == "zone"):
@@ -117,7 +131,9 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
         for key, label in (("from", "A"), ("to", "B")):
             n = nodes.get(route[key])
             if n and n["level"] == level:
-                cx, cy = P(n["x"], n["y"] - 38)
+                rect = room_rect(route[key], route.get("fromRoom" if key == "from" else "toRoom"))
+                px, py = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2) if rect else (n["x"], n["y"])
+                cx, cy = P(px, py - 38)
                 r = 20 * _SS
                 d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=_ACCENT, outline="#FFFFFF", width=4 * _SS)
                 d.text((cx, cy), label, font=_font(22), fill="#FFFFFF", anchor="mm")

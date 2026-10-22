@@ -12,12 +12,17 @@ from .mcp_server import ROOT, catalog, mcp, sessions, with_disclaimer
 from .planner import plan_day
 from .mapsvg import levels as map_levels, render_level
 from .mappng import render_level_png
-from .routing import route_range
+from .routing import place_room, room_key, route_range
 from .venue import assess_transition, resolve_place, route_details, venue
 
 
 def _flag(value: Any) -> bool:
     return str(value).strip().lower() in ("1", "true", "yes", "on")
+
+
+def _room(q: Any, side: str, zone: str | None) -> str | None:
+    """Room for one end of a route: an explicit fromRoom/toRoom key, else a room named in the place text."""
+    return room_key(zone, q.get(side + "Room")) or place_room(q.get(side, ""), zone) if zone else None
 
 
 def _origin(request: Request) -> str:
@@ -171,7 +176,7 @@ async def rest_route(request: Request) -> Response:
     za, zb = resolve_place(str(body.get("from") or "")), resolve_place(str(body.get("to") or ""))
     if not za or not zb:
         return JSONResponse({"error": "Could not place from/to"}, status_code=404)
-    detail = route_details(za, zb, _flag(body.get("stepFree")))
+    detail = route_details(za, zb, _flag(body.get("stepFree")), place_room(str(body.get("from") or ""), za), place_room(str(body.get("to") or ""), zb))
     if not detail:
         return JSONResponse({"error": "No walking route known"}, status_code=404)
     return JSONResponse(with_disclaimer({"from": za, "to": zb, "routeDetail": detail, "venueWarning": venue()["warning"]}))
@@ -196,7 +201,8 @@ async def venue_route(request: Request) -> Response:
     """SVG floor plan with the walking route drawn on it. Query: from, to (zone ids or places), level."""
     q = request.query_params
     za, zb = resolve_place(q.get("from", "")), resolve_place(q.get("to", ""))
-    r = route_range(za, zb, _flag(q.get("stepFree"))) if za and zb else None
+    ra, rb = _room(q, "from", za), _room(q, "to", zb)
+    r = route_range(za, zb, _flag(q.get("stepFree")), ra, rb) if za and zb else None
     if not r:
         return JSONResponse({"error": "No route"}, status_code=404)
     try:
@@ -227,7 +233,8 @@ async def venue_route_png(request: Request) -> Response:
     """PNG twin of /venue/route, for clients that cannot show SVG (ChatGPT)."""
     q = request.query_params
     za, zb = resolve_place(q.get("from", "")), resolve_place(q.get("to", ""))
-    r = route_range(za, zb, _flag(q.get("stepFree"))) if za and zb else None
+    ra, rb = _room(q, "from", za), _room(q, "to", zb)
+    r = route_range(za, zb, _flag(q.get("stepFree")), ra, rb) if za and zb else None
     if not r:
         return JSONResponse({"error": "No route"}, status_code=404)
     try:

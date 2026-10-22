@@ -107,7 +107,7 @@ paths:
               required: [from, to]
               properties:
                 from: {type: string, description: "Free text such as 'Hall G', 'Titian' or 'Hub'"}
-                to: {type: string}
+                to: {type: string, description: "A room number such as 'Titian 2204' or 'Casanova 607' ends the walk at that room."}
                 stepFree: {type: boolean, default: false, description: Elevators only, no escalators (for reduced mobility).}
       responses:
         '200': {description: Route with steps, levels, distance and mapUrls (SVG per level)}

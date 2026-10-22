@@ -1,7 +1,7 @@
 import unittest
 
 from app.mapsvg import levels, render_level
-from app.routing import graph, route, route_range, shortest_path
+from app.routing import graph, place_room, room_key, room_rect, route, route_range, shortest_path
 from app.venue import assess_transition, route_details, venue
 
 try:
@@ -107,6 +107,50 @@ class RoutingWebTests(unittest.TestCase):
         self.assertEqual(404, self.client.get("/venue/route.png?from=zzz&to=titian").status_code)
         self.assertEqual(400, self.client.get("/venue/route.png?from=hall_g&to=titian&level=x").status_code)
 
+    def test_every_catalog_room_has_a_rectangle(self):
+        from app.mcp_server import sessions
+        from app.venue import session_room, session_zone
+
+        missing = set()
+        for s in sessions():
+            z = session_zone(s)
+            if z in graph()["rooms"] and not session_room(s, z):
+                missing.add((z, s.get("room")))
+        self.assertEqual(sorted(missing), [])
+
+    def test_rooms_sit_inside_their_block(self):
+        for zone, rooms in graph()["rooms"].items():
+            x, y, w, h = graph()["nodes"][zone]["rect"]
+            for name, (rx, ry, rw, rh) in rooms.items():
+                self.assertTrue(x <= rx and rx + rw <= x + w and y <= ry and ry + rh <= y + h, (zone, name))
+
+    def test_room_lookup(self):
+        self.assertEqual(room_key("titian", "2204"), "2204")
+        self.assertEqual(room_key("veronese", "2401A/B"), "2401A")
+        self.assertIsNone(room_key("titian", "9999"))
+        self.assertEqual(place_room("Galileo 1001, Level 1", "galileo"), "1001")
+        self.assertEqual(place_room("Venetian Ballroom HI", "venetian_ballroom"), "HI")
+        hi, h, i = room_rect("venetian_ballroom", "HI"), room_rect("venetian_ballroom", "H"), room_rect("venetian_ballroom", "I")
+        self.assertEqual(hi[0], i[0])
+        self.assertAlmostEqual(hi[0] + hi[2], h[0] + h[2])
+
+    def test_walk_ends_at_the_room(self):
+        r = route("titian", "casanova", False, "2204", "607")
+        self.assertEqual((r["fromRoom"], r["toRoom"]), ("2204", "607"))
+        self.assertEqual(r["steps"][0]["text"], "Leave Titian 2204")
+        self.assertEqual(r["steps"][-1]["text"], "Arrive at Casanova 607")
+        self.assertNotEqual(r["meters"], route("titian", "casanova")["meters"])
+        near, far = route("galileo", "galileo", False, "1001", "1002"), route("galileo", "galileo", False, "1001", "1007")
+        self.assertLess(near["meters"], far["meters"])
+        self.assertEqual(route("galileo", "galileo")["meters"], 0)
+
+    def test_room_maps(self):
+        r = route("titian", "casanova", False, "2204", "607")
+        svg = render_level(2, r)
+        self.assertIn(">2204</text>", svg)
+        self.assertIn("Leave", " ".join(s["text"] for s in r["steps"]))
+        self.assertEqual(svg.count('stroke="#B8321F" stroke-width="1.6"'), 1)
+
     def test_step_free_uses_no_escalator(self):
         g = graph()
         for a, b in ("hall_g", "titian"), ("galileo", "zeno"), ("hub", "palazzo_ballroom"), ("casanova", "titian"):
@@ -118,6 +162,16 @@ class RoutingWebTests(unittest.TestCase):
         self.assertIn("elevator", " ".join(x["text"] for x in route_range("galileo", "zeno", True)["steps"]))
         self.assertGreater(route_range("casanova", "titian", True)["bestMinutes"], route_range("casanova", "titian")["bestMinutes"])
         self.assertTrue(g["model"]["elevatorExtraLevelMinutes"] < g["model"]["elevatorMinutes"])
+
+    def test_room_in_endpoints(self):
+        d = self.client.post("/sessions/route", json={"from": "Titian 2204", "to": "Casanova 607"}).json()["routeDetail"]
+        self.assertIn("fromRoom=2204", d["mapUrls"][0]["url"])
+        self.assertIn("toRoom=607", d["mapUrls"][0]["pngUrl"])
+        for url in ("/venue/route?from=titian&to=casanova&fromRoom=2204&toRoom=607&level=1", "/venue/route.png?from=Titian%202204&to=Casanova%20607&level=2"):
+            self.assertEqual(200, self.client.get(url).status_code)
+        t = assess_transition({"code": "A", "date": "2026-10-26", "startTime": "09:00", "endTime": "10:00", "room": "2204", "area": "Titian", "level": 2},
+                              {"code": "B", "date": "2026-10-26", "startTime": "10:00", "endTime": "11:00", "room": "607", "area": "Casanova", "level": 1})
+        self.assertEqual(t["routeDetail"]["steps"][-1]["text"], "Arrive at Casanova 607")
 
     def test_step_free_endpoints_and_maps(self):
         r = self.client.post("/sessions/route", json={"from": "Galileo", "to": "Zeno", "stepFree": True})
