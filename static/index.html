@@ -104,6 +104,12 @@ footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
 .hop p{color:var(--muted);font-size:.92rem;margin-top:4px}
 .rt-btn{margin-top:10px;padding:6px 16px;font-size:.85rem}
 .rt{margin-top:12px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:start}
+.tray{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:10px;flex-wrap:wrap;max-width:min(94vw,720px);background:var(--white);border:1px solid var(--accent);border-radius:16px;padding:10px 14px;box-shadow:0 8px 28px rgba(72,31,43,.22)}
+.tray[hidden]{display:none}
+.tray .chip{display:inline-flex;align-items:center;gap:6px;background:var(--warm-white);border:1px solid var(--border);border-radius:999px;padding:3px 6px 3px 12px;font-size:.85rem;font-weight:600}
+.tray .chip button{font:inherit;border:0;background:none;cursor:pointer;color:var(--muted);font-size:1rem;line-height:1;padding:0 4px}
+.tray .btn{padding:6px 16px;font-size:.85rem}
+.tray-hint{font-size:.85rem;color:var(--muted)}
 .rt[hidden]{display:none}
 .rt-err{font-size:.9rem;color:var(--muted);margin:8px 0}
 .rt-map img{width:100%;max-height:520px;object-fit:contain;border:1px solid var(--border-light);border-radius:12px;background:var(--warm-white)}
@@ -231,6 +237,7 @@ input.codes{flex:1;min-width:260px}
   </div>
   <div><a href="/openapi.yaml">OpenAPI</a> &middot; <a href="/health">Health</a> &middot; <a href="/catalog/meta">Catalog metadata</a></div>
 </div></footer>
+<div class="tray" id="tray" role="region" aria-label="Selected sessions" hidden></div>
 <script>
 const $ = id => document.getElementById(id);
 const mcpUrl = location.origin + "/mcp";
@@ -263,14 +270,13 @@ function tile(s) {
   if (s.description) t.appendChild(el("p", "desc", s.description));
   const tags = el("div"); (s.areasOfInterest || []).slice(0, 5).forEach(a => tags.appendChild(el("span", "tag", a))); t.appendChild(tags);
   if (s.code) {
-    const add = el("button", "btn btn-ghost add", "Add to schedule check"); add.type = "button";
+    const add = el("button", "btn btn-ghost add", "Add to schedule check"); add.type = "button"; add.dataset.code = s.code.toUpperCase();
+    if (currentCodes().includes(add.dataset.code)) add.textContent = "Added \u2713";
     add.onclick = ev => {
       ev.stopPropagation();
-      const have = ($("codes").value.toUpperCase().match(/[A-Z]{2,5}\d{3,5}/g) || []);
+      const have = currentCodes();
       if (!have.includes(s.code.toUpperCase())) have.push(s.code.toUpperCase());
-      $("codes").value = have.join(", ");
-      add.textContent = "Added \u2713";
-      $("chk").scrollIntoView({behavior: "smooth", block: "center"});
+      setCodes(have);
     };
     add.onkeydown = ev => ev.stopPropagation();
     t.appendChild(add);
@@ -294,6 +300,34 @@ $("f").onsubmit = async e => {
   } catch (err) { $("status").textContent = "Search failed. Please try again."; }
 };
 
+const MAXC = 15;
+const currentCodes = () => [...new Set(($("codes").value.toUpperCase().match(/[A-Z]{2,5}\d{3,5}/g) || []))];
+function setCodes(list) {
+  $("codes").value = list.join(", ");
+  renderTray();
+}
+function renderTray() {
+  const list = currentCodes(), tray = $("tray");
+  tray.replaceChildren(); tray.hidden = list.length === 0;
+  list.forEach(c => {
+    const chip = el("span", "chip", c);
+    const x = el("button", "", "\u00d7"); x.type = "button"; x.setAttribute("aria-label", "Remove " + c);
+    x.onclick = () => setCodes(currentCodes().filter(k => k !== c));
+    chip.appendChild(x); tray.appendChild(chip);
+  });
+  if (list.length) {
+    if (list.length < 2) tray.appendChild(el("span", "tray-hint", "Add one more session to compare."));
+    else {
+      const go = el("button", "btn btn-primary", "Check " + list.length + " sessions"); go.type = "button";
+      go.onclick = () => { $("chk").scrollIntoView({behavior: "smooth", block: "center"}); $("chk").requestSubmit(); };
+      tray.appendChild(go);
+    }
+  }
+  document.querySelectorAll(".tile .add").forEach(b => {
+    const on = list.includes(b.dataset.code);
+    b.textContent = on ? "Added \u2713" : "Add to schedule check";
+  });
+}
 const verdictText = {ok: "OK", tight: "Tight", unlikely: "Unlikely", overlap: "Overlap", unknown: "Unknown"};
 function routeView(rd) {
   const wrap = el("div");
@@ -343,6 +377,7 @@ function hop(t) {
   return d;
 }
 
+$("codes").oninput = renderTray;
 $("chk").onsubmit = async e => {
   e.preventDefault();
   const codes = [...new Set(($("codes").value.toUpperCase().match(/[A-Z]{2,5}\d{3,5}/g) || []))].slice(0, 15);

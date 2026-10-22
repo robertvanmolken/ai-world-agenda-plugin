@@ -26,6 +26,13 @@ class WebTest(unittest.TestCase):
         self.assertIn(".rt[hidden]{display:none}", r)
         self.assertIn("rt-err", r)
 
+    def test_selection_tray_replaces_autoscroll(self):
+        r = self.client.get("/").text
+        self.assertIn('id="tray"', r)
+        self.assertIn("function renderTray", r)
+        # scrolling only happens from the tray's Check button
+        self.assertEqual(1, r.count('$("chk").scrollIntoView'))
+
     def test_offer_section(self):
         r = self.client.get("/").text
         self.assertIn('id="lets-build-yours"', r)
