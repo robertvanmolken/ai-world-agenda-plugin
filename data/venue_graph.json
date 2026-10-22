@@ -4,7 +4,8 @@
   "model": {
     "walkMetersPerMinute": 80,
     "escalatorMinutes": 0.6,
-    "elevatorMinutes": 1.2
+    "elevatorMinutes": 1.2,
+    "elevatorExtraLevelMinutes": 0.4
   },
   "levels": {
     "1": {"name": "Level 1", "view": [380, 50, 1200, 1230]},

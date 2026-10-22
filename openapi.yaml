@@ -108,6 +108,7 @@ paths:
               properties:
                 from: {type: string, description: "Free text such as 'Hall G', 'Titian' or 'Hub'"}
                 to: {type: string}
+                stepFree: {type: boolean, default: false, description: Elevators only, no escalators (for reduced mobility).}
       responses:
         '200': {description: Route with steps, levels, distance and mapUrls (SVG per level)}
         '404': {description: Place not found or no route}
@@ -119,6 +120,7 @@ paths:
         - {name: from, in: query, required: true, schema: {type: string}}
         - {name: to, in: query, required: true, schema: {type: string}}
         - {name: level, in: query, required: false, schema: {type: integer}}
+        - {name: stepFree, in: query, required: false, schema: {type: boolean}, description: Elevators only, no escalators (for reduced mobility).}
       responses:
         '200': {description: SVG image}
         '404': {description: No route}
@@ -130,6 +132,7 @@ paths:
         - {name: from, in: query, required: true, schema: {type: string}}
         - {name: to, in: query, required: true, schema: {type: string}}
         - {name: level, in: query, required: false, schema: {type: integer}}
+        - {name: stepFree, in: query, required: false, schema: {type: boolean}, description: Elevators only, no escalators (for reduced mobility).}
       responses:
         '200': {description: PNG image}
         '404': {description: No route}

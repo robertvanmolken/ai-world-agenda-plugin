@@ -141,26 +141,29 @@ def find_session_conflicts(codes: list[str], minimum_transition_minutes: int = 0
 
 
 @mcp.tool(annotations=READ_ONLY)
-def check_transition(code_a: str, code_b: str) -> dict[str, Any]:
+def check_transition(code_a: str, code_b: str, step_free: bool = False) -> dict[str, Any]:
     """Can someone walk from one session to the other? Uses venue maps; the result is an estimate.
     Verdict: ok, tight, unlikely, overlap or unknown (room not yet published).
-    lateIfWalking gives the minutes late on arrival for the best and worst walking estimate."""
+    lateIfWalking gives the minutes late on arrival for the best and worst walking estimate.
+    Set step_free=true only when the user asks for elevators or step-free access (reduced mobility):
+    the route then avoids escalators and includes the wait for the lift."""
     a, b = get_by_code(sessions(), code_a), get_by_code(sessions(), code_b)
     if not a or not b:
         return {"error": "Session not found"}
-    return with_disclaimer(absolute_maps(assess_transition(a, b) | {"venueWarning": venue()["warning"]}))
+    return with_disclaimer(absolute_maps(assess_transition(a, b, step_free) | {"venueWarning": venue()["warning"]}))
 
 
 @mcp.tool(annotations=READ_ONLY)
-def get_walk_route(from_place: str, to_place: str) -> dict[str, Any]:
+def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> dict[str, Any]:
     """Step-by-step walking route between two places at the Venetian Expo, with distance, levels and
     schematic floor plan image URLs (one per level, route drawn on it). Places are free text such as
     'Hall G', 'Titian', 'Galileo 1001, Level 1', 'Hub' or a room number. Estimates only; show the map
-    URLs (PNG images) to the user as images or links."""
+    URLs (PNG images) to the user as images or links. Set step_free=true only when the user asks for
+    elevators or step-free access: the route then uses elevators, never escalators."""
     za, zb = resolve_place(from_place), resolve_place(to_place)
     if not za or not zb:
         return with_disclaimer({"error": "Could not place: " + ", ".join(p for p, z in ((from_place, za), (to_place, zb)) if not z)})
-    detail = route_details(za, zb)
+    detail = route_details(za, zb, step_free)
     if not detail:
         return with_disclaimer({"error": "No walking route known between these places"})
     return with_disclaimer(absolute_maps({"from": from_place, "to": to_place, "routeDetail": detail,
@@ -168,11 +171,12 @@ def get_walk_route(from_place: str, to_place: str) -> dict[str, Any]:
 
 
 @mcp.tool(annotations=READ_ONLY)
-def check_walk(from_place: str, to_place: str, gap_minutes: int) -> dict[str, Any]:
+def check_walk(from_place: str, to_place: str, gap_minutes: int, step_free: bool = False) -> dict[str, Any]:
     """Walking check between two places with a given gap, for custom stops such as lunch or networking.
     Places are free text: 'Hall G', 'Oracle AI World Hub', 'Galileo 1001, Level 1', 'Titian 2204'.
-    Returns the best/worst walking minutes and lateIfWalking (minutes late on arrival). An estimate."""
-    return with_disclaimer(check_move(from_place, to_place, gap_minutes) | {"venueWarning": venue()["warning"]})
+    Returns the best/worst walking minutes and lateIfWalking (minutes late on arrival). An estimate.
+    Set step_free=true only when the user asks for elevators or step-free access."""
+    return with_disclaimer(check_move(from_place, to_place, gap_minutes, step_free) | {"venueWarning": venue()["warning"]})
 
 
 @mcp.tool(annotations=READ_ONLY)

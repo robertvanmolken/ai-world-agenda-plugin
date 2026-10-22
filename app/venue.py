@@ -88,14 +88,14 @@ def _candidates(zone: str) -> list[str]:
     return venue()["hub"]["candidates"] if zone == "hub" else [zone]
 
 
-def travel_minutes(a: str, b: str) -> tuple[int, int]:
+def travel_minutes(a: str, b: str, step_free: bool = False) -> tuple[int, int]:
     """(best, worst) estimated minutes, including the buffer. Hub = range over candidate halls."""
     if a == "hub" and b == "hub":
         lo = hi = venue()["model"]["sameZoneMinutes"]
     else:
         from .routing import route_range  # local import: routing imports this module
 
-        r = route_range(a, b)
+        r = route_range(a, b, step_free)
         if r:
             lo, hi = max(1, math.floor(r["bestMinutes"])), max(1, math.ceil(r["worstMinutes"]))
         else:  # zone missing from the walking graph: fall back to the coarse model
@@ -114,18 +114,20 @@ def _label(zone: str) -> str:
     return venue()["hub"]["name"] if zone == "hub" else venue()["zones"][zone]["name"]
 
 
-def route_details(a: str, b: str) -> dict[str, Any] | None:
+def route_details(a: str, b: str, step_free: bool = False) -> dict[str, Any] | None:
     """Steps, levels, distance and map link for a walk between two zones (None when not routable)."""
     from .routing import route_range
 
-    r = route_range(a, b)
+    r = route_range(a, b, step_free)
     if not r:
         return None
+    sf = "&stepFree=1" if step_free else ""
     return {
+        "stepFree": step_free,
         "steps": r["steps"], "levels": r["levels"], "meters": r["meters"], "polylines": r["polylines"],
         "mapUrls": [
-            {"level": lv, "url": f"/venue/route?from={r['from']}&to={r['to']}&level={lv}",
-             "pngUrl": f"/venue/route.png?from={r['from']}&to={r['to']}&level={lv}"}
+            {"level": lv, "url": f"/venue/route?from={r['from']}&to={r['to']}&level={lv}{sf}",
+             "pngUrl": f"/venue/route.png?from={r['from']}&to={r['to']}&level={lv}{sf}"}
             for lv in r["levels"]
         ],
         "viaHub": "hub" in (a, b),
@@ -166,14 +168,15 @@ def resolve_place(text: str) -> str | None:
     return None
 
 
-def check_move(from_place: str, to_place: str, gap_minutes: int) -> dict[str, Any]:
+def check_move(from_place: str, to_place: str, gap_minutes: int, step_free: bool = False) -> dict[str, Any]:
     """Walking check between two free-text places (for lunch, networking or any custom stop)."""
     za, zb = resolve_place(from_place), resolve_place(to_place)
     out: dict[str, Any] = {"from": from_place, "to": to_place, "gapMinutes": gap_minutes, "estimate": True}
     if not za or not zb:
         out.update(verdict="unknown", reason="Could not place: " + ", ".join(p for p, z in ((from_place, za), (to_place, zb)) if not z))
         return out
-    lo, hi = travel_minutes(za, zb)
+    lo, hi = travel_minutes(za, zb, step_free)
+    out["stepFree"] = step_free
     out.update(
         estimatedMinutes={"best": lo, "worst": hi},
         lateIfWalking=late_minutes(gap_minutes, lo, hi),
@@ -185,7 +188,7 @@ def check_move(from_place: str, to_place: str, gap_minutes: int) -> dict[str, An
     return out
 
 
-def assess_transition(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
+def assess_transition(a: dict[str, Any], b: dict[str, Any], step_free: bool = False) -> dict[str, Any]:
     """Can someone get from the end of session a to the start of session b?
 
     Verdict: ok (worst case fits), tight (only the best case fits), unlikely (even best case
@@ -206,7 +209,8 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
     if not za or not zb:
         out.update(verdict="unknown", reason="Room not yet published for one or both sessions.")
         return out
-    lo, hi = travel_minutes(za, zb)
+    lo, hi = travel_minutes(za, zb, step_free)
+    out["stepFree"] = step_free
     out.update(
         fromRoom=first.get("roomLocation") or first.get("room"),
         toRoom=second.get("roomLocation") or second.get("room"),
@@ -220,8 +224,8 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
         out["verdict"] = "unlikely"
     levels = {venue()["zones"][z]["level"] for z in _candidates(za) + _candidates(zb)}
     out["lateIfWalking"] = late_minutes(gap, lo, hi)
-    out["route"] = f"{_label(za)} -> {_label(zb)}" + (" (via escalator/elevator)" if len(levels) > 1 else "")
-    detail = route_details(za, zb)
+    out["route"] = f"{_label(za)} -> {_label(zb)}" + ((" (via elevator)" if step_free else " (via escalator/elevator)") if len(levels) > 1 else "")
+    detail = route_details(za, zb, step_free)
     if detail:
         out["routeDetail"] = detail
     if "hub" in (za, zb):

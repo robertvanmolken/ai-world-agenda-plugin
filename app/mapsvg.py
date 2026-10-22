@@ -10,7 +10,32 @@ from .venue import venue
 _FILL = {"hall": "#E9DCE0", "ballroom": "#E9DCE0", "meeting": "#DCEBEE"}
 _STROKE = "#76686B"
 _ACCENT = "#B8321F"
-_ICON = {"escalator": "\u21C5", "elevator": "\u21D5"}
+_ICON = ("escalator", "elevator")
+_ELEV = "#2F6DB5"  # elevators are blue, escalators use the plan colour
+
+
+def _marker(kind: str, x: float, y: float, used: bool) -> str:
+    """Escalator: round, two arrows side by side. Elevator: blue rounded square, one up and one down arrow."""
+    ring = _ACCENT if used else (_ELEV if kind == "elevator" else _STROKE)
+    fill = "#FDECE8" if used else "#fff"
+    w = 3 if used else 1.8
+    glyph = _ACCENT if used else ring
+    if kind == "elevator":
+        body = f'<rect x="{x - 15}" y="{y - 15}" width="30" height="30" rx="7" fill="{fill}" stroke="{ring}" stroke-width="{w}"/>'
+        arrows = (f'<path d="M{x} {y - 10} l-5.5 8 h11 z M{x} {y + 10} l-5.5 -8 h11 z" fill="{glyph}"/>')
+    else:
+        body = f'<circle cx="{x}" cy="{y}" r="15" fill="{fill}" stroke="{ring}" stroke-width="{w}"/>'
+        arrows = (f'<path d="M{x - 6} {y - 9} l-5 14 h10 z M{x + 6} {y + 9} l-5 -14 h10 z" fill="{glyph}"/>')
+    return body + arrows
+
+
+def _legend(vx: int, vy: int, vw: int, vh: int) -> str:
+    x, y = vx + 24, vy + vh - 70
+    return (
+        f'<rect x="{x - 10}" y="{y - 24}" width="250" height="80" rx="10" fill="#fff" fill-opacity=".85" stroke="#E5D9D0"/>'
+        + _marker("escalator", x + 14, y, False) + f'<text x="{x + 38}" y="{y + 1}" font-size="17" fill="#2B1A20" dominant-baseline="middle">Escalator</text>'
+        + _marker("elevator", x + 14, y + 38, False) + f'<text x="{x + 38}" y="{y + 39}" font-size="17" fill="#2B1A20" dominant-baseline="middle">Elevator (step-free)</text>'
+    )
 
 
 def levels() -> list[int]:
@@ -27,6 +52,17 @@ def _shape(node: dict[str, Any], kind: str, active: str) -> str:
         return f'<polygon points="{pts}" {attrs}/>'
     x, y, w, h = node["rect"]
     return f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" {attrs}/>'
+
+
+def _boards(route: dict[str, Any], node: str) -> bool:
+    """True when the route changes level at this escalator or elevator (not when it only walks past)."""
+    path = route.get("path", [])
+    nodes = graph()["nodes"]
+    return any(
+        p == node and ((i > 0 and nodes[path[i - 1]]["level"] != nodes[p]["level"])
+                       or (i + 1 < len(path) and nodes[path[i + 1]]["level"] != nodes[p]["level"]))
+        for i, p in enumerate(path)
+    )
 
 
 def render_level(level: int, route: dict[str, Any] | None = None, width: int | None = None) -> str:
@@ -61,12 +97,10 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
         na, nb = nodes[a], nodes[b]
         if na["level"] == level and nb["level"] == level and not (na["type"] == "zone" and nb["type"] == "zone"):
             out.append(f'<line x1="{na["x"]}" y1="{na["y"]}" x2="{nb["x"]}" y2="{nb["y"]}" stroke="#BEAB9B" stroke-width="2" stroke-dasharray="2 8" stroke-linecap="round"/>')
+    used = set(route.get("path", [])) if route else set()
     for nid, n in nodes.items():
         if n["level"] == level and n["type"] in _ICON:
-            out.append(
-                f'<circle cx="{n["x"]}" cy="{n["y"]}" r="15" fill="#fff" stroke="{_STROKE}" stroke-width="1.5"/>'
-                f'<text x="{n["x"]}" y="{n["y"] + 1}" font-size="18" text-anchor="middle" dominant-baseline="middle" fill="{_STROKE}">{_ICON[n["type"]]}</text>'
-            )
+            out.append(_marker(n["type"], n["x"], n["y"], nid in used and _boards(route, nid)))
     if route:
         for pl in route.get("polylines", []):
             if pl["level"] != level or len(pl["points"]) < 2:
@@ -82,6 +116,7 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
                     f'<text x="{n["x"]}" y="{n["y"] - 37}" font-size="22" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">{label}</text>'
                 )
     out.extend(labels)
+    out.append(_legend(vx, vy, vw, vh))
     out.append(
         f'<text x="{vx + vw - 16}" y="{vy + vh - 16}" font-size="16" fill="#76686B" text-anchor="end">'
         "Schematic, not to scale. Estimates only.</text>"
@@ -90,9 +125,9 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
     return "".join(out)
 
 
-def render_route(a: str, b: str, level: int | None = None) -> tuple[str, dict[str, Any]] | None:
+def render_route(a: str, b: str, level: int | None = None, step_free: bool = False) -> tuple[str, dict[str, Any]] | None:
     """(svg, route) for a walk, defaulting to the first level on the route."""
-    r = route_range(a, b)
+    r = route_range(a, b, step_free)
     if not r:
         return None
     return render_level(level if level is not None else r["levels"][0], r), r

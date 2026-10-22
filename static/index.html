@@ -111,6 +111,7 @@ footer a{color:var(--link-on-dark)}footer a:hover{color:#fff}
 .tray .chip button{font:inherit;border:0;background:none;cursor:pointer;color:var(--muted);font-size:1rem;line-height:1;padding:0 4px}
 .tray .btn{padding:6px 16px;font-size:.85rem}
 .tray-hint{font-size:.85rem;color:var(--muted)}
+.stepfree{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--muted);cursor:pointer}
 .rt[hidden]{display:none}
 .rt-err{font-size:.9rem;color:var(--muted);margin:8px 0}
 .rt-map img{width:100%;max-height:520px;object-fit:contain;border:1px solid var(--border-light);border-radius:12px;background:var(--warm-white)}
@@ -202,6 +203,7 @@ input.codes{flex:1;min-width:260px}
           <option value="5">5 min buffer</option>
           <option value="10">10 min buffer</option>
         </select>
+        <label class="stepfree"><input type="checkbox" id="stepfree"> Step-free route (elevators only)</label>
         <button class="btn btn-primary" type="submit">Check</button>
       </form>
       <div id="cstatus" class="status" aria-live="polite"></div>
@@ -393,7 +395,7 @@ $("chk").onsubmit = async e => {
     for (let i = 0; i < found.length - 1; i++) {
       const a = found[i], b = found[i + 1];
       if (a.date !== b.date) continue;
-      out.push(await post("/sessions/transition", {codeA: a.code, codeB: b.code}));
+      out.push(await post("/sessions/transition", {codeA: a.code, codeB: b.code, stepFree: $("stepfree").checked}));
     }
     const miss = (c.missingCodes || []);
     const parts = [];

@@ -107,6 +107,39 @@ class RoutingWebTests(unittest.TestCase):
         self.assertEqual(404, self.client.get("/venue/route.png?from=zzz&to=titian").status_code)
         self.assertEqual(400, self.client.get("/venue/route.png?from=hall_g&to=titian&level=x").status_code)
 
+    def test_step_free_uses_no_escalator(self):
+        g = graph()
+        for a, b in ("hall_g", "titian"), ("galileo", "zeno"), ("hub", "palazzo_ballroom"), ("casanova", "titian"):
+            d, s = route_range(a, b), route_range(a, b, True)
+            self.assertTrue(s["stepFree"])
+            self.assertNotIn("escalator", " ".join(x["text"] for x in s["steps"]).lower())
+            self.assertLessEqual(d["bestMinutes"], s["bestMinutes"])
+            self.assertLessEqual(d["worstMinutes"], s["worstMinutes"])
+        self.assertIn("elevator", " ".join(x["text"] for x in route_range("galileo", "zeno", True)["steps"]))
+        self.assertGreater(route_range("casanova", "titian", True)["bestMinutes"], route_range("casanova", "titian")["bestMinutes"])
+        self.assertTrue(g["model"]["elevatorExtraLevelMinutes"] < g["model"]["elevatorMinutes"])
+
+    def test_step_free_endpoints_and_maps(self):
+        r = self.client.post("/sessions/route", json={"from": "Galileo", "to": "Zeno", "stepFree": True})
+        self.assertEqual(200, r.status_code)
+        d = r.json()["routeDetail"]
+        self.assertTrue(d["stepFree"])
+        self.assertTrue(all("stepFree=1" in m["url"] and "stepFree=1" in m["pngUrl"] for m in d["mapUrls"]))
+        self.assertFalse(self.client.post("/sessions/route", json={"from": "Galileo", "to": "Zeno"}).json()["routeDetail"]["stepFree"])
+        for url in ("/venue/route?from=galileo&to=zeno&level=2&stepFree=1", "/venue/route.png?from=galileo&to=zeno&level=2&stepFree=1"):
+            self.assertEqual(200, self.client.get(url).status_code)
+        self.assertIn("Elevator (step-free)", self.client.get("/venue/map/2.svg").text)
+
+    def test_step_free_in_mcp_tools(self):
+        from app.mcp_server import check_walk, get_walk_route
+
+        r = get_walk_route("Galileo", "Zeno", step_free=True)
+        self.assertTrue(r["routeDetail"]["stepFree"])
+        self.assertIn("stepFree=1", r["routeDetail"]["mapUrls"][0]["url"])
+        w = check_walk("Hall G", "Titian", 5, step_free=True)
+        self.assertTrue(w["stepFree"])
+        self.assertGreater(w["estimatedMinutes"]["best"], check_walk("Hall G", "Titian", 5)["estimatedMinutes"]["best"])
+
     def test_route_endpoint(self):
         r = self.client.post("/sessions/route", json={"from": "Hall G", "to": "Titian"})
         self.assertEqual(200, r.status_code)
