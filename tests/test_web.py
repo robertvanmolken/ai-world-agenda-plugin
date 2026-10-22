@@ -33,6 +33,14 @@ class WebTest(unittest.TestCase):
         # scrolling only happens from the tray's Check button
         self.assertEqual(1, r.count('$("chk").scrollIntoView'))
 
+    def test_header_menu(self):
+        r = self.client.get("/").text
+        nav = r.split('<nav class="main-nav">')[1].split("</nav>")[0]
+        for href, label in (("#top", "Plan"), ("#connect", "Connect"), ("#search", "Find sessions"), ("#check", "Can I make it?")):
+            self.assertIn(f'<a href="{href}">{label}</a>', nav)
+            if href != "#top":
+                self.assertIn(f'id="{href[1:]}"', r)
+
     def test_offer_section(self):
         r = self.client.get("/").text
         self.assertIn('id="lets-build-yours"', r)
