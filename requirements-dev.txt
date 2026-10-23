@@ -1,5 +1,6 @@
-# Only for scripts/make_card.py (the business card). Not needed to run the server.
+# Only for scripts/make_og_image.py (the share image). Not needed to run the server.
 segno>=1.6
 fonttools>=4.50
 brotli>=1.1
 pillow>=10
+opencv-python-headless>=4.9
