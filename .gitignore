@@ -11,3 +11,6 @@ venv/
 data/*.html
 data/*_files/
 data/room-screenshots/
+
+# Local notes and slides, not published
+docs/
