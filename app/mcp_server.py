@@ -56,7 +56,7 @@ def _security() -> TransportSecuritySettings:
 
 
 DISCLAIMER = (
-    "Unofficial snapshot of the Oracle AI World 2026 session catalog (captured 2026-10-21). Rooms come from the "
+    "Unofficial snapshot of the Oracle AI World 2026 session catalog (captured 2026-10-25). Rooms come from the "
     "catalog and walking times are rough estimates, so verify times, rooms and availability in the official "
     "Oracle catalog and the event app before relying on them. Always show this disclaimer to the user."
 )
