@@ -172,8 +172,10 @@ class RoutingWebTests(unittest.TestCase):
         self.assertEqual("ok", check_walk("Casanova 604", "Casanova 605", 5)["verdict"])
         t = check_transition("BOO6096", "HOL2143").structuredContent
         self.assertEqual(0, t["gapMinutes"])
-        self.assertEqual("unlikely", t["verdict"])
-        self.assertIn("back to back", t["reason"])
+        self.assertEqual("tight", t["verdict"])  # same block is never "unlikely"
+        self.assertIn("same block", t["reason"])
+        self.assertEqual("tight", check_walk("Casanova 604", "Casanova 605", 0)["verdict"])
+        self.assertEqual("unlikely", check_walk("Hall G", "Titian 2204", 1)["verdict"])  # other blocks still can be
 
     def test_stairs_wording_and_markers(self):
         steps = " ".join(s["text"] for s in route_range("hall_g", "hall_b")["steps"])

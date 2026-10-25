@@ -193,6 +193,9 @@ def check_move(from_place: str, to_place: str, gap_minutes: int, step_free: bool
         route=f"{_label(za)} -> {_label(zb)}",
     )
     out["verdict"] = "overlap" if gap_minutes < 0 else "ok" if hi <= gap_minutes else "tight" if lo <= gap_minutes else "unlikely"
+    if out["verdict"] == "unlikely" and za == zb and za != "hub":
+        out["verdict"] = "tight"  # same block: the rooms are next to each other
+        out["reason"] = "Both places are in the same block, so they are close together. Expect to arrive right at the start."
     if "hub" in (za, zb):
         out["note"] = "The Oracle AI World Hub is on Level 2, but its exact hall is unconfirmed, so this is a range over Halls A-D."
     return out
@@ -233,7 +236,13 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any], step_free: bool = Fa
         out["verdict"] = "tight"
     else:
         out["verdict"] = "unlikely"
-        if gap == 0:
+        if za == zb:
+            # same block: the rooms are next to each other, so at worst you arrive a moment late
+            out["verdict"] = "tight"
+            out["reason"] = ("Both sessions are in the same block, so the rooms are close together. "
+                             + ("They are back to back, so expect to arrive right at the start." if gap == 0
+                                else "Expect to arrive right at the start."))
+        elif gap == 0:
             out["reason"] = "The sessions are back to back, so there is no time to move between the rooms."
     levels = {venue()["zones"][z]["level"] for z in _candidates(za) + _candidates(zb)}
     out["lateIfWalking"] = late_minutes(gap, lo, hi)
