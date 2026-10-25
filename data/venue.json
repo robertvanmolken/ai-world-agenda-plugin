@@ -2,6 +2,7 @@
   "venue": "The Venetian Convention & Expo Center, Las Vegas",
   "source": "https://www.venetianlasvegas.com/meetings/planning/spaces/expo-halls/expo-map-floor-plan.html",
   "mapsCapturedAt": "2026-10-13",
+  "offMapRooms": ["Buddy V’s."],
   "warning": "Walking minutes are rough estimates. The official maps have no scale, so positions (x, in minutes of walking from the level's escalator/elevator core) were judged by eye. Treat results as guidance, not measurements.",
   "calibration": {
     "source": "Google Maps satellite view of The Venetian Expo (captured 2026-10-13), read by eye from the 20 m scale bar; footprint is the area outlined in green by the user",

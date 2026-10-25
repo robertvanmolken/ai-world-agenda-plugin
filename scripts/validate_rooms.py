@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.catalog import load_catalog  # noqa: E402
-from app.venue import DATA_DIR, HUB_AREAS, load_rooms, resolve_zone  # noqa: E402
+from app.venue import DATA_DIR, HUB_AREAS, load_rooms, resolve_zone, venue  # noqa: E402
 
 
 def _m(t: str) -> int:
@@ -46,6 +46,8 @@ def validate() -> tuple[list[str], list[str]]:
         if code not in by_code:
             errors.append(f"{code}: not in catalog")
             continue
+        if (row.get("room") or "").strip() in venue().get("offMapRooms", []):
+            continue  # known place outside the Expo plans (for example a restaurant)
         level = int(row["level"]) if (row.get("level") or "").strip() else None
         if not resolve_zone(row.get("room", ""), row.get("area", ""), level):
             errors.append(f"{code}: room '{row.get('room')}' ({row.get('area')}, level {level}) not on venue map")
