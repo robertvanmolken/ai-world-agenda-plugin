@@ -125,6 +125,11 @@ class ArriveEarlyTest(unittest.TestCase):
         self.assertEqual(30, t["arriveEarlyMinutes"])
         self.assertIn("arrive about 30 min early", t["earlyNote"])
         self.assertEqual("tight", t["verdict"])  # soft: still possible, just not the early arrival
+        self.assertEqual("13:30", t["arriveBy"])
+        off = check_transition("LRN1174", "HOL2765", early_arrival=False).structuredContent
+        self.assertNotIn("arriveEarlyMinutes", off)
+        self.assertNotIn("arriveBy", off)
+        self.assertEqual("ok", off["verdict"])
         talks = check_transition("LRN2138", "LRN6075").structuredContent  # two talks: no early arrival
         self.assertNotIn("arriveEarlyMinutes", talks)
         self.assertNotIn("earlyNote", talks)

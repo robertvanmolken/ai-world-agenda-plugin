@@ -170,7 +170,7 @@ async def rest_transition(request: Request) -> Response:
     a, b = get_by_code(sessions(), body.get("codeA") or ""), get_by_code(sessions(), body.get("codeB") or "")
     if not a or not b:
         return JSONResponse({"error": "Session not found"}, status_code=404)
-    return JSONResponse(with_disclaimer(assess_transition(a, b, _flag(body.get("stepFree"))) | {"venueWarning": venue()["warning"]}))
+    return JSONResponse(with_disclaimer(assess_transition(a, b, _flag(body.get("stepFree")), body.get("earlyArrival", True) not in (False, "false", "0", 0)) | {"venueWarning": venue()["warning"]}))
 
 
 @mcp.custom_route("/sessions/route", methods=["POST"])

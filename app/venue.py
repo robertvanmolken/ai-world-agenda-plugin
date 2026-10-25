@@ -218,7 +218,7 @@ def check_move(from_place: str, to_place: str, gap_minutes: int, step_free: bool
     return out
 
 
-def assess_transition(a: dict[str, Any], b: dict[str, Any], step_free: bool = False) -> dict[str, Any]:
+def assess_transition(a: dict[str, Any], b: dict[str, Any], step_free: bool = False, early_arrival: bool = True) -> dict[str, Any]:
     """Can someone get from the end of session a to the start of session b?
 
     Verdict: ok (worst case fits), tight (only the best case fits), unlikely (even best case
@@ -261,8 +261,9 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any], step_free: bool = Fa
                                 else "Expect to arrive right at the start."))
         elif gap == 0:
             out["reason"] = "The sessions are back to back, so there is no time to move between the rooms."
-    if needs_early(second):
+    if early_arrival and needs_early(second):
         out["arriveEarlyMinutes"] = EARLY_MINUTES
+        out["arriveBy"] = f"{(_mins(second['startTime']) - EARLY_MINUTES) // 60:02d}:{(_mins(second['startTime']) - EARLY_MINUTES) % 60:02d}"
         out["earlyNote"] = early_note(gap, hi)
         if out["verdict"] == "ok" and gap - hi < EARLY_MINUTES:  # soft rule: still possible, but not the early arrival
             out["verdict"] = "tight"

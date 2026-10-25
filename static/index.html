@@ -213,6 +213,7 @@ input.codes{flex:1;min-width:260px}
         </select>
         <button class="btn btn-primary" type="submit">Check</button>
         <label class="stepfree"><input type="checkbox" id="stepfree"> Step-free route (elevators only)</label>
+        <label class="stepfree"><input type="checkbox" id="early" checked> Arrive 30 min early to hands-on sessions (labs, bootcamps, hackathons)</label>
       </form>
       <div id="cstatus" class="status" aria-live="polite"></div>
       <div id="cresults"></div>
@@ -386,7 +387,8 @@ function hop(t) {
   if (t.route) bits.push(t.route);
   if (bits.length) d.appendChild(el("p", "", bits.join(" \u00b7 ")));
   if (t.lateIfWalking && t.lateIfWalking.worst > 0) d.appendChild(el("p", "", "If you walk, you could be " + (t.lateIfWalking.best === t.lateIfWalking.worst ? t.lateIfWalking.worst : t.lateIfWalking.best + "\u2013" + t.lateIfWalking.worst) + " min late."));
-  if (t.reason) d.appendChild(el("p", "", t.reason));
+  if (t.arriveBy) d.appendChild(el("p", "early-note", "Hands-on session: be there by " + t.arriveBy + " (30 min before the start) to set up."));
+  if (t.reason && t.reason !== t.earlyNote) d.appendChild(el("p", "", t.reason));
   if (t.routeDetail && t.routeDetail.steps) d.appendChild(routeView(t.routeDetail));
   return d;
 }
@@ -406,7 +408,7 @@ $("chk").onsubmit = async e => {
     for (let i = 0; i < found.length - 1; i++) {
       const a = found[i], b = found[i + 1];
       if (a.date !== b.date) continue;
-      out.push(await post("/sessions/transition", {codeA: a.code, codeB: b.code, stepFree: $("stepfree").checked}));
+      out.push(await post("/sessions/transition", {codeA: a.code, codeB: b.code, stepFree: $("stepfree").checked, earlyArrival: $("early").checked}));
     }
     const miss = (c.missingCodes || []);
     const parts = [];

@@ -196,16 +196,18 @@ def find_session_conflicts(codes: list[str], minimum_transition_minutes: int = 0
 
 
 @mcp.tool(annotations=READ_ONLY, meta=ROUTE_WIDGET_TOOL_META)
-def check_transition(code_a: str, code_b: str, step_free: bool = False) -> CallToolResult:
+def check_transition(code_a: str, code_b: str, step_free: bool = False, early_arrival: bool = True) -> CallToolResult:
     """Can someone walk from one session to the other? Uses venue maps; the result is an estimate.
     Verdict: ok, tight, unlikely, overlap or unknown (room not yet published).
     lateIfWalking gives the minutes late on arrival for the best and worst walking estimate.
     Set step_free=true only when the user asks for elevators or step-free access (reduced mobility):
-    the route then avoids escalators and includes the wait for the lift."""
+    the route then avoids escalators and includes the wait for the lift.
+    Hands-on sessions (labs, bootcamps, hackathons) are best entered 30 min early (arriveBy); set
+    early_arrival=false only if the user says they will walk in at the start."""
     a, b = get_by_code(sessions(), code_a), get_by_code(sessions(), code_b)
     if not a or not b:
         return with_map_images({"error": "Session not found"})
-    return with_map_images(with_disclaimer(absolute_maps(assess_transition(a, b, step_free) | {"venueWarning": venue()["warning"]})))
+    return with_map_images(with_disclaimer(absolute_maps(assess_transition(a, b, step_free, early_arrival) | {"venueWarning": venue()["warning"]})))
 
 
 @mcp.tool(annotations=READ_ONLY, meta=ROUTE_WIDGET_TOOL_META)
