@@ -30,6 +30,22 @@ def has_started(s: dict[str, Any], grace: int = STARTED_GRACE_MINUTES) -> bool:
     return now_local() > start + timedelta(minutes=grace)
 
 
+def is_over(s: dict[str, Any]) -> bool:
+    """True once a session has finished (Las Vegas time)."""
+    if not s.get("date") or not s.get("endTime"):
+        return False
+    try:
+        return now_local() > datetime.fromisoformat(f"{s['date']}T{s['endTime']}")
+    except ValueError:
+        return False
+
+
+def hide_now(s: dict[str, Any]) -> bool:
+    """What the "hide past sessions" option removes: paid sessions (nobody can register any more) once they
+    have started, every other session once it has finished."""
+    return has_started(s) if s.get("paid") else is_over(s)
+
+
 def _flag(v: Any) -> bool:
     return v in (True, "true", "1", 1, "yes", "on")
 
@@ -63,7 +79,7 @@ def _blob(session: dict[str, Any]) -> str:
 def session_matches(s: dict[str, Any], filters: dict[str, Any]) -> bool:
     if filters.get("date") and s.get("date") != filters["date"]:
         return False
-    if _flag(filters.get("hideStarted")) and has_started(s):
+    if _flag(filters.get("hideStarted")) and hide_now(s):
         return False
     if filters.get("from") and s.get("startTime") and s["startTime"] < filters["from"]:
         return False
@@ -198,7 +214,7 @@ def optimize_agenda(sessions: list[dict[str, Any]], body: dict[str, Any]) -> dic
     fixed = body.get("fixedCommitments") or []
 
     candidates = [s for s in sessions if (not date or s.get("date") == date)
-                  and not (_flag(body.get("hideStarted")) and has_started(s))]
+                  and not (_flag(body.get("hideStarted")) and hide_now(s))]
     scored = []
     for s in candidates:
         score, reasons = score_session(s, interests)

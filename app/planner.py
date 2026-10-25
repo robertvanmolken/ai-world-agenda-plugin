@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from .catalog import has_started, score_session
+from .catalog import hide_now, score_session
 from .venue import _label, _mins, late_minutes, session_zone, travel_minutes
 
 LUNCH_BONUS = 1000.0
@@ -36,7 +36,7 @@ def _build_nodes(sessions, date, topics, include_hub_talks, include_keynote, lun
     for s in sessions:
         if s.get("date") != date or not (s.get("startTime") and s.get("endTime")):
             continue
-        if hide_started and has_started(s):
+        if hide_started and hide_now(s):
             continue
         st = s.get("sessionType") or ""
         is_key = st == "Keynote"

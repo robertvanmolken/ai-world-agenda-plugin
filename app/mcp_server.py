@@ -167,8 +167,8 @@ def search_sessions_tool(
 ) -> dict[str, Any]:
     """Search sessions by free-text query and optional filters (date YYYY-MM-DD, from_time/to_time HH:MM).
     A full session title or code returns only that session (all its repeats). Put a phrase in double quotes, or set
-    exact=true, to match that exact phrase in the session text. Set hide_started=true when the user wants what is still to come: it leaves out sessions that began more
-    than 30 minutes ago (Las Vegas time). Results are the best matches, listed by date and start time (sort="relevance" lists the best match first).
+    exact=true, to match that exact phrase in the session text. Set hide_started=true when the user wants what is still to come: it leaves out sessions that have finished
+    and paid sessions that began more than 30 minutes ago (Las Vegas time). Results are the best matches, listed by date and start time (sort="relevance" lists the best match first).
     Sessions with paid=true (Oracle University Training, codes OUT...) need a separate paid registration through
     My Account: always tell the user this (see registrationNote) when you mention such a session."""
     filters = {
@@ -284,7 +284,7 @@ def optimize_agenda_tool(
     fixed_commitments: list[dict[str, str]] | None = None,
     hide_started: bool = False,
 ) -> dict[str, Any]:
-    """Propose a conflict-free agenda for a day. hide_started=true skips sessions that began over 30 minutes ago. fixed_commitments: [{"title","startTime","endTime"}] (HH:MM)."""
+    """Propose a conflict-free agenda for a day. hide_started=true skips finished sessions and paid sessions that began over 30 minutes ago. fixed_commitments: [{"title","startTime","endTime"}] (HH:MM)."""
     body = {
         "date": date,
         "interests": interests,

@@ -48,30 +48,35 @@ class HideStartedTest(unittest.TestCase):
         c.now_local = lambda: datetime.fromisoformat(stamp)
         self.addCleanup(lambda: setattr(c, "now_local", self._orig))
 
-    def test_grace_period(self):
-        from app.catalog import has_started
+    def test_paid_after_start_others_after_end(self):
+        from app.catalog import hide_now
 
-        s = {"date": "2026-10-25", "startTime": "09:00", "endTime": "17:00"}
-        self.at("2026-10-25T09:30:00"); self.assertFalse(has_started(s))  # exactly 30 min: still open
-        self.at("2026-10-25T09:31:00"); self.assertTrue(has_started(s))
-        self.at("2026-10-24T20:00:00"); self.assertFalse(has_started(s))
-        self.assertFalse(has_started({"date": "2026-10-25"}))
+        paid = {"date": "2026-10-25", "startTime": "09:00", "endTime": "17:00", "paid": True}
+        free = {"date": "2026-10-25", "startTime": "09:00", "endTime": "10:00"}
+        self.at("2026-10-25T09:30:00"); self.assertFalse(hide_now(paid)); self.assertFalse(hide_now(free))  # 30 min grace
+        self.at("2026-10-25T09:31:00"); self.assertTrue(hide_now(paid)); self.assertFalse(hide_now(free))
+        self.at("2026-10-25T10:00:00"); self.assertFalse(hide_now(free))  # ends exactly now
+        self.at("2026-10-25T10:01:00"); self.assertTrue(hide_now(free))
+        self.at("2026-10-24T20:00:00"); self.assertFalse(hide_now(paid)); self.assertFalse(hide_now(free))
+        self.assertFalse(hide_now({"date": "2026-10-25"}))
 
     def test_search_planner_optimizer(self):
-        from app.mcp_server import optimize_agenda_tool, plan_strict_day, search_sessions_tool, sessions
+        from app.mcp_server import optimize_agenda_tool, plan_strict_day, search_sessions_tool
 
         self.at("2026-10-25T12:30:00")  # Sunday lunchtime
         every = search_sessions_tool(query="oracle", limit=200)["results"]
         hidden = search_sessions_tool(query="oracle", limit=200, hide_started=True)["results"]
         self.assertTrue(any(r["code"].startswith("OUT") for r in every))
-        self.assertFalse(any(r["code"].startswith("OUT") for r in hidden))
-        self.assertTrue(all(r["date"] > "2026-10-25" or r["startTime"] >= "12:00" for r in hidden))  # 12:00 is within 30 min
+        self.assertFalse(any(r["code"].startswith("OUT") for r in hidden))  # paid and started
+        self.assertTrue(all(r["date"] > "2026-10-25" or r["endTime"] >= "12:30" for r in hidden))
+        # a session that began earlier but is still running stays
+        self.assertTrue(any(r["date"] == "2026-10-25" and r["startTime"] <= "12:00" and r["endTime"] > "12:30" for r in hidden))
+        self.assertTrue(any(r["date"] == "2026-10-25" and r["endTime"] < "12:30" for r in every))  # finished: hidden above
         self.assertEqual("OUT1017", search_sessions_tool(query="OUT1017", limit=5)["results"][0]["code"])
         plan = plan_strict_day("2026-10-25", ["ai"], hide_started=True)
-        self.assertTrue(all(i["startTime"] >= "12:00" for i in plan["schedule"] if i["type"] == "session"))
+        self.assertTrue(all(i["endTime"] >= "12:30" for i in plan["schedule"] if i["type"] == "session"))
         opt = optimize_agenda_tool("2026-10-25", ["ai"], hide_started=True)
-        self.assertTrue(all(a["session"]["startTime"] >= "12:00" for a in opt["agenda"]))
-        self.assertTrue(optimize_agenda_tool("2026-10-25", ["ai"])["agenda"][0]["session"]["startTime"] < "12:00")
+        self.assertTrue(all(a["session"]["endTime"] >= "12:30" for a in opt["agenda"]))
         self.at("2026-10-24T08:00:00")
         self.assertTrue(any(r["code"].startswith("OUT") for r in search_sessions_tool(query="oracle", limit=200, hide_started=True)["results"]))
 

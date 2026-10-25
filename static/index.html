@@ -195,7 +195,7 @@ input.codes{flex:1;min-width:260px}
         <input type="search" id="q" placeholder="e.g. AI agents, integration, MCP, or &quot;exact title&quot;" aria-label="Search sessions">
         <select id="d" aria-label="Day"><option value="">All days</option></select>
         <button class="btn btn-primary" type="submit">Search</button>
-        <label class="hidestarted"><input type="checkbox" id="hs" checked> Hide sessions that already started (more than 30 min ago)</label>
+        <label class="hidestarted"><input type="checkbox" id="hs" checked> Hide past sessions (finished, or paid and already started)</label>
       </form>
       <div id="status" class="status" aria-live="polite"></div>
       <div id="results"></div>
@@ -306,7 +306,7 @@ $("f").onsubmit = async e => {
     const r = await fetch("/sessions/search", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
     if (!r.ok) throw new Error(r.status);
     const list = (await r.json()).results || [];
-    $("status").textContent = list.length ? list.length + " session(s) shown. Click a card for details." + ($("hs").checked ? " Sessions that started over 30 minutes ago are hidden." : "") : "No sessions found." + ($("hs").checked ? " Sessions that already started are hidden: untick the box to see them." : "");
+    $("status").textContent = list.length ? list.length + " session(s) shown. Click a card for details." + ($("hs").checked ? " Finished sessions are hidden." : "") : "No sessions found." + ($("hs").checked ? " Past sessions are hidden: untick the box to see them." : "");
     list.forEach(s => $("results").appendChild(tile(s)));
   } catch (err) { $("status").textContent = "Search failed. Please try again."; }
 };
