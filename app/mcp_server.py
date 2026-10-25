@@ -162,17 +162,18 @@ def search_sessions_tool(
     level: str = "",
     limit: int = 25,
     exact: bool = False,
+    sort: str = "date",
 ) -> dict[str, Any]:
     """Search sessions by free-text query and optional filters (date YYYY-MM-DD, from_time/to_time HH:MM).
     A full session title or code returns only that session (all its repeats). Put a phrase in double quotes, or set
-    exact=true, to match that exact phrase in the session text. Otherwise results are ranked matches.
+    exact=true, to match that exact phrase in the session text. Results are the best matches, listed by date and start time (sort="relevance" lists the best match first).
     Sessions with paid=true (Oracle University Training, codes OUT...) need a separate paid registration through
     My Account: always tell the user this (see registrationNote) when you mention such a session."""
     filters = {
         "query": query, "date": date, "from": from_time, "to": to_time,
         "contentArea": content_area, "areaOfInterest": area_of_interest,
         "sessionType": session_type, "industry": industry, "speaker": speaker,
-        "company": company, "room": room, "level": level, "limit": limit, "exact": exact,
+        "company": company, "room": room, "level": level, "limit": limit, "exact": exact, "sort": sort,
     }
     return with_disclaimer({"results": search_sessions(sessions(), filters)})
 

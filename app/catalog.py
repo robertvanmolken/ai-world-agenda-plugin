@@ -93,7 +93,10 @@ def search_sessions(sessions: list[dict[str, Any]], filters: dict[str, Any]) -> 
         out.append((score, s))
     out.sort(key=lambda x: (-x[0], x[1].get("date") or "", x[1].get("startTime") or "", x[1].get("title") or ""))
     limit = int(filters.get("limit") or 50)
-    return [s for _, s in out[: max(1, min(limit, 200))]]
+    top = [s for _, s in out[: max(1, min(limit, 200))]]  # the best matches by relevance...
+    if str(filters.get("sort") or "date").lower() != "relevance":  # ...listed in time order (Sunday first)
+        top.sort(key=lambda s: (s.get("date") or "9999", s.get("startTime") or "", s.get("title") or ""))
+    return top
 
 
 def get_by_code(sessions: list[dict[str, Any]], code: str) -> dict[str, Any] | None:

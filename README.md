@@ -266,3 +266,7 @@ Oracle University Training sessions (codes `OUT...`, 14 in the catalog) are paid
 ## Exact search
 
 A query that is a whole session title or code returns only that session (with its repeats). Put a phrase in double quotes, for example `"trusted agentic ai"`, or send `exact: true` (MCP `exact=true`), to require that exact phrase in the session text. Any other query is ranked as before.
+
+## Result order
+
+Search picks the best matches by relevance (up to `limit`) and lists them by date and start time, so Sunday comes first when you search all days. Send `"sort": "relevance"` (MCP `sort="relevance"`) to list the best match first instead.

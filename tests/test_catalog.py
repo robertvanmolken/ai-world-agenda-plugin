@@ -39,6 +39,19 @@ class ExactSearchTest(unittest.TestCase):
         self.assertTrue(search_sessions_tool(query="Oracle Integration", exact=True, limit=50)["results"])
 
 
+class SortTest(unittest.TestCase):
+    def test_date_order_default(self):
+        from app.mcp_server import search_sessions_tool
+
+        res = search_sessions_tool(query="agentic ai", limit=200)["results"]
+        keys = [(r["date"], r["startTime"]) for r in res]
+        self.assertEqual(keys, sorted(keys))
+        self.assertEqual("2026-10-25", res[0]["date"])
+        rel = search_sessions_tool(query="agentic ai", limit=200, sort="relevance")["results"]
+        self.assertEqual({r["code"] for r in res}, {r["code"] for r in rel})  # same sessions, other order
+        self.assertNotEqual([r["code"] for r in res], [r["code"] for r in rel])
+
+
 class PaidSessionTest(unittest.TestCase):
     def test_paid_sessions_flagged(self):
         from app.mcp_server import search_sessions_tool, sessions
