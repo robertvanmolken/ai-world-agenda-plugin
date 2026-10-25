@@ -270,3 +270,7 @@ A query that is a whole session title or code returns only that session (with it
 ## Result order
 
 Search picks the best matches by relevance (up to `limit`) and lists them by date and start time, so Sunday comes first when you search all days. Send `"sort": "relevance"` (MCP `sort="relevance"`) to list the best match first instead.
+
+## Hide sessions that already started
+
+The search box on the page has a checkbox "Hide sessions that already started", ticked by default. A session counts as started once it has been running for more than 30 minutes (Las Vegas time, `America/Los_Angeles`). The API and the MCP tools do not hide anything unless asked: send `"hideStarted": true` (MCP `hide_started=true`) to `/sessions/search`, `/agenda/optimize`, `/agenda/plan`, `search_sessions`, `optimize_agenda` or `plan_strict_day`. Looking up a session by its code (`OUT1017`) also still finds it.

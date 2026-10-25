@@ -163,10 +163,12 @@ def search_sessions_tool(
     limit: int = 25,
     exact: bool = False,
     sort: str = "date",
+    hide_started: bool = False,
 ) -> dict[str, Any]:
     """Search sessions by free-text query and optional filters (date YYYY-MM-DD, from_time/to_time HH:MM).
     A full session title or code returns only that session (all its repeats). Put a phrase in double quotes, or set
-    exact=true, to match that exact phrase in the session text. Results are the best matches, listed by date and start time (sort="relevance" lists the best match first).
+    exact=true, to match that exact phrase in the session text. Set hide_started=true when the user wants what is still to come: it leaves out sessions that began more
+    than 30 minutes ago (Las Vegas time). Results are the best matches, listed by date and start time (sort="relevance" lists the best match first).
     Sessions with paid=true (Oracle University Training, codes OUT...) need a separate paid registration through
     My Account: always tell the user this (see registrationNote) when you mention such a session."""
     filters = {
@@ -174,6 +176,7 @@ def search_sessions_tool(
         "contentArea": content_area, "areaOfInterest": area_of_interest,
         "sessionType": session_type, "industry": industry, "speaker": speaker,
         "company": company, "room": room, "level": level, "limit": limit, "exact": exact, "sort": sort,
+        "hideStarted": hide_started,
     }
     return with_disclaimer({"results": search_sessions(sessions(), filters)})
 
@@ -260,6 +263,7 @@ def plan_strict_day(
     day_start: str = "08:00",
     day_end: str = "18:00",
     fixed_commitments: list[dict[str, str]] | None = None,
+    hide_started: bool = False,
 ) -> dict[str, Any]:
     """Plan one day with no overlaps and a limit on how late you may arrive (the best plan by topic score).
     Includes a lunch block in Hall G and networking blocks in the Hub. lateness_basis is 'worst' (safe) or
@@ -268,7 +272,7 @@ def plan_strict_day(
     return with_disclaimer(plan_day(
         sessions(), date, topics, late_tolerance_minutes, lateness_basis, include_hub_talks, include_keynote,
         lunch_minutes, (lunch_from, lunch_until), networking_blocks, networking_minutes,
-        (networking_from, networking_until), day_start, day_end, fixed_commitments,
+        (networking_from, networking_until), day_start, day_end, fixed_commitments, hide_started=hide_started,
     ) | {"venueWarning": venue()["warning"]})
 
 
@@ -278,13 +282,15 @@ def optimize_agenda_tool(
     interests: list[str],
     minimum_transition_minutes: int = 10,
     fixed_commitments: list[dict[str, str]] | None = None,
+    hide_started: bool = False,
 ) -> dict[str, Any]:
-    """Propose a conflict-free agenda for a day. fixed_commitments: [{"title","startTime","endTime"}] (HH:MM)."""
+    """Propose a conflict-free agenda for a day. hide_started=true skips sessions that began over 30 minutes ago. fixed_commitments: [{"title","startTime","endTime"}] (HH:MM)."""
     body = {
         "date": date,
         "interests": interests,
         "preferences": {"minimumTransitionMinutes": minimum_transition_minutes},
         "fixedCommitments": fixed_commitments or [],
+        "hideStarted": hide_started,
     }
     return with_disclaimer(optimize_agenda(sessions(), body))
 

@@ -39,6 +39,43 @@ class ExactSearchTest(unittest.TestCase):
         self.assertTrue(search_sessions_tool(query="Oracle Integration", exact=True, limit=50)["results"])
 
 
+class HideStartedTest(unittest.TestCase):
+    def at(self, stamp):
+        import app.catalog as c
+        from datetime import datetime
+
+        self._orig = c.now_local
+        c.now_local = lambda: datetime.fromisoformat(stamp)
+        self.addCleanup(lambda: setattr(c, "now_local", self._orig))
+
+    def test_grace_period(self):
+        from app.catalog import has_started
+
+        s = {"date": "2026-10-25", "startTime": "09:00", "endTime": "17:00"}
+        self.at("2026-10-25T09:30:00"); self.assertFalse(has_started(s))  # exactly 30 min: still open
+        self.at("2026-10-25T09:31:00"); self.assertTrue(has_started(s))
+        self.at("2026-10-24T20:00:00"); self.assertFalse(has_started(s))
+        self.assertFalse(has_started({"date": "2026-10-25"}))
+
+    def test_search_planner_optimizer(self):
+        from app.mcp_server import optimize_agenda_tool, plan_strict_day, search_sessions_tool, sessions
+
+        self.at("2026-10-25T12:30:00")  # Sunday lunchtime
+        every = search_sessions_tool(query="oracle", limit=200)["results"]
+        hidden = search_sessions_tool(query="oracle", limit=200, hide_started=True)["results"]
+        self.assertTrue(any(r["code"].startswith("OUT") for r in every))
+        self.assertFalse(any(r["code"].startswith("OUT") for r in hidden))
+        self.assertTrue(all(r["date"] > "2026-10-25" or r["startTime"] >= "12:00" for r in hidden))  # 12:00 is within 30 min
+        self.assertEqual("OUT1017", search_sessions_tool(query="OUT1017", limit=5)["results"][0]["code"])
+        plan = plan_strict_day("2026-10-25", ["ai"], hide_started=True)
+        self.assertTrue(all(i["startTime"] >= "12:00" for i in plan["schedule"] if i["type"] == "session"))
+        opt = optimize_agenda_tool("2026-10-25", ["ai"], hide_started=True)
+        self.assertTrue(all(a["session"]["startTime"] >= "12:00" for a in opt["agenda"]))
+        self.assertTrue(optimize_agenda_tool("2026-10-25", ["ai"])["agenda"][0]["session"]["startTime"] < "12:00")
+        self.at("2026-10-24T08:00:00")
+        self.assertTrue(any(r["code"].startswith("OUT") for r in search_sessions_tool(query="oracle", limit=200, hide_started=True)["results"]))
+
+
 class SortTest(unittest.TestCase):
     def test_date_order_default(self):
         from app.mcp_server import search_sessions_tool

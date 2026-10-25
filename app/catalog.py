@@ -6,7 +6,32 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from zoneinfo import ZoneInfo
+
 from .venue import assess_transition
+
+EVENT_TZ = ZoneInfo("America/Los_Angeles")  # the event is in Las Vegas (PDT)
+STARTED_GRACE_MINUTES = 30  # a session still counts as open for this long after it begins
+
+
+def now_local() -> datetime:
+    """Current Las Vegas time (naive). Tests replace this function."""
+    return datetime.now(EVENT_TZ).replace(tzinfo=None)
+
+
+def has_started(s: dict[str, Any], grace: int = STARTED_GRACE_MINUTES) -> bool:
+    """True once a session has been running for more than `grace` minutes (Las Vegas time)."""
+    if not s.get("date") or not s.get("startTime"):
+        return False
+    try:
+        start = datetime.fromisoformat(f"{s['date']}T{s['startTime']}")
+    except ValueError:
+        return False
+    return now_local() > start + timedelta(minutes=grace)
+
+
+def _flag(v: Any) -> bool:
+    return v in (True, "true", "1", 1, "yes", "on")
 
 
 def load_catalog(path: str | Path) -> dict[str, Any]:
@@ -37,6 +62,8 @@ def _blob(session: dict[str, Any]) -> str:
 
 def session_matches(s: dict[str, Any], filters: dict[str, Any]) -> bool:
     if filters.get("date") and s.get("date") != filters["date"]:
+        return False
+    if _flag(filters.get("hideStarted")) and has_started(s):
         return False
     if filters.get("from") and s.get("startTime") and s["startTime"] < filters["from"]:
         return False
@@ -170,7 +197,8 @@ def optimize_agenda(sessions: list[dict[str, Any]], body: dict[str, Any]) -> dic
     transition = int(prefs.get("minimumTransitionMinutes") or body.get("minimumTransitionMinutes") or 10)
     fixed = body.get("fixedCommitments") or []
 
-    candidates = [s for s in sessions if not date or s.get("date") == date]
+    candidates = [s for s in sessions if (not date or s.get("date") == date)
+                  and not (_flag(body.get("hideStarted")) and has_started(s))]
     scored = []
     for s in candidates:
         score, reasons = score_session(s, interests)

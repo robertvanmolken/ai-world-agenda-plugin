@@ -133,6 +133,8 @@ input.codes{flex:1;min-width:260px}
 .try-grid .card>p{margin-top:4px}
 .foot-brand{background:#fff;border-radius:10px;padding:8px 14px;align-self:start;justify-self:start;width:fit-content}
 .foot-brand img{display:block;width:110px;height:auto}
+.try-grid form .hidestarted{grid-column:1/-1;justify-self:start;display:flex;align-items:center;gap:8px;width:auto;font-size:.9rem;color:var(--muted);cursor:pointer}
+.try-grid form .hidestarted input{width:auto;margin:0}
 .try-grid form{display:grid;grid-template-columns:1fr 200px 130px;gap:12px}
 .try-grid form input,.try-grid form select,.try-grid form .btn{width:100%;min-width:0;justify-content:center}
 @media(max-width:640px){.try-grid form{grid-template-columns:1fr}}
@@ -193,6 +195,7 @@ input.codes{flex:1;min-width:260px}
         <input type="search" id="q" placeholder="e.g. AI agents, integration, MCP, or &quot;exact title&quot;" aria-label="Search sessions">
         <select id="d" aria-label="Day"><option value="">All days</option></select>
         <button class="btn btn-primary" type="submit">Search</button>
+        <label class="hidestarted"><input type="checkbox" id="hs" checked> Hide sessions that already started (more than 30 min ago)</label>
       </form>
       <div id="status" class="status" aria-live="polite"></div>
       <div id="results"></div>
@@ -296,14 +299,14 @@ function tile(s) {
 
 $("f").onsubmit = async e => {
   e.preventDefault();
-  const body = {query: $("q").value.trim(), limit: 25};
+  const body = {query: $("q").value.trim(), limit: 25, hideStarted: $("hs").checked};
   if ($("d").value) body.date = $("d").value;
   $("status").textContent = "Searching\u2026"; $("results").replaceChildren();
   try {
     const r = await fetch("/sessions/search", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
     if (!r.ok) throw new Error(r.status);
     const list = (await r.json()).results || [];
-    $("status").textContent = list.length ? list.length + " session(s) shown. Click a card for details." : "No sessions found.";
+    $("status").textContent = list.length ? list.length + " session(s) shown. Click a card for details." + ($("hs").checked ? " Sessions that started over 30 minutes ago are hidden." : "") : "No sessions found." + ($("hs").checked ? " Sessions that already started are hidden: untick the box to see them." : "");
     list.forEach(s => $("results").appendChild(tile(s)));
   } catch (err) { $("status").textContent = "Search failed. Please try again."; }
 };

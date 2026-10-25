@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from .catalog import score_session
+from .catalog import has_started, score_session
 from .venue import _label, _mins, late_minutes, session_zone, travel_minutes
 
 LUNCH_BONUS = 1000.0
@@ -30,11 +30,13 @@ def _topic_hit(s: dict[str, Any], topics: list[str]) -> bool:
 
 
 def _build_nodes(sessions, date, topics, include_hub_talks, include_keynote, lunch_minutes, lunch_window,
-                 networking_blocks, networking_minutes, networking_window, d0, d1, fixed):
+                 networking_blocks, networking_minutes, networking_window, d0, d1, fixed, hide_started=False):
     nodes: list[dict[str, Any]] = []
     candidates: list[dict[str, Any]] = []
     for s in sessions:
         if s.get("date") != date or not (s.get("startTime") and s.get("endTime")):
+            continue
+        if hide_started and has_started(s):
             continue
         st = s.get("sessionType") or ""
         is_key = st == "Keynote"
@@ -121,13 +123,15 @@ def plan_day(
     day_end: str = "18:00",
     fixed_commitments: list[dict[str, str]] | None = None,
     dropped_limit: int = 10,
+    hide_started: bool = False,
 ) -> dict[str, Any]:
     basis = "best" if lateness_basis == "best" else "worst"
     d0, d1 = _mins(day_start), _mins(day_end)
     fixed = [(_mins(c.get("startTime") or c["start"]), _mins(c.get("endTime") or c["end"]), c)
              for c in (fixed_commitments or [])]
     nodes, candidates = _build_nodes(sessions, date, topics, include_hub_talks, include_keynote, lunch_minutes,
-                                     lunch_window, networking_blocks, networking_minutes, networking_window, d0, d1, fixed)
+                                     lunch_window, networking_blocks, networking_minutes, networking_window, d0, d1, fixed,
+                                     hide_started)
     cache: dict[tuple[str, str, int], bool] = {}
 
     def feasible(a: dict[str, Any], b: dict[str, Any]) -> bool:
