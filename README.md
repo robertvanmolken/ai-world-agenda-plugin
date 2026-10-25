@@ -258,3 +258,7 @@ Author: Robert van Molken, Senior AI Solution Architect, Exoblock B.V.
 pip install -r requirements-dev.txt
 python scripts/make_og_image.py      # rewrites static/og-image.png
 ```
+
+## Paid sessions
+
+Oracle University Training sessions (codes `OUT...`, 14 in the catalog) are paid and need a separate registration through My Account. They carry `paid: true` and a `registrationNote` in search results, the landing page shows a "Paid, registration required" tag and note on their tiles, and the MCP tool descriptions tell the assistant to mention it. The text "paid registration" also finds them in search.

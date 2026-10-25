@@ -13,9 +13,22 @@ def load_catalog(path: str | Path) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+PAID_NOTE = ("Paid session: separate registration is required. Register through My Account on the Oracle AI World "
+             "site; it is not included in a regular pass.")
+
+
+def mark_paid(sessions: list[dict[str, Any]]) -> None:
+    """Flag paid sessions (Oracle University Training, or a catalog note about paid registration) in place."""
+    for s in sessions:
+        notes = " ".join(s.get("notes") or []).lower()
+        if "paid session" in notes or s.get("sessionType") == "Oracle University Training":
+            s["paid"] = True
+            s["registrationNote"] = PAID_NOTE
+
+
 def _blob(session: dict[str, Any]) -> str:
     fields: list[str] = []
-    for k in ["code", "title", "description", "sessionType", "contentArea", "audienceLevel", "room", "area", "roomLocation"]:
+    for k in ["code", "title", "description", "sessionType", "contentArea", "audienceLevel", "room", "area", "roomLocation", "registrationNote"]:
         if session.get(k): fields.append(str(session[k]))
     for k in ["areasOfInterest", "industries", "jobRoles", "recommendationTopics"]:
         fields.extend(session.get(k) or [])

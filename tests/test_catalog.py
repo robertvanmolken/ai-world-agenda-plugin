@@ -16,3 +16,16 @@ class CatalogTest(unittest.TestCase):
         self.assertTrue(r['agenda'])
 
 if __name__ == '__main__': unittest.main()
+
+
+class PaidSessionTest(unittest.TestCase):
+    def test_paid_sessions_flagged(self):
+        from app.mcp_server import search_sessions_tool, sessions
+
+        paid = [s for s in sessions() if s.get("paid")]
+        self.assertTrue(paid)
+        self.assertTrue(all(s["code"].startswith("OUT") for s in paid))
+        self.assertTrue(all("My Account" in s["registrationNote"] for s in paid))
+        self.assertFalse(any(s.get("paid") for s in sessions() if s["code"].startswith("LRN")))
+        res = search_sessions_tool(query="paid registration", limit=50)["results"]
+        self.assertEqual({s["code"] for s in paid}, {r["code"] for r in res if r.get("paid")})  # searchable by "paid"

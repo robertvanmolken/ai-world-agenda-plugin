@@ -17,7 +17,7 @@ from mcp.types import CallToolResult, ImageContent, Icon, TextContent, ToolAnnot
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from .catalog import find_conflicts, get_by_code, load_catalog, optimize_agenda, search_sessions
+from .catalog import find_conflicts, get_by_code, load_catalog, mark_paid, optimize_agenda, search_sessions
 from .planner import plan_day
 from .routing import place_room
 from .venue import assess_transition, check_move, load_rooms, merge_rooms, resolve_place, route_details, venue
@@ -35,6 +35,7 @@ def catalog() -> dict[str, Any]:
     if _catalog is None:
         _catalog = load_catalog(DATA_FILE)
         merge_rooms(_catalog["sessions"], load_rooms())
+        mark_paid(_catalog["sessions"])
     return _catalog
 
 
@@ -111,7 +112,7 @@ mcp = FastMCP(
         "Search the Oracle AI World 2026 session catalog (an unofficial snapshot), detect schedule "
         "conflicts and propose a personal agenda. Dates are ISO (YYYY-MM-DD), times are 24h HH:MM. "
         "Verify critical details in the official Oracle catalog. Every tool result has a 'disclaimer' field: "
-        "always include it in your answer."
+        "always include it in your answer. Sessions with paid=true need a separate paid registration through My Account: say so whenever you recommend one."
     ),
     website_url=PUBLIC_URL,
     icons=[
@@ -161,7 +162,9 @@ def search_sessions_tool(
     level: str = "",
     limit: int = 25,
 ) -> dict[str, Any]:
-    """Search sessions by free-text query and optional filters (date YYYY-MM-DD, from_time/to_time HH:MM)."""
+    """Search sessions by free-text query and optional filters (date YYYY-MM-DD, from_time/to_time HH:MM).
+    Sessions with paid=true (Oracle University Training, codes OUT...) need a separate paid registration through
+    My Account: always tell the user this (see registrationNote) when you mention such a session."""
     filters = {
         "query": query, "date": date, "from": from_time, "to": to_time,
         "contentArea": content_area, "areaOfInterest": area_of_interest,
