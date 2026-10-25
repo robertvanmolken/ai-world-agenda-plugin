@@ -71,7 +71,9 @@ class HideStartedTest(unittest.TestCase):
         self.assertTrue(all(r["date"] > "2026-10-25" or r["endTime"] >= "12:30" for r in hidden))
         # a session that began earlier but is still running stays
         self.assertTrue(any(r["date"] == "2026-10-25" and r["startTime"] <= "12:00" and r["endTime"] > "12:30" for r in hidden))
-        self.assertTrue(any(r["date"] == "2026-10-25" and r["endTime"] < "12:30" for r in every))  # finished: hidden above
+        done = search_sessions_tool(query="LRN2159", limit=5)["results"][0]  # ended 11:45
+        self.assertEqual("11:45", done["endTime"])
+        self.assertNotIn("LRN2159", [r["code"] for r in search_sessions_tool(query="", date="2026-10-25", limit=200, hide_started=True)["results"]])
         self.assertEqual("OUT1017", search_sessions_tool(query="OUT1017", limit=5)["results"][0]["code"])
         plan = plan_strict_day("2026-10-25", ["ai"], hide_started=True)
         self.assertTrue(all(i["endTime"] >= "12:30" for i in plan["schedule"] if i["type"] == "session"))
