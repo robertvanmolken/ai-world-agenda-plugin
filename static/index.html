@@ -89,6 +89,7 @@ input[type=search]{flex:1;min-width:220px}
 .tile .when{font-size:.88rem;color:var(--muted);margin-top:2px}
 .tile .desc{margin-top:10px;font-size:.95rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .tile.open .desc{display:block}
+.early-note{margin-top:10px;font-size:.88rem;color:#31575F;background:#E7F0F2;border:1px solid #C9DCE0;border-radius:10px;padding:8px 12px}
 .tag-paid{background:#F9E3B4;color:#6B4A00}
 .paid-note{margin-top:10px;font-size:.88rem;color:#6B4A00;background:#FDF3D8;border:1px solid #F0D58C;border-radius:10px;padding:8px 12px}
 .tag{display:inline-block;background:var(--sage);color:var(--sage-text);border-radius:999px;padding:2px 12px;font-size:.75rem;font-weight:600;margin:10px 8px 0 0}
@@ -277,6 +278,7 @@ function tile(s) {
   t.appendChild(el("div", "when", [s.dateLabel || s.date, (s.startTime || "") + "-" + (s.endTime || ""), s.timezone, s.sessionType].filter(Boolean).join(" \u00b7 ")));
   const where = s.roomLocation || s.room;
   if (where) t.appendChild(el("div", "when", "Room: " + where));
+  if (s.arriveEarlyNote) t.appendChild(el("div", "early-note", s.arriveEarlyNote));
   if (s.paid) t.appendChild(el("div", "paid-note", s.registrationNote || "Paid session: separate registration required."));
   if (s.description) t.appendChild(el("p", "desc", s.description));
   const tags = el("div"); if (s.paid) tags.appendChild(el("span", "tag tag-paid", "Paid, registration required")); (s.areasOfInterest || []).slice(0, 5).forEach(a => tags.appendChild(el("span", "tag", a))); t.appendChild(tags);

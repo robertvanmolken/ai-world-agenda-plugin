@@ -107,3 +107,34 @@ class PaidSessionTest(unittest.TestCase):
         self.assertFalse(any(s.get("paid") for s in sessions() if s["code"].startswith("LRN")))
         res = search_sessions_tool(query="paid registration", limit=50)["results"]
         self.assertEqual({s["code"] for s in paid}, {r["code"] for r in res if r.get("paid")})  # searchable by "paid"
+
+
+class ArriveEarlyTest(unittest.TestCase):
+    def test_flags_and_types(self):
+        from app.mcp_server import sessions
+
+        flagged = {s["sessionType"] for s in sessions() if s.get("arriveEarlyMinutes")}
+        self.assertEqual({"Hands On Lab", "Product Bootcamp", "Hackathon"}, flagged)
+        self.assertTrue(all(s["arriveEarlyMinutes"] == 30 for s in sessions() if s.get("arriveEarlyMinutes")))
+        self.assertFalse(any(s.get("arriveEarlyMinutes") for s in sessions() if s["sessionType"] == "Learning Session"))
+
+    def test_soft_rule_in_transition(self):
+        from app.mcp_server import check_transition
+
+        t = check_transition("LRN1174", "HOL2765").structuredContent  # ends 13:30, lab at 14:00
+        self.assertEqual(30, t["arriveEarlyMinutes"])
+        self.assertIn("arrive about 30 min early", t["earlyNote"])
+        self.assertEqual("tight", t["verdict"])  # soft: still possible, just not the early arrival
+        talks = check_transition("LRN2138", "LRN6075").structuredContent  # two talks: no early arrival
+        self.assertNotIn("arriveEarlyMinutes", talks)
+        self.assertNotIn("earlyNote", talks)
+
+    def test_planner_warns_or_enforces(self):
+        from app.mcp_server import plan_strict_day
+
+        soft = plan_strict_day("2026-10-26", ["ai agents", "mcp"])
+        self.assertTrue(any("arrive about 30 min early" in w for w in soft["warnings"]))
+        self.assertTrue(any(m.get("earlyArrivalPossible") is False for m in soft["moves"]))
+        strict = plan_strict_day("2026-10-26", ["ai agents", "mcp"], strict_early=True)
+        self.assertTrue(strict["rules"]["strictEarly"])
+        self.assertTrue(all(m["earlyArrivalPossible"] for m in strict["moves"] if "arriveEarlyMinutes" in m))

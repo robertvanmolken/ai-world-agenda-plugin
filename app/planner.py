@@ -9,7 +9,7 @@ import re
 from typing import Any
 
 from .catalog import hide_now, score_session
-from .venue import _label, _mins, late_minutes, session_zone, travel_minutes
+from .venue import EARLY_MINUTES, _label, _mins, late_minutes, needs_early, session_zone, travel_minutes
 
 LUNCH_BONUS = 1000.0
 NETWORK_BONUS = 100.0
@@ -52,7 +52,7 @@ def _build_nodes(sessions, date, topics, include_hub_talks, include_keynote, lun
             continue
         score, _ = score_session(s, topics)
         node = {"kind": "session", "code": s["code"], "title": s["title"], "start": a, "end": b, "zone": zone,
-                "value": KEYNOTE_BONUS if is_key else score * (b - a) / 45.0, "score": round(score, 2),
+                "value": KEYNOTE_BONUS if is_key else score * (b - a) / 45.0, "score": round(score, 2), "early": needs_early(s),
                 "location": s.get("roomLocation") or s.get("room") or ""}
         candidates.append(node)
         nodes.append(node)
@@ -124,6 +124,7 @@ def plan_day(
     fixed_commitments: list[dict[str, str]] | None = None,
     dropped_limit: int = 10,
     hide_started: bool = False,
+    strict_early: bool = False,
 ) -> dict[str, Any]:
     basis = "best" if lateness_basis == "best" else "worst"
     d0, d1 = _mins(day_start), _mins(day_end)
@@ -138,6 +139,8 @@ def plan_day(
         gap = b["start"] - a["end"]
         if gap < 0:
             return False
+        if strict_early and b.get("early"):
+            gap -= EARLY_MINUTES  # hard rule: be there early, so the walk must fit before that
         key = (a["zone"], b["zone"], gap)
         if key not in cache:
             lo, hi = travel_minutes(a["zone"], b["zone"])
@@ -158,9 +161,13 @@ def plan_day(
     for a, b in zip(chain, chain[1:]):
         gap = b["start"] - a["end"]
         lo, hi = travel_minutes(a["zone"], b["zone"])
-        moves.append({"from": a["code"] or a["title"], "to": b["code"] or b["title"], "gapMinutes": gap,
-                      "walkMinutes": {"best": lo, "worst": hi}, "lateIfWalking": late_minutes(gap, lo, hi),
-                      "route": f"{_label(a['zone'])} -> {_label(b['zone'])}"})
+        move = {"from": a["code"] or a["title"], "to": b["code"] or b["title"], "gapMinutes": gap,
+                "walkMinutes": {"best": lo, "worst": hi}, "lateIfWalking": late_minutes(gap, lo, hi),
+                "route": f"{_label(a['zone'])} -> {_label(b['zone'])}"}
+        if b.get("early"):
+            move["arriveEarlyMinutes"] = EARLY_MINUTES
+            move["earlyArrivalPossible"] = gap - hi >= EARLY_MINUTES
+        moves.append(move)
 
     chosen = {n["code"] for n in chain if n["kind"] == "session"}
     dropped = []
@@ -184,6 +191,10 @@ def plan_day(
                         "reason": reason})
 
     warnings = []
+    for m in moves:
+        if m.get("earlyArrivalPossible") is False:
+            warnings.append(f"{m['to']} is a hands-on session where it is best to arrive about {EARLY_MINUTES} min early, "
+                            f"but the gap after {m['from']} is only {m['gapMinutes']} min including the walk.")
     if lunch_minutes > 0 and not any(n["kind"] == "lunch" for n in chain):
         warnings.append("No lunch slot fits with the chosen sessions and lateness limit.")
     placed = sum(1 for n in chain if n["kind"] == "networking")
@@ -196,7 +207,8 @@ def plan_day(
         "rules": {"lateToleranceMinutes": late_tolerance_minutes, "latenessBasis": basis,
                   "includeHubTalks": include_hub_talks, "includeKeynote": include_keynote,
                   "lunchMinutes": lunch_minutes, "networkingBlocks": networking_blocks,
-                  "networkingMinutes": networking_minutes, "networkingWindow": list(networking_window)},
+                  "networkingMinutes": networking_minutes, "networkingWindow": list(networking_window),
+                  "strictEarly": strict_early, "arriveEarlyMinutes": EARLY_MINUTES},
         "schedule": schedule, "moves": moves, "dropped": dropped, "warnings": warnings,
         "note": "Walking times are rough estimates.",
     }

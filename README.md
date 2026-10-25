@@ -274,3 +274,7 @@ Search picks the best matches by relevance (up to `limit`) and lists them by dat
 ## Hide past sessions
 
 The search box on the page has a checkbox "Hide past sessions", ticked by default. It hides a session once it has finished, and a paid session (Oracle University Training, which can no longer be registered for) once it has been running for more than 30 minutes, in Las Vegas time (`America/Los_Angeles`). The API and the MCP tools hide nothing unless asked: send `"hideStarted": true` (MCP `hide_started=true`) to `/sessions/search`, `/agenda/optimize`, `/agenda/plan`, `search_sessions`, `optimize_agenda` or `plan_strict_day`. Looking up a session by its code (`OUT1017`) also still finds it.
+
+## Arrive early for hands-on sessions
+
+Hands On Labs, Product Bootcamps and Hackathons need a laptop set up, so it is best to be in the room about 30 minutes early (my experience, not from the catalog). These sessions carry `arriveEarlyMinutes: 30` and an `arriveEarlyNote`, and the page shows the note on their tiles. "Can I make it?" then adds `arriveEarlyMinutes` and `earlyNote`, and downgrades an "ok" to "tight" when the gap does not leave the 30 minutes after the walk (soft rule: arriving at the start is still possible). The day planner lists such moves in `warnings` and `moves[].earlyArrivalPossible`; send `rules.strictEarly: true` (MCP `strict_early=true`) to plan with the early arrival as a hard rule.

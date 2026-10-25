@@ -8,7 +8,7 @@ from typing import Any
 
 from zoneinfo import ZoneInfo
 
-from .venue import assess_transition
+from .venue import EARLY_MINUTES, assess_transition, needs_early
 
 EVENT_TZ = ZoneInfo("America/Los_Angeles")  # the event is in Las Vegas (PDT)
 STARTED_GRACE_MINUTES = 30  # a session still counts as open for this long after it begins
@@ -65,6 +65,14 @@ def mark_paid(sessions: list[dict[str, Any]]) -> None:
         if "paid session" in notes or s.get("sessionType") == "Oracle University Training":
             s["paid"] = True
             s["registrationNote"] = PAID_NOTE
+
+
+def mark_early(sessions: list[dict[str, Any]]) -> None:
+    """Flag hands-on sessions where it is best to arrive early, in place."""
+    for s in sessions:
+        if needs_early(s):
+            s["arriveEarlyMinutes"] = EARLY_MINUTES
+            s["arriveEarlyNote"] = f"Hands-on session: it is best to arrive about {EARLY_MINUTES} min early to set up."
 
 
 def _blob(session: dict[str, Any]) -> str:

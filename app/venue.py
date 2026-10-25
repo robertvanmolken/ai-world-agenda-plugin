@@ -14,6 +14,23 @@ from pathlib import Path
 from typing import Any
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+
+# Hands-on sessions need a laptop set up, so people arrive early (experience, not from the catalog).
+EARLY_TYPES = {"Hands On Lab", "Product Bootcamp", "Hackathon"}
+EARLY_MINUTES = 30
+
+
+def needs_early(s: dict[str, Any]) -> bool:
+    return (s.get("sessionType") or "") in EARLY_TYPES
+
+
+def early_note(gap: int, hi: int, minutes: int = EARLY_MINUTES) -> str:
+    """Explain what the gap leaves of the early arrival."""
+    spare = max(0, gap - hi)
+    if spare >= minutes:
+        return f"Hands-on session: arrive about {minutes} min early to set up. This gap allows it."
+    return (f"Hands-on session: it is best to arrive about {minutes} min early to set up. With this gap you would "
+            f"arrive about {spare} min before the start, so expect to settle in quickly.")
 HUB_AREAS = {"oracle ai world hub", "customer success central"}
 
 
@@ -244,6 +261,12 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any], step_free: bool = Fa
                                 else "Expect to arrive right at the start."))
         elif gap == 0:
             out["reason"] = "The sessions are back to back, so there is no time to move between the rooms."
+    if needs_early(second):
+        out["arriveEarlyMinutes"] = EARLY_MINUTES
+        out["earlyNote"] = early_note(gap, hi)
+        if out["verdict"] == "ok" and gap - hi < EARLY_MINUTES:  # soft rule: still possible, but not the early arrival
+            out["verdict"] = "tight"
+            out["reason"] = out["earlyNote"]
     levels = {venue()["zones"][z]["level"] for z in _candidates(za) + _candidates(zb)}
     out["lateIfWalking"] = late_minutes(gap, lo, hi)
     out["route"] = f"{_label(za)} -> {_label(zb)}" + ((" (via elevator)" if step_free else " (via escalator/elevator)") if len(levels) > 1 else "")

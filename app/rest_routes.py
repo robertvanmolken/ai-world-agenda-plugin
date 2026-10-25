@@ -296,5 +296,6 @@ async def rest_plan(request: Request) -> Response:
         tuple(r.get("networkingWindow", ["11:00", "18:00"])),
         r.get("dayStart", "08:00"), r.get("dayEnd", "18:00"), body.get("fixedCommitments"),
         hide_started=bool(body.get("hideStarted") or r.get("hideStarted")),
+        strict_early=bool(r.get("strictEarly", False)),
     )
     return JSONResponse(with_disclaimer(result | {"venueWarning": venue()["warning"]}))

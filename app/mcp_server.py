@@ -17,7 +17,7 @@ from mcp.types import CallToolResult, ImageContent, Icon, TextContent, ToolAnnot
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from .catalog import find_conflicts, get_by_code, load_catalog, mark_paid, optimize_agenda, search_sessions
+from .catalog import find_conflicts, get_by_code, load_catalog, mark_early, mark_paid, optimize_agenda, search_sessions
 from .planner import plan_day
 from .routing import place_room
 from .venue import assess_transition, check_move, load_rooms, merge_rooms, resolve_place, route_details, venue
@@ -36,6 +36,7 @@ def catalog() -> dict[str, Any]:
         _catalog = load_catalog(DATA_FILE)
         merge_rooms(_catalog["sessions"], load_rooms())
         mark_paid(_catalog["sessions"])
+        mark_early(_catalog["sessions"])
     return _catalog
 
 
@@ -169,6 +170,7 @@ def search_sessions_tool(
     A full session title or code returns only that session (all its repeats). Put a phrase in double quotes, or set
     exact=true, to match that exact phrase in the session text. Set hide_started=true when the user wants what is still to come: it leaves out sessions that have finished
     and paid sessions that began more than 30 minutes ago (Las Vegas time). Results are the best matches, listed by date and start time (sort="relevance" lists the best match first).
+    Sessions with arriveEarlyMinutes (labs, bootcamps, hackathons) are best entered that many minutes early.
     Sessions with paid=true (Oracle University Training, codes OUT...) need a separate paid registration through
     My Account: always tell the user this (see registrationNote) when you mention such a session."""
     filters = {
@@ -264,15 +266,19 @@ def plan_strict_day(
     day_end: str = "18:00",
     fixed_commitments: list[dict[str, str]] | None = None,
     hide_started: bool = False,
+    strict_early: bool = False,
 ) -> dict[str, Any]:
     """Plan one day with no overlaps and a limit on how late you may arrive (the best plan by topic score).
     Includes a lunch block in Hall G and networking blocks in the Hub. lateness_basis is 'worst' (safe) or
     'best' (hurrying) walking time. HH:MM times; estimates only.
+    Hands-on sessions (labs, bootcamps, hackathons) are best entered about 30 min early: moves show whether the gap
+    allows it and warnings list where it does not. strict_early=true plans with that early arrival as a hard rule.
     Returns schedule, moves (gap, walking range, lateIfWalking), dropped sessions with reasons, and warnings."""
     return with_disclaimer(plan_day(
         sessions(), date, topics, late_tolerance_minutes, lateness_basis, include_hub_talks, include_keynote,
         lunch_minutes, (lunch_from, lunch_until), networking_blocks, networking_minutes,
         (networking_from, networking_until), day_start, day_end, fixed_commitments, hide_started=hide_started,
+        strict_early=strict_early,
     ) | {"venueWarning": venue()["warning"]})
 
 
