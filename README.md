@@ -262,3 +262,7 @@ python scripts/make_og_image.py      # rewrites static/og-image.png
 ## Paid sessions
 
 Oracle University Training sessions (codes `OUT...`, 14 in the catalog) are paid and need a separate registration through My Account. They carry `paid: true` and a `registrationNote` in search results, the landing page shows a "Paid, registration required" tag and note on their tiles, and the MCP tool descriptions tell the assistant to mention it. The text "paid registration" also finds them in search.
+
+## Exact search
+
+A query that is a whole session title or code returns only that session (with its repeats). Put a phrase in double quotes, for example `"trusted agentic ai"`, or send `exact: true` (MCP `exact=true`), to require that exact phrase in the session text. Any other query is ranked as before.

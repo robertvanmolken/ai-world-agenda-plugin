@@ -54,8 +54,30 @@ def session_matches(s: dict[str, Any], filters: dict[str, Any]) -> bool:
     return True
 
 
+def _norm(text: str) -> str:
+    return " ".join(re.split(r"\W+", (text or "").lower())).strip()
+
+
+def _exact_phrase(q: str) -> str | None:
+    """The phrase inside a pair of double quotes ("..." or curly quotes), if the whole query is one."""
+    m = re.fullmatch(r'\s*["\u201c\u201d](.+?)["\u201c\u201d]\s*', q)
+    return _norm(m.group(1)) if m else None
+
+
 def search_sessions(sessions: list[dict[str, Any]], filters: dict[str, Any]) -> list[dict[str, Any]]:
+    """Free-text search. A query equal to a session title or code returns only that session (all its repeats).
+    A query in double quotes (or exact=true) matches that exact phrase anywhere in the session text."""
     q = (filters.get("query") or filters.get("keyword") or "").strip().lower()
+    phrase = _exact_phrase(q) or (_norm(q) if q and filters.get("exact") in (True, "true", "1", 1) else None)
+    key = phrase or _norm(q)
+    limit = max(1, min(int(filters.get("limit") or 50), 200))
+    by_name = [s for s in sessions if key and session_matches(s, filters)
+               and (_norm(s.get("title")) == key or _norm(s.get("code")) == key)]
+    if by_name:  # the text is a whole session title or code: return just that session
+        return sorted(by_name, key=lambda s: (s.get("date") or "", s.get("startTime") or ""))[:limit]
+    if phrase:  # quoted: the exact phrase must appear in the session text
+        hits = [s for s in sessions if session_matches(s, filters) and f" {phrase} " in f" {_norm(_blob(s))} "]
+        return sorted(hits, key=lambda s: (s.get("date") or "", s.get("startTime") or "", s.get("title") or ""))[:limit]
     terms = [t for t in re.split(r"\W+", q) if len(t) > 1]
     out = []
     for s in sessions:

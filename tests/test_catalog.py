@@ -18,6 +18,27 @@ class CatalogTest(unittest.TestCase):
 if __name__ == '__main__': unittest.main()
 
 
+class ExactSearchTest(unittest.TestCase):
+    def test_exact_title_and_quotes(self):
+        from app.mcp_server import search_sessions_tool, sessions
+
+        title = "Building Trusted Agentic AI with Oracle Integration"
+        loose = search_sessions_tool(query="Building Trusted Agentic AI Oracle Integration", limit=50)["results"]
+        self.assertGreater(len(loose), 1)
+        for q in (title, f'"{title}"', f"\u201c{title}\u201d", title.lower()):
+            res = search_sessions_tool(query=q, limit=50)["results"]
+            self.assertTrue(res)
+            self.assertTrue(all(r["title"] == title for r in res), q)
+        self.assertEqual(1, len(search_sessions_tool(query="lrn2138")["results"]))
+        self.assertGreater(len(search_sessions_tool(query=title.split(" with")[0], limit=50)["results"]), 1)  # partial: still loose
+        quoted = search_sessions_tool(query='"trusted agentic ai"', limit=50)["results"]
+        self.assertTrue(quoted)
+        self.assertTrue(all("trusted agentic ai" in (r["title"] + " " + r["description"]).lower() for r in quoted))
+        self.assertLess(len(quoted), len(search_sessions_tool(query="trusted agentic ai", limit=200)["results"]))
+        self.assertEqual([], search_sessions_tool(query='"agentic trusted"', limit=50)["results"])  # order matters
+        self.assertTrue(search_sessions_tool(query="Oracle Integration", exact=True, limit=50)["results"])
+
+
 class PaidSessionTest(unittest.TestCase):
     def test_paid_sessions_flagged(self):
         from app.mcp_server import search_sessions_tool, sessions

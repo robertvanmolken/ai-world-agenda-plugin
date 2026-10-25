@@ -161,15 +161,18 @@ def search_sessions_tool(
     room: str = "",
     level: str = "",
     limit: int = 25,
+    exact: bool = False,
 ) -> dict[str, Any]:
     """Search sessions by free-text query and optional filters (date YYYY-MM-DD, from_time/to_time HH:MM).
+    A full session title or code returns only that session (all its repeats). Put a phrase in double quotes, or set
+    exact=true, to match that exact phrase in the session text. Otherwise results are ranked matches.
     Sessions with paid=true (Oracle University Training, codes OUT...) need a separate paid registration through
     My Account: always tell the user this (see registrationNote) when you mention such a session."""
     filters = {
         "query": query, "date": date, "from": from_time, "to": to_time,
         "contentArea": content_area, "areaOfInterest": area_of_interest,
         "sessionType": session_type, "industry": industry, "speaker": speaker,
-        "company": company, "room": room, "level": level, "limit": limit,
+        "company": company, "room": room, "level": level, "limit": limit, "exact": exact,
     }
     return with_disclaimer({"results": search_sessions(sessions(), filters)})
 
