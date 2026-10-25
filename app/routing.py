@@ -215,7 +215,7 @@ def _apply_rooms(r: dict[str, Any], a: str, b: str, room_a: str | None, room_b: 
         m = math.hypot(x1 - x2, y1 - y2) * mpp
         level = graph()["nodes"][a]["level"]
         return r | {
-            "meters": round(m), "walkMinutes": round(max(r["walkMinutes"], m / speed), 1),
+            "meters": round(m), "walkMinutes": round(max(0.1, m / speed), 1),  # two rooms in one block: real distance, not the block floor
             "steps": [{"text": f"Walk from {room_name(a, room_a)} to {room_name(b, room_b)}", "level": level, "meters": round(m)}],
             "polylines": [{"level": level, "points": [[x1, y1], [x2, y2]]}], "fromRoom": room_a, "toRoom": room_b,
         }

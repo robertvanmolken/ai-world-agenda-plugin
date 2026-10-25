@@ -233,6 +233,8 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any], step_free: bool = Fa
         out["verdict"] = "tight"
     else:
         out["verdict"] = "unlikely"
+        if gap == 0:
+            out["reason"] = "The sessions are back to back, so there is no time to move between the rooms."
     levels = {venue()["zones"][z]["level"] for z in _candidates(za) + _candidates(zb)}
     out["lateIfWalking"] = late_minutes(gap, lo, hi)
     out["route"] = f"{_label(za)} -> {_label(zb)}" + ((" (via elevator)" if step_free else " (via escalator/elevator)") if len(levels) > 1 else "")

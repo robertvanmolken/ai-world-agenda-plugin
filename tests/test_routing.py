@@ -162,6 +162,19 @@ class RoutingWebTests(unittest.TestCase):
         self.assertEqual("image/png", res.content[0].mimeType)
         self.assertTrue(get_route_map_images("zzz", "Titian").isError)
 
+    def test_neighbouring_rooms_use_real_distance(self):
+        r = route_range("casanova", "casanova", False, "604", "605")
+        self.assertEqual(8, r["meters"])
+        self.assertLess(r["walkMinutes"], 1)
+        from app.mcp_server import check_transition, check_walk
+
+        self.assertEqual({"best": 3, "worst": 3}, check_walk("Casanova 604", "Casanova 605", 5)["estimatedMinutes"])
+        self.assertEqual("ok", check_walk("Casanova 604", "Casanova 605", 5)["verdict"])
+        t = check_transition("BOO6096", "HOL2143").structuredContent
+        self.assertEqual(0, t["gapMinutes"])
+        self.assertEqual("unlikely", t["verdict"])
+        self.assertIn("back to back", t["reason"])
+
     def test_stairs_wording_and_markers(self):
         steps = " ".join(s["text"] for s in route_range("hall_g", "hall_b")["steps"])
         self.assertIn("escalator or stairs up to Level 2", steps)
