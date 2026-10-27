@@ -160,6 +160,7 @@ def route_details(a: str, b: str, step_free: bool = False, room_a: str | None = 
     return {
         "stepFree": step_free,
         "steps": r["steps"], "levels": r["levels"], "meters": r["meters"], "polylines": r["polylines"],
+        "walkMinutes": {"best": max(1, math.floor(r["bestMinutes"])), "worst": max(1, math.ceil(r["worstMinutes"]))},
         "mapUrls": [
             {"level": lv, "label": "Hub plan" if lv == 6 else f"Level {lv}",
              "url": f"/venue/route?from={r['from']}&to={r['to']}&level={lv}{sf}&v={data_version()}",

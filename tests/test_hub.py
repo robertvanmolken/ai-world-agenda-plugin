@@ -237,13 +237,43 @@ class HubWebTests(unittest.TestCase):
             self.assertEqual(1, r["count"], q)
             self.assertEqual(("ACE LOUNGE", "area"), (r["results"][0]["number"], r["results"][0]["kind"]))
             self.assertIn("ACE Lounge", r["results"][0]["routeDetail"]["steps"][0]["text"])
-        f = find_booth("ace lounge")["results"][0]
+        f = find_booth("ace lounge").structuredContent["results"][0]
         self.assertEqual("area", f["kind"])
         self.assertIn("/venue/route/page?", f["routeDetail"]["pageUrl"])
         w = get_walk_route("NVIDIA", "ACE Lounge").structuredContent["routeDetail"]
         self.assertEqual([6], w["levels"])
         self.assertEqual("ok", check_walk("Oracle TV", "ACE Lounge", 10)["verdict"])
         self.assertEqual(200, self.client.get("/venue/route.png?from=hub&to=hub&toRoom=ACE%20LOUNGE&level=6").status_code)
+
+    def test_find_booth_returns_the_map_as_an_image(self):
+        from app.mcp_server import find_booth
+
+        r = find_booth("DXC")
+        self.assertEqual(["text", "image"], [c.type for c in r.content])
+        self.assertEqual("image/png", r.content[1].mimeType)
+        self.assertTrue(r.content[0].text.startswith("FOUND: Booth 10030 (DXC Technology)"))
+        self.assertEqual([6], r.structuredContent["routeDetail"]["levels"])
+        self.assertEqual("Hub plan", r.structuredContent["routeDetail"]["mapUrls"][0]["label"])
+        hit = r.structuredContent["results"][0]
+        self.assertIn("/venue/route/page?", hit["routeDetail"]["pageUrl"])
+        self.assertGreater(hit["routeDetail"]["meters"], 50)
+        self.assertEqual({"best", "worst"}, set(hit["routeDetail"]["walkMinutes"]))
+        none = find_booth("zzzz")
+        self.assertEqual(["text"], [c.type for c in none.content])
+        self.assertEqual(0, none.structuredContent["count"])
+        self.assertNotIn("-", find_booth("ACE").content[0].text.split("min)")[0].split("(")[-1])  # '3 min', not '3-3 min'
+
+    def test_walk_route_states_minutes_and_a_one_line_summary(self):
+        from app.mcp_server import get_walk_route
+
+        r = get_walk_route("Veronese 2401A", "DXC Technology")
+        d = r.structuredContent["routeDetail"]
+        self.assertEqual({"best", "worst"}, set(d["walkMinutes"]))
+        self.assertLessEqual(d["walkMinutes"]["best"], d["walkMinutes"]["worst"])
+        text = r.content[0].text
+        self.assertTrue(text.startswith(f"ROUTE: about {d['meters']} m"))
+        self.assertIn("Booth 10030 (DXC Technology)", text.split("Repeat")[0])
+        self.assertIn("do not invent", text)
 
     def test_hub_maps(self):
         for url in ("/venue/route.png?from=hub&to=hub&fromRoom=2003&toRoom=4009&level=6", "/venue/map/6.png"):
@@ -258,7 +288,7 @@ class HubWebTests(unittest.TestCase):
     def test_mcp_tools(self):
         from app.mcp_server import find_booth, get_walk_route
 
-        f = find_booth("NVIDIA")
+        f = find_booth("NVIDIA").structuredContent
         self.assertEqual("4009", f["results"][0]["number"])
         self.assertIn("/venue/route/page?", f["results"][0]["routeDetail"]["pageUrl"])
         w = get_walk_route("Booth 2003", "NVIDIA")

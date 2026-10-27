@@ -79,6 +79,22 @@ def absolute_maps(result: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def minutes_text(wm: dict[str, Any]) -> str:
+    """'3' when best and worst agree, else '2-3'."""
+    return f"{wm['best']}" if wm.get("best") == wm.get("worst") else f"{wm.get('best')}-{wm.get('worst')}"
+
+
+def route_summary(result: dict[str, Any]) -> str:
+    """One finished sentence with the distance, the time and the stops, so a chat assistant repeats our numbers."""
+    d = result.get("routeDetail") or {}
+    if not d.get("steps"):
+        return ""
+    stops = [re.sub(r"^(?:Leave|Arrive at|Walk to|Walk from)\s+", "", st["text"]) for st in d["steps"] if not st.get("levelChange")]
+    mins = minutes_text(d.get("walkMinutes") or {})
+    return (f"ROUTE: about {d.get('meters')} m, about {mins} min walking, {' -> '.join(stops)}."
+            + (f" {d['positionNote']}" if d.get("positionNote") else ""))
+
+
 def with_map_images(result: dict[str, Any]) -> CallToolResult:
     """Tool result with the JSON as structuredContent, a text summary, and one raw-base64 PNG image block per level.
 
@@ -98,7 +114,8 @@ def with_map_images(result: dict[str, Any]) -> CallToolResult:
         if r:
             png = render_level_png(int(q["level"]), r)
             blocks.append(ImageContent(type="image", mimeType="image/png", data=base64.b64encode(png).decode("ascii")))
-    summary = (f"Walking route maps follow ({len(blocks)} image(s), one per level). Show them to the user and also give "
+    summary = ((route_summary(result) + " Repeat these steps, the distance and the minutes exactly; do not invent others. ")
+               + f"Walking route maps follow ({len(blocks)} image(s), one per level). Show them to the user and also give "
                f"the link {d.get('pageUrl', '')}. Data: ")
     return CallToolResult(content=[TextContent(type="text", text=summary + text), *blocks], structuredContent=result)
 
@@ -213,10 +230,11 @@ def check_transition(code_a: str, code_b: str, step_free: bool = False, early_ar
 
 @mcp.tool(annotations=READ_ONLY, meta=ROUTE_WIDGET_TOOL_META)
 def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> CallToolResult:
-    """Step-by-step walking route between two places at the Venetian Expo, with distance, levels and
+    """Step-by-step walking route between two places at the Venetian Expo, with distance, walking minutes, levels and
     schematic floor plan image URLs (one per level, route drawn on it). Places are free text such as
     'Hall G', 'Titian', 'Galileo 1001, Level 1', 'Hub' or a room number. Estimates only; show the map
-    URLs (PNG images) to the user as images or links. ALWAYS also give the user routeDetail.pageUrl as a
+    URLs (PNG images) to the user as images or links. Repeat the steps, meters and walkMinutes from the result
+    exactly (do not make up a time). ALWAYS also give the user routeDetail.pageUrl as a
     clickable link ("Open the route maps"): many chat clients cannot embed images. Set step_free=true only when the user asks for
     elevators or step-free access: the route then uses elevators, never escalators."""
     za, zb = resolve_place(from_place), resolve_place(to_place)
@@ -229,27 +247,43 @@ def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> C
                                                           "venueWarning": venue()["warning"]})))
 
 
-@mcp.tool(annotations=READ_ONLY)
-def find_booth(query: str, limit: int = 5) -> dict[str, Any]:
+@mcp.tool(annotations=READ_ONLY, meta=ROUTE_WIDGET_TOOL_META)
+def find_booth(query: str, limit: int = 5) -> CallToolResult:
     """Find a sponsor stand (booth), a Hub theater or a named Hub area at Oracle AI World by booth number ('4009'),
     company name ('NVIDIA', partial names work), theater ('Theater 3') or area ('ACE Lounge', 'Oracle TV',
-    'SWAG Station', 'The Shop', 'zone F'). Areas have kind "area" and are not sponsor booths. Returns booth number, company, row, and a map link
-    (routeDetail.pageUrl) that shows where it is on the Hub plan, with the walking route from the Hub entrance.
-    Booths are in the Hub on Level 2 (Hall C). Positions on the plan are approximate. For walking between two
-    stands use get_walk_route with 'Booth 2003' and 'NVIDIA' (names or numbers) as the places."""
+    'SWAG Station', 'The Shop', 'zone F'). Areas have kind "area" and are not sponsor booths. Returns booth number,
+    company, row, the distance and walking minutes from the Hub entrance, and the Hub map with the place
+    highlighted (an image for the best match, and results[].routeDetail.pageUrl as a clickable link for each).
+    Booths are in the Hub on Level 2 (Hall C). Positions on the plan are approximate. Repeat the numbers from the
+    result exactly. For walking between two stands use get_walk_route with 'Booth 2003' and 'NVIDIA' (names or numbers)."""
     from .hub import find_areas, find_booths
 
     n = max(1, min(limit, 20))
     found = ([dict(b, kind="booth") for b in find_booths(query, n)] + find_areas(query, n))[:n]
+    best: dict[str, Any] | None = None
     for f in found:
-        place = f["name"] if f["kind"] != "booth" else f"Booth {f['number']}"
+        f["place"] = f["name"] if f["kind"] != "booth" else f"Booth {f['number']}"
         detail = route_details("hub", "hub", False, None, f["number"])
         if detail:
-            f["routeDetail"] = {"pageUrl": PUBLIC_URL + detail["pageUrl"], "pngUrl": PUBLIC_URL + detail["mapUrls"][0]["pngUrl"],
-                                "meters": detail["meters"], "levels": [6]}
-        f["place"] = place
-    return with_disclaimer({"query": query, "results": found, "count": len(found), "location": "Oracle AI World Hub, Level 2 (Hall C)",
-                            "venueWarning": venue()["warning"]})
+            f["routeDetail"] = absolute_maps({"routeDetail": detail})["routeDetail"]
+            f["routeDetail"].update(meters=detail["meters"], walkMinutes=detail["walkMinutes"], steps=detail["steps"])
+            if "estimatedPosition" in detail:
+                f["routeDetail"].update(estimatedPosition=detail["estimatedPosition"], positionNote=detail["positionNote"])
+            best = best or f
+    result = with_disclaimer({"query": query, "results": found, "count": len(found),
+                              "location": "Oracle AI World Hub, Level 2 (Hall C)", "venueWarning": venue()["warning"]})
+    if not best:
+        text = f'Nothing found for "{query}". Try a shorter name, the booth number, or an area such as ACE Lounge.'
+        return CallToolResult(content=[TextContent(type="text", text=text)], structuredContent=result)
+    # the widget and the image block show the best match, so give them its route as the top-level routeDetail
+    shown = with_map_images({**result, "from": "Hub entrance", "to": best["place"], "routeDetail": best["routeDetail"]})
+    d = best["routeDetail"]
+    line = (f"FOUND: {best['place']}{'' if best['kind'] != 'booth' else ' (' + best['name'] + ')'}, in the Oracle AI World Hub "
+            f"(Hall C, Level 2), about {d['meters']} m ({minutes_text(d['walkMinutes'])} min) from the Hub entrance. "
+            f"Positions on the plan are approximate. Repeat these numbers exactly. ")
+    first = shown.content[0]
+    return CallToolResult(content=[TextContent(type="text", text=line + first.text), *shown.content[1:]],
+                          structuredContent=shown.structuredContent)
 
 
 @mcp.tool(annotations=READ_ONLY)
