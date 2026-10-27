@@ -121,6 +121,37 @@ class HubRouteTests(unittest.TestCase):
         self.assertEqual(r["meters"], route_range("hub", "hub", False, "4009", "2003")["meters"])
         self.assertGreater(route_range("hub", "hub", False, "1001", "13029")["meters"], r["meters"])
 
+    def test_view_holds_the_whole_plan_and_the_legend(self):
+        view = graph()["levels"]["6"]["view"]
+        outline = graph()["levels"]["6"]["outline"]
+        x, y, w, h = view
+        self.assertTrue(all(x <= px <= x + w and y <= py <= y + h for px, py in outline))
+        entry = graph()["nodes"]["hub_entry"]
+        self.assertLessEqual(entry["y"] + 40, y + h)
+        for name, (rx, ry, rw, rh) in graph()["rooms"]["hub"].items():
+            self.assertTrue(x <= rx and rx + rw <= x + w and y <= ry and ry + rh <= y + h, name)
+        from app.mapsvg import _legend
+
+        legend = _legend(x, y, w, h)  # the legend box spans y-24 .. y+94 and must stay inside the view
+        top = float(__import__("re").search(r'<rect x="[\d.]+" y="([\d.]+)"', legend).group(1))
+        self.assertGreaterEqual(top, y)
+        self.assertLessEqual(top + 118, y + h)
+
+    def test_map_urls_carry_the_data_version(self):
+        from app.routing import data_version
+        from app.venue import route_details
+
+        d = route_details("hub", "hub", False, None, "ACE LOUNGE")
+        self.assertIn(f"&v={data_version()}", d["mapUrls"][0]["url"])
+        self.assertIn(f"&v={data_version()}", d["mapUrls"][0]["pngUrl"])
+        self.assertEqual(8, len(data_version()))
+
+    def test_ace_lounge_sits_below_the_multicloud_lounge(self):
+        r = graph()["rooms"]["hub"]
+        ace, lounge = r["ACE LOUNGE"], r["MULTICLOUD LOUNGE"]
+        self.assertAlmostEqual(ace[0] + ace[2] / 2, lounge[0] + lounge[2] / 2, delta=1)  # same centre line
+        self.assertGreaterEqual(ace[1], lounge[1] + lounge[3])  # below it, not overlapping
+
     def test_estimated_booths_are_noted(self):
         from app.venue import route_details
 

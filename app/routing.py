@@ -5,6 +5,7 @@ results are estimates. Pure Python, no third-party dependencies.
 """
 from __future__ import annotations
 
+import hashlib
 import heapq
 import json
 import math
@@ -18,6 +19,12 @@ from .venue import DATA_DIR, venue
 @lru_cache(maxsize=1)
 def graph() -> dict[str, Any]:
     return json.loads((DATA_DIR / "venue_graph.json").read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def data_version() -> str:
+    """Short hash of the plan data. Map URLs carry it, so an updated plan never comes from the browser cache."""
+    return hashlib.sha1((DATA_DIR / "venue_graph.json").read_bytes()).hexdigest()[:8]
 
 
 def _scale(level: int) -> float:

@@ -154,14 +154,16 @@ def route_details(a: str, b: str, step_free: bool = False, room_a: str | None = 
     r = route_range(a, b, step_free, room_a, room_b)
     if not r:
         return None
+    from .routing import data_version
+
     sf = ("&stepFree=1" if step_free else "") + (f"&fromRoom={r['fromRoom']}" if r.get("fromRoom") else "") + (f"&toRoom={r['toRoom']}" if r.get("toRoom") else "")
     return {
         "stepFree": step_free,
         "steps": r["steps"], "levels": r["levels"], "meters": r["meters"], "polylines": r["polylines"],
         "mapUrls": [
             {"level": lv, "label": "Hub plan" if lv == 6 else f"Level {lv}",
-             "url": f"/venue/route?from={r['from']}&to={r['to']}&level={lv}{sf}",
-             "pngUrl": f"/venue/route.png?from={r['from']}&to={r['to']}&level={lv}{sf}"}
+             "url": f"/venue/route?from={r['from']}&to={r['to']}&level={lv}{sf}&v={data_version()}",
+             "pngUrl": f"/venue/route.png?from={r['from']}&to={r['to']}&level={lv}{sf}&v={data_version()}"}
             for lv in r["levels"]
         ],
         "pageUrl": f"/venue/route/page?from={r['from']}&to={r['to']}{sf}",

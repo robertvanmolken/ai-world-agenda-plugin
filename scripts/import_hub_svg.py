@@ -154,9 +154,13 @@ def replace_line(text: str, start: str, new: str) -> str:
 def write_graph(h: dict) -> None:
     """Replace only the Hub lines of venue_graph.json (and add the Hub keys), leaving everything else untouched."""
     text = GRAPH.read_text(encoding="utf-8")
-    x0, y0, x1, y1 = (round(v) for v in h["extent"])
-    view = [max(0, x0 - 30), max(0, y0 - 40), x1 - x0 + 60, min(FRAME[1], y1 + 40) - max(0, y0 - 40)]
     ex, ey = ENTRANCE
+    ox = [p[0] for p in h["outline"]] or [h["extent"][0], h["extent"][2]]
+    oy = [p[1] for p in h["outline"]] or [h["extent"][1], h["extent"][3]]
+    # the view holds every booth, the whole floor outline and the entrance (with room for its label)
+    x0, y0 = round(min(h["extent"][0], min(ox), ex)), round(min(h["extent"][1], min(oy)))
+    x1, y1 = round(max(h["extent"][2], max(ox))), round(max(h["extent"][3], max(oy), ey + 40))
+    view = [max(0, x0 - 30), max(0, y0 - 50), x1 - x0 + 60, min(FRAME[1], y1 + 40) - max(0, y0 - 50)]
     j = json.dumps
     level6 = {"name": "Oracle AI World Hub (Level 2)", "view": view, "metersPerPixel": METERS_PER_PIXEL, "outline": h["outline"]}
     text = replace_line(text, '    "6":', f'    "6": {j(level6)}')
