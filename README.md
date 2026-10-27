@@ -290,3 +290,15 @@ The Oracle AI World Hub is on Level 2 in Hall C. Its own plan is drawn as "Hub p
 - **Calibrate** (positions are approximate): open `scripts/calibrate.html`, load `data/venue_graph.json` and `data/room-screenshots/hub-plan-photo.jpg`, pick Level 6, drag a booth row (one drag moves the whole row), the theaters and the areas into place, and save over `data/venue_graph.json`. Re-running the import script overwrites your calibration, so calibrate last.
 - Known gaps in the traced plan: ten labels on the photo match no booth in the list (12025, 12027, 12031, 13033, 13035, 11035, 10035, 10037, 2028, 6039; probably misread numbers) and are ignored; some even-slot booths sit off their row.
 - The booth list comes from Oracle's public exhibitor list and is not covered by the licence, like the session data.
+
+## Refreshing the catalog after the event has started
+
+The catalog page drops the date and time from the tiles of days that are over, so a page saved on Tuesday has no dates for Sunday and Monday and the plain parser (`python -m app.catalog_parser`) would silently drop all of those sessions. Use the merge script instead:
+
+```
+python scripts/merge_catalog.py --dry-run     # shows what would change
+python scripts/merge_catalog.py               # writes data/sessions.json and data/rooms.csv
+python scripts/validate_rooms.py
+```
+
+Sessions with a date in the new file take the new data (new sessions, time changes, new text; a session that repeats on several days takes its earliest open occurrence). Sessions without a date keep the data of the earlier capture. A session that is still to come but missing from the file is removed, and the script refuses to write if the result has far fewer sessions than before.

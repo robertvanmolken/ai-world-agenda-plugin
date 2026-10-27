@@ -117,7 +117,7 @@ class RoutingWebTests(unittest.TestCase):
         missing = set()
         for s in sessions():
             z = session_zone(s)
-            if z in graph()["rooms"] and not session_room(s, z) and s.get("room") not in ("Hub", "Hub Meetup"):
+            if z in graph()["rooms"] and not session_room(s, z) and s.get("room") not in ("Hub", "Hub Meetup", "Streamed in Session Rooms"):
                 missing.add((z, s.get("room")))
         self.assertEqual(sorted(missing), [])
 

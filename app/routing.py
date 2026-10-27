@@ -80,8 +80,8 @@ def room_key(zone: str, room: str | None) -> str | None:
         m = re.search(r"THEATER\s*(\d{1,2})\b", k)  # 'Theater 3', 'Built to Win Theater 12'
         if m and f"T{int(m.group(1))}" in rooms:
             return f"T{int(m.group(1))}"
-        if re.fullmatch(r"HUB( MEETUP)?", k):
-            return None  # the Hub as a whole: end the walk at its centre
+        if re.fullmatch(r"HUB( MEETUP)?", k) or k.startswith("STREAMED"):
+            return None  # the Hub as a whole (or streamed sessions): end the walk at its centre
         if re.fullmatch(r"\d{4,5}", k) and k in rooms:
             return k
     if k in rooms or k in graph().get("roomAliases", {}).get(zone, {}):
