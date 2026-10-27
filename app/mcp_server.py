@@ -231,21 +231,18 @@ def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> C
 
 @mcp.tool(annotations=READ_ONLY)
 def find_booth(query: str, limit: int = 5) -> dict[str, Any]:
-    """Find a sponsor stand (booth) or a Hub theater at Oracle AI World by booth number ('4009'), company name
-    ('NVIDIA', partial names work) or theater ('Theater 3'). Returns booth number, company, row, and a map link
+    """Find a sponsor stand (booth), a Hub theater or a named Hub area at Oracle AI World by booth number ('4009'),
+    company name ('NVIDIA', partial names work), theater ('Theater 3') or area ('ACE Lounge', 'Oracle TV',
+    'SWAG Station', 'The Shop', 'zone F'). Areas have kind "area" and are not sponsor booths. Returns booth number, company, row, and a map link
     (routeDetail.pageUrl) that shows where it is on the Hub plan, with the walking route from the Hub entrance.
     Booths are in the Hub on Level 2 (Hall C). Positions on the plan are approximate. For walking between two
     stands use get_walk_route with 'Booth 2003' and 'NVIDIA' (names or numbers) as the places."""
-    from .hub import find_booths
-    from .routing import room_key
+    from .hub import find_areas, find_booths
 
-    t = re.search(r"theater\s*(\d{1,2})\b", query, re.I)
-    if t and room_key("hub", f"Theater {t.group(1)}"):
-        found = [{"number": f"T{int(t.group(1))}", "name": f"Theater {int(t.group(1))}", "kind": "theater"}]
-    else:
-        found = [dict(b, kind="booth") for b in find_booths(query, max(1, min(limit, 20)))]
+    n = max(1, min(limit, 20))
+    found = ([dict(b, kind="booth") for b in find_booths(query, n)] + find_areas(query, n))[:n]
     for f in found:
-        place = f["name"] if f["kind"] == "theater" else f"Booth {f['number']}"
+        place = f["name"] if f["kind"] != "booth" else f"Booth {f['number']}"
         detail = route_details("hub", "hub", False, None, f["number"])
         if detail:
             f["routeDetail"] = {"pageUrl": PUBLIC_URL + detail["pageUrl"], "pngUrl": PUBLIC_URL + detail["mapUrls"][0]["pngUrl"],

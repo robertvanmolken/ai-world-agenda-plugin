@@ -79,7 +79,7 @@ paths:
   /booths/search:
     get:
       operationId: searchBooths
-      summary: Find a sponsor booth or Hub theater by booth number, company name or "Theater 3", with the walk from the Hub entrance.
+      summary: Find a sponsor booth, Hub theater or named Hub area (ACE Lounge, Oracle TV, zone F) by number or name, with the walk from the Hub entrance.
       parameters:
         - {name: q, in: query, required: true, schema: {type: string}}
         - {name: limit, in: query, schema: {type: integer, default: 10}}

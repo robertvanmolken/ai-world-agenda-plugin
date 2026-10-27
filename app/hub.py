@@ -69,6 +69,48 @@ def find_booths(query: str, limit: int = 10) -> list[dict[str, Any]]:
     return [booth_info(n) for n in ordered[:limit]]
 
 
+def areas() -> dict[str, str]:
+    """Named places on the Hub plan that are not sponsor booths: theaters, zones A-H, lounges, Oracle TV, shops.
+    key on the plan -> label."""
+    from .routing import graph
+
+    return dict(graph().get("roomLabels", {}).get("hub", {}))
+
+
+def _area_names(key: str, label: str) -> set[str]:
+    """Names a Hub area answers to: its label, and for zones also the title and 'zone f'."""
+    names = {_norm(label)}
+    if key.startswith("Z") and ":" in label:
+        names |= {_norm(label.split(":", 1)[1]), f"zone {key[1:].lower()}"}
+    return names
+
+
+def find_areas(query: str, limit: int = 10) -> list[dict[str, Any]]:
+    """Hub areas matching a name or part of it: 'ACE', 'ace lounge', 'Oracle TV', 'swag', 'zone F', 'Theater 3'.
+
+    Zones also match their title ('customer success', 'sports spotlight'). Exact name first, then names that start
+    with the text, then names that contain it as whole words."""
+    q = re.sub(r"^(?:the|to|at)\s+", "", _norm(query))
+    if len(q) < 2:
+        return []
+    zone = re.fullmatch(r"(?:zone|area)\s*([a-h])", q)
+    theater = re.fullmatch(r"(?:hub\s*)?theater\s*(\d{1,2})", q)
+    exact, prefix, inside = [], [], []
+    for key, label in areas().items():
+        names = _area_names(key, label)
+        if (theater and key == f"T{int(theater.group(1))}") or (zone and key == f"Z{zone.group(1).upper()}") or q in names:
+            exact.append(key)
+        elif any(n.startswith(q) for n in names):
+            prefix.append(key)
+        elif any(f" {q} " in f" {n} " for n in names):  # a whole word of the name, such as "tv" in "oracle tv"
+            inside.append(key)
+    out = []
+    for key in (exact + prefix + inside)[:limit]:
+        kind = "theater" if re.fullmatch(r"T\d+", key) else "area"
+        out.append({"number": key, "name": areas()[key], "kind": kind})
+    return out
+
+
 def match_company(text: str) -> str | None:
     """Booth number when the text is just a company name (optionally with 'booth' or 'stand' around it)."""
     q = " ".join(w for w in _norm(text).split() if w not in _NOISE)

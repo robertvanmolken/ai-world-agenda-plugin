@@ -182,11 +182,11 @@ def resolve_place(text: str) -> str | None:
         return None
     if "hub" in t or "customer success" in t or re.search(r"theater\s*\d", t):
         return "hub"
-    from .hub import find_booths, match_company
+    from .hub import find_areas, find_booths, match_company
 
     if re.fullmatch(r"(?:(?:booth|stand)\s*)?\d{4,5}", t) and find_booths(t, 1):
         return "hub"
-    if match_company(t) or re.match(r"(?:booth|stand)\s+\d{4,5}\b", t):
+    if match_company(t) or re.match(r"(?:booth|stand)\s+\d{4,5}\b", t) or find_areas(t, 1):
         return "hub"
     zones = venue()["zones"]
     for zid, z in zones.items():

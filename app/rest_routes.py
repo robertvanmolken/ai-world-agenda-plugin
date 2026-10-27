@@ -12,7 +12,7 @@ from starlette.responses import JSONResponse, Response
 from .catalog import find_conflicts, get_by_code, optimize_agenda, search_sessions
 from .mcp_server import ROOT, catalog, mcp, sessions, with_disclaimer
 from .planner import plan_day
-from .hub import find_booths
+from .hub import find_areas, find_booths
 from .mapsvg import levels as map_levels, render_level
 from .mappng import render_level_png
 from .routing import place_room, room_key, route_range
@@ -160,11 +160,10 @@ async def rest_booths(request: Request) -> Response:
         n = max(1, min(int(limit or 10), 50))
     except ValueError:
         return _BAD
-    t = re.search(r"theater\s*(\d{1,2})\b", query, re.I)
-    if t and room_key("hub", f"Theater {t.group(1)}"):
-        found = [{"number": f"T{int(t.group(1))}", "name": f"Theater {int(t.group(1))}", "kind": "theater"}]
-    else:
-        found = [dict(b, kind="booth") for b in find_booths(query, n)]
+    found = [dict(b, kind="booth") for b in find_booths(query, n)] + find_areas(query, n)
+    found = found[:n]
+    if found and found[0]["kind"] == "area" and not any(f["kind"] == "booth" for f in found):
+        pass  # areas only: nothing else to add
     for f in found:
         f["routeDetail"] = route_details("hub", "hub", False, None, f["number"])
     return JSONResponse(with_disclaimer({"query": query, "results": found, "count": len(found),

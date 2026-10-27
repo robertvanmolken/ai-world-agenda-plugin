@@ -78,6 +78,38 @@ class BoothSearchTests(unittest.TestCase):
         self.assertEqual({"number": "4009", "name": "NVIDIA", "row": 4, "slot": 9}, booth_info("4009"))
 
 
+class AreaSearchTests(unittest.TestCase):
+    def test_areas_by_name_and_part(self):
+        from app.hub import find_areas
+
+        for q in ("ACE", "ace", "ACE LOUNGE", "the ACE lounge"):
+            self.assertEqual(["ACE LOUNGE"], [a["number"] for a in find_areas(q)], q)
+        self.assertEqual("ORACLE TV", find_areas("Oracle TV")[0]["number"])
+        self.assertEqual("ORACLE TV", find_areas("tv")[0]["number"])
+        self.assertEqual("SWAG STATION", find_areas("swag")[0]["number"])
+        self.assertEqual("THE SHOP", find_areas("shop")[0]["number"])
+        self.assertEqual("ZF", find_areas("zone F")[0]["number"])
+        self.assertEqual("ZD", find_areas("customer success")[0]["number"])
+        self.assertEqual({"ACE LOUNGE", "MULTICLOUD LOUNGE"}, {a["number"] for a in find_areas("lounge")})
+        self.assertEqual("theater", find_areas("Theater 3")[0]["kind"])
+        self.assertEqual("area", find_areas("ACE")[0]["kind"])
+        self.assertEqual([], find_areas("a"))
+        self.assertEqual([], find_areas("xyzzy"))
+
+    def test_ace_is_not_a_sponsor_booth(self):
+        self.assertEqual([], find_booths("ACE"))
+
+    def test_areas_as_places(self):
+        self.assertEqual("hub", resolve_place("ACE Lounge"))
+        self.assertEqual("hub", resolve_place("zone F"))
+        self.assertEqual("ACE LOUNGE", place_room("ACE Lounge", "hub"))
+        self.assertEqual("ACE LOUNGE", room_key("hub", "ACE LOUNGE"))
+        r = route_range("hub", "hub", False, "4009", "ACE LOUNGE")
+        self.assertEqual([6], r["levels"])
+        self.assertIn("ACE Lounge", r["steps"][0]["text"])
+        self.assertGreater(r["meters"], 50)
+
+
 class HubRouteTests(unittest.TestCase):
     def test_booth_to_booth_walks_between_aisle_sides(self):
         r = route_range("hub", "hub", False, "2003", "4009")
@@ -136,6 +168,22 @@ class HubWebTests(unittest.TestCase):
         self.assertEqual("Theater 3", t["results"][0]["name"])
         self.assertEqual(0, self.client.get("/booths/search?q=zzzz").json()["count"])
         self.assertEqual(400, self.client.get("/booths/search?q=a&limit=x").status_code)
+
+    def test_area_search_endpoint_and_tools(self):
+        from app.mcp_server import check_walk, find_booth, get_walk_route
+
+        for q in ("ACE", "ACE LOUNGE"):
+            r = self.client.get("/booths/search", params={"q": q}).json()
+            self.assertEqual(1, r["count"], q)
+            self.assertEqual(("ACE LOUNGE", "area"), (r["results"][0]["number"], r["results"][0]["kind"]))
+            self.assertIn("ACE Lounge", r["results"][0]["routeDetail"]["steps"][0]["text"])
+        f = find_booth("ace lounge")["results"][0]
+        self.assertEqual("area", f["kind"])
+        self.assertIn("/venue/route/page?", f["routeDetail"]["pageUrl"])
+        w = get_walk_route("NVIDIA", "ACE Lounge").structuredContent["routeDetail"]
+        self.assertEqual([6], w["levels"])
+        self.assertEqual("ok", check_walk("Oracle TV", "ACE Lounge", 10)["verdict"])
+        self.assertEqual(200, self.client.get("/venue/route.png?from=hub&to=hub&toRoom=ACE%20LOUNGE&level=6").status_code)
 
     def test_hub_maps(self):
         for url in ("/venue/route.png?from=hub&to=hub&fromRoom=2003&toRoom=4009&level=6", "/venue/map/6.png"):

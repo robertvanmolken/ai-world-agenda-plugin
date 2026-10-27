@@ -222,9 +222,9 @@ input.codes{flex:1;min-width:260px}
     </div>
     <div class="card" id="stands">
       <h3>3. Find a stand</h3>
-      <p>Search the Hub by booth number, company or theater, and see where it is and how to walk there from the Hub entrance.</p>
+      <p>Search the Hub by booth number, company, theater or area (such as the ACE Lounge or Oracle TV), and see where it is and how to walk there from the Hub entrance.</p>
       <form id="sf">
-        <input type="search" id="sq" placeholder="e.g. NVIDIA, 4009, Theater 3" aria-label="Find a stand or theater">
+        <input type="search" id="sq" placeholder="e.g. NVIDIA, 4009, Theater 3, ACE Lounge" aria-label="Find a stand, theater or area">
         <button class="btn btn-primary" type="submit">Find</button>
       </form>
       <div id="sstatus" class="status" aria-live="polite"></div>
@@ -335,11 +335,11 @@ $("sf").onsubmit = async e => {
     const r = await fetch("/booths/search?q=" + encodeURIComponent(q) + "&limit=8");
     if (!r.ok) throw new Error(r.status);
     const data = await r.json();
-    $("sstatus").textContent = data.count ? data.count + " found in the Hub (Level 2, Hall C). Positions on the plan are approximate." : "No stand or theater found. Try a shorter name or the booth number.";
+    $("sstatus").textContent = data.count ? data.count + " found in the Hub (Level 2, Hall C). Positions on the plan are approximate." : "Nothing found. Try a shorter name, the booth number, or an area such as ACE Lounge.";
     (data.results || []).forEach(b => {
       const d = el("div", "hop");
-      d.appendChild(el("strong", "", b.kind === "theater" ? b.name : "Booth " + b.number + " \u00b7 " + b.name));
-      d.appendChild(el("p", "", b.kind === "theater" ? "Hub theater" : "Row " + b.row + ", slot " + b.slot));
+      d.appendChild(el("strong", "", b.kind !== "booth" ? b.name : "Booth " + b.number + " \u00b7 " + b.name));
+      d.appendChild(el("p", "", b.kind === "theater" ? "Hub theater" : b.kind === "area" ? "Hub area, not a sponsor booth" : "Row " + b.row + ", slot " + b.slot));
       if (b.routeDetail && b.routeDetail.steps) d.appendChild(routeView(b.routeDetail));
       $("sresults").appendChild(d);
     });

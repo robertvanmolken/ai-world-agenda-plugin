@@ -114,7 +114,12 @@ def place_room(text: str, zone: str | None) -> str | None:
         from .hub import match_company
 
         company = match_company(text or "")  # 'NVIDIA', 'booth Accenture'
-        return company if company and room_key("hub", company) else None
+        if company and room_key("hub", company):
+            return company
+        from .hub import find_areas
+
+        area = find_areas(re.sub(r"(?i)\b(?:the )?oracle ai world hub\b,?", "", text or "").strip(), 1)  # 'ACE Lounge', 'zone F'
+        return area[0]["number"] if area and room_key("hub", area[0]["number"]) else None
     for tok in re.findall(r"\b\d{3,4}[A-Za-z]?\b", text or ""):
         if room_key(zone, tok):
             return room_key(zone, tok)
