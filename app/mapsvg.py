@@ -4,7 +4,7 @@ from __future__ import annotations
 from html import escape
 from typing import Any
 
-from .routing import graph, room_parts, room_rect, route_range
+from .routing import graph, hub_estimated, hub_rotation, hub_view, room_parts, room_rect, route_range
 from .venue import venue
 
 _FILL = {"hall": "#E9DCE0", "ballroom": "#E9DCE0", "meeting": "#DCEBEE"}
@@ -52,15 +52,20 @@ def _hub_svg(hi: set[str]) -> str:
     for name, (x, y, w, h) in graph()["rooms"]["hub"].items():
         on = name in hi
         big = name in labels
+        rot = hub_rotation(name)
+        cx, cy = x + w / 2, y + h / 2
         fill = "#F6D4CF" if on else ("#DCEBEE" if big else "#F7FBFC")
-        out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{4 if big else 2}" fill="{fill}" '
-                   f'stroke="{_ACCENT if on else "#9DB4BA"}" stroke-width="{3 if on else (1.4 if big else .8)}"/>')
+        dash = ' stroke-dasharray="3 2"' if hub_estimated(name) else ""
+        spin = f' transform="rotate({rot} {cx} {cy})"' if rot else ""
+        out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{4 if big else 1.5}" fill="{fill}"{spin}{dash} '
+                   f'stroke="{_ACCENT if on else "#9DB4BA"}" stroke-width="{3 if on else (1.4 if big else .9)}"/>')
         if big and not hi:
-            out.append(f'<text x="{x + w / 2}" y="{y + h / 2}" font-size="{11 if len(labels[name]) > 12 else 13}" font-weight="600" '
-                       f'fill="#31575F" text-anchor="middle" dominant-baseline="middle">{escape(name if name.startswith("T") else labels[name])}</text>')
-        elif not big and not hi:
-            out.append(f'<text x="{x + w / 2}" y="{y + h / 2}" font-size="9" fill="#4A6168" text-anchor="middle" '
-                       f'dominant-baseline="middle">{escape(name)}</text>')
+            text = name if name.startswith("T") else labels[name].split(":")[0] if name.startswith("Z") else labels[name]
+            out.append(f'<text x="{cx}" y="{cy}" font-size="{12 if len(text) > 12 else 14}" font-weight="600" '
+                       f'fill="#31575F" text-anchor="middle" dominant-baseline="middle">{escape(text)}</text>')
+        elif not big and not hi and max(w, h) >= 20:
+            out.append(f'<text x="{cx}" y="{cy}" font-size="{7 if min(w, h) < 25 else 11}" fill="#4A6168" text-anchor="middle" '
+                       f'dominant-baseline="middle"{spin}>{escape(name)}</text>')
         if on:
             from .hub import booths
 
@@ -105,6 +110,9 @@ def levels() -> list[int]:
 
 
 def _shape(node: dict[str, Any], kind: str, active: str) -> str:
+    if node.get("level") == 6 and graph()["levels"]["6"].get("outline"):  # the Hub is drawn as its real floor outline
+        pts = " ".join(f"{x},{y}" for x, y in graph()["levels"]["6"]["outline"])
+        return f'<polygon points="{pts}" fill="#FBF2EE" stroke="#BEAB9B" stroke-width="3" stroke-linejoin="round"/>'
     fill = "#F6D4CF" if active else _FILL.get(kind, "#EEE")
     stroke = _ACCENT if active else _STROKE
     width = 3 if active else 1.2
@@ -131,7 +139,7 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
     """SVG for one level. route is a dict from routing.route/route_range (polylines, from, to)."""
     g = graph()
     nodes = g["nodes"]
-    vx, vy, vw, vh = g["levels"][str(level)]["view"]
+    vx, vy, vw, vh = hub_view(route) if level == 6 else g["levels"][str(level)]["view"]
     zones = venue()["zones"]
     ends = {route["from"], route["to"]} if route else set()
     out = [
@@ -161,6 +169,8 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
         name = venue()["hub"]["name"] if zid == "hub" else zones.get(zid, {}).get("name", zid)
         size = 30 if kind == "hall" else 17 if kind == "ballroom" else 20
         label_y = n["rect"][1] - 12 if has_rooms else n["y"] + (30 if zid in ends else 0)
+        if zid == "hub":
+            continue  # the Hub is named in the title, and its centre is full of booths
         labels.append(
             f'<text x="{n["x"]}" y="{label_y}" font-size="{size}" fill="#2B1A20" '
             f'text-anchor="middle" dominant-baseline="middle" font-weight="600" stroke="#fff" stroke-width="5" '

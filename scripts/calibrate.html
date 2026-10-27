@@ -19,7 +19,7 @@ code{background:#f2f2f2;padding:1px 4px}
   <h3>Venue graph calibration</h3>
   <ol>
     <li>Load <code>data/venue_graph.json</code> and the matching plan image from <code>data/room-screenshots/</code> (level-1-1.png and so on).</li>
-    <li>Pick the level. Drag the dots (nodes) and the blue room boxes onto the right spot. Edges follow the dots. For <b>Level 6 (the Hub)</b> load <code>hub-plan-straight.png</code>; booths in the same row (first digits of the number, for example 40xx) move together.</li>
+    <li>Pick the level. Drag the dots (nodes) and the blue room boxes onto the right spot. Edges follow the dots. For <b>Level 6 (the Hub)</b> load <code>hub-plan-photo.jpg</code>; booths in the same row (first digits of the number, for example 40xx) move together, and booths drawn dashed have an estimated position.</li>
     <li>Click a room or a dot to select it. Arrow keys nudge it by 1 px (Shift: 5 px). Hold Alt while dragging or pressing arrows to resize a room.</li>
     <li>Save, replace <code>data/venue_graph.json</code>, run the tests.</li>
   </ol>
@@ -59,7 +59,7 @@ function ser(v) {
   const j = jj, out = [];
   for (const [k, val] of Object.entries(v)) {
     if (Array.isArray(val)) out.push("  " + j(k) + ": [\n" + val.map(x => "    " + j(x)).join(",\n") + "\n  ]");
-    else if (k === "nodes" || k === "levels" || k === "rooms") out.push("  " + j(k) + ": {\n" + Object.entries(val).map(([a, b]) => "    " + j(a) + ": " + j(b)).join(",\n") + "\n  }");
+    else if (k === "nodes" || k === "levels" || k === "rooms" || k === "roomRotation" || k === "roomStatus") out.push("  " + j(k) + ": {\n" + Object.entries(val).map(([a, b]) => "    " + j(a) + ": " + j(b)).join(",\n") + "\n  }");
     else out.push("  " + j(k) + ": " + j(val));
   }
   return "{\n" + out.join(",\n") + "\n}\n";
@@ -73,12 +73,14 @@ $("save").onclick = () => {
 
 // the canvas follows the level view: Levels 1-5 are 1920x1440 plan images, the Hub (level 6) is its own plan
 function canvas() {
-  const v = (g.levels[lv()] || {}).view, hub = lv() > 5;
-  const [w, h] = hub ? [v[0] + v[2], v[1] + v[3]] : [1920, 1440];
+  const hub = lv() > 5;
+  const [w, h] = hub ? [1536, 2048] : [1920, 1440];   // the Hub plan photo is 1536 x 2048
   $("plan").style.width = w + "px"; $("svg").style.width = w + "px"; $("svg").style.height = h + "px";
   $("svg").setAttribute("viewBox", "0 0 " + w + " " + h);
 }
 const boothRow = name => /^\d{4,5}$/.test(name) ? Math.floor(+name / 1000) : null;
+const hubRot = name => ((g.roomRotation || {}).hub || {})[name] || 0;
+const hubEst = name => ((g.roomStatus || {}).hub || {})[name] === "estimated";
 function draw() {
   if (!g) return;
   canvas();
@@ -92,7 +94,8 @@ function draw() {
     if (N[zone].level !== lv()) continue;
     for (const [name, r] of Object.entries(rs)) {
       const on = sel && sel.kind === "room" && sel.zone === zone && sel.name === name;
-      const e = mk("rect", {x: r[0], y: r[1], width: r[2], height: r[3], fill: on ? "rgba(184,50,31,.35)" : "rgba(31,111,184,.12)", stroke: on ? "#B8321F" : "#1F6FB8", "stroke-width": on ? 2 : 1, style: "cursor:move"});
+      const rot = zone === "hub" ? hubRot(name) : 0;
+      const e = mk("rect", {x: r[0], y: r[1], width: r[2], height: r[3], fill: on ? "rgba(184,50,31,.35)" : "rgba(31,111,184,.12)", stroke: on ? "#B8321F" : hubEst(name) && zone === "hub" ? "#E08A00" : "#1F6FB8", "stroke-width": on ? 2 : 1, "stroke-dasharray": zone === "hub" && hubEst(name) ? "3 2" : "", transform: rot ? "rotate(" + rot + " " + (r[0] + r[2] / 2) + " " + (r[1] + r[3] / 2) + ")" : "", style: "cursor:move"});
       e.onpointerdown = ev => begin(ev, {kind: "room", zone, name});
       svg.appendChild(e);
       if ($("labels").checked) { const t = mk("text", {x: r[0] + r[2] / 2, y: r[1] + r[3] / 2, "font-size": 9, "text-anchor": "middle", "dominant-baseline": "middle", "pointer-events": "none"}); t.textContent = name; svg.appendChild(t); }

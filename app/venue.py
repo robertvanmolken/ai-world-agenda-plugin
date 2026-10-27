@@ -138,6 +138,15 @@ def _label(zone: str) -> str:
     return venue()["hub"]["name"] if zone == "hub" else venue()["zones"][zone]["name"]
 
 
+def _hub_note(r: dict[str, Any]) -> dict[str, Any]:
+    """Say so when a walk ends at a Hub booth whose position is only estimated from its row neighbours."""
+    from .routing import hub_estimated
+
+    est = [k for k in (r.get("fromRoom"), r.get("toRoom")) if k and hub_estimated(k)]
+    return {"estimatedPosition": est, "positionNote": "The position of " + ", ".join(f"booth {k}" for k in est) +
+            " is estimated from the booths next to it, so the walk is only a rough guide."} if est else {}
+
+
 def route_details(a: str, b: str, step_free: bool = False, room_a: str | None = None, room_b: str | None = None) -> dict[str, Any] | None:
     """Steps, levels, distance and map link for a walk between two zones (None when not routable)."""
     from .routing import route_range
@@ -157,6 +166,7 @@ def route_details(a: str, b: str, step_free: bool = False, room_a: str | None = 
         ],
         "pageUrl": f"/venue/route/page?from={r['from']}&to={r['to']}{sf}",
         "viaHub": "hub" in (a, b),
+        **_hub_note(r),
     }
 
 

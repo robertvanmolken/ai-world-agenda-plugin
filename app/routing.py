@@ -243,16 +243,52 @@ def _center(rect: list[float]) -> tuple[float, float]:
     return rect[0] + rect[2] / 2, rect[1] + rect[3] / 2
 
 
-def _aisle_x(zone: str, room: str, rect: list[float]) -> float:
-    """x of the aisle a Hub booth faces: odd slots face left, even slots face right. Theaters and areas use their centre."""
-    if zone == "hub" and re.fullmatch(r"\d{4,5}", room):
-        return rect[0] - 13 if int(room) % 2 else rect[0] + rect[2] + 13
-    return rect[0] + rect[2] / 2
+def hub_rotation(room: str | None) -> float:
+    """Rotation (degrees about the centre) of a Hub booth box on the plan; 0 for theaters and areas."""
+    return float(graph().get("roomRotation", {}).get("hub", {}).get(room or "", 0))
 
 
-def _hub_leg(frm: tuple[float, float], to: tuple[float, float], via_x: float) -> list[list[float]]:
-    """Axis-aligned walk between two points on the Hub plan: across to an aisle, along it, across to the target."""
-    pts = [list(frm), [via_x, frm[1]], [via_x, to[1]], list(to)]
+def hub_view(route: dict[str, Any] | None) -> list[float]:
+    """The part of the Hub plan to draw: the whole plan, or a crop around the walk (with margin) so labels stay readable."""
+    full = graph()["levels"]["6"]["view"]
+    pts = [p for pl in (route or {}).get("polylines", []) if pl["level"] == 6 for p in pl["points"]]
+    if len(pts) < 2:
+        return full
+    pad = 170
+    x0, x1 = min(p[0] for p in pts) - pad, max(p[0] for p in pts) + pad
+    y0, y1 = min(p[1] for p in pts) - pad, max(p[1] for p in pts) + pad
+    w, h = max(x1 - x0, 520), max(y1 - y0, 520)
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    x0, y0 = max(full[0], min(cx - w / 2, full[0] + full[2] - w)), max(full[1], min(cy - h / 2, full[1] + full[3] - h))
+    return [round(x0), round(y0), round(min(w, full[2])), round(min(h, full[3]))]
+
+
+def hub_estimated(room: str | None) -> bool:
+    """True when a booth has no position on the plan and its place is estimated from its row neighbours."""
+    return graph().get("roomStatus", {}).get("hub", {}).get(room or "") == "estimated"
+
+
+def _aisle_point(room: str, rect: list[float]) -> tuple[float, float]:
+    """Where a walk meets a Hub booth: the middle of the booth's side that faces the aisle.
+
+    Booths are rotated along their row. Odd slots face one side of the aisle and even slots the other, so the
+    walk touches the long side of the box, offset perpendicular to the row (in the box's own frame)."""
+    cx, cy = _center(rect)
+    if not re.fullmatch(r"\d{4,5}", room):
+        return cx, cy
+    a = math.radians(hub_rotation(room))
+    side = -1 if int(room) % 2 else 1
+    off = rect[2] / 2 + 6 if rect[2] <= rect[3] else rect[3] / 2 + 6
+    return cx + side * off * math.cos(a), cy + side * off * math.sin(a)
+
+
+def _hub_walk(start: tuple[float, float], a: tuple[float, float], b: tuple[float, float],
+              end: tuple[float, float]) -> list[list[float]]:
+    """Walk start -> aisle point a -> aisle point b -> end, with the aisle part as a straight line.
+
+    The rows are tilted on the plan, so aisles are not axis-aligned: a straight line between the two aisle
+    points follows them closely enough for an estimate."""
+    pts = [list(start), list(a), list(b), list(end)]
     return [p for k, p in enumerate(pts) if k == 0 or p != pts[k - 1]]
 
 
@@ -275,9 +311,9 @@ def _apply_hub(r: dict[str, Any], a: str, b: str, room_a: str | None, room_b: st
         if not rb:
             rb, room_b = [entry["x"] - 1, entry["y"] - 1, 2, 2], None
         pa, pb = _center(ra), _center(rb)
-        ax = _aisle_x("hub", room_a, ra) if room_a else pa[0]
-        bx = _aisle_x("hub", room_b, rb) if room_b else pb[0]
-        pts = [list(pa), [ax, pa[1]], [ax, pb[1]], [bx, pb[1]], list(pb)] if abs(ax - bx) > 1 else [list(pa), [ax, pa[1]], [ax, pb[1]], list(pb)]
+        qa = _aisle_point(room_a, ra) if room_a else pa
+        qb = _aisle_point(room_b, rb) if room_b else pb
+        pts = _hub_walk(pa, qa, qb, pb)
         m = _poly_len(pts) * scale
         return r | {
             "meters": round(m), "walkMinutes": round(max(0.1, m / speed), 1),
@@ -289,7 +325,7 @@ def _apply_hub(r: dict[str, Any], a: str, b: str, room_a: str | None, room_b: st
     if rb and polys and polys[-1]["level"] == 6 and len(polys[-1]["points"]) >= 2:
         old_pts = polys[-1]["points"]
         entry, end = old_pts[-2], _center(rb)
-        leg = _hub_leg(tuple(entry), end, _aisle_x("hub", room_b, rb))
+        leg = _hub_walk(tuple(entry), tuple(entry), _aisle_point(room_b, rb), end)
         delta += (_poly_len(leg) - _poly_len(old_pts[-2:])) * scale
         polys[-1]["points"] = old_pts[:-2] + leg
         steps[-1]["text"] = f"Arrive at {room_name('hub', room_b)}"
@@ -298,7 +334,7 @@ def _apply_hub(r: dict[str, Any], a: str, b: str, room_a: str | None, room_b: st
     if ra and polys and polys[0]["level"] == 6 and len(polys[0]["points"]) >= 2:
         old_pts = polys[0]["points"]
         start, entry = _center(ra), old_pts[1]
-        leg = _hub_leg(start, tuple(entry), _aisle_x("hub", room_a, ra))
+        leg = _hub_walk(start, _aisle_point(room_a, ra), tuple(entry), tuple(entry))
         d_start = (_poly_len(leg) - _poly_len(old_pts[:2])) * scale
         polys[0]["points"] = leg + old_pts[2:]
         steps[0]["text"] = f"Leave {room_name('hub', room_a)}"

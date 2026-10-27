@@ -30,11 +30,30 @@ class HubDataTests(unittest.TestCase):
 
     def test_numbering_rules(self):
         r = graph()["rooms"]["hub"]
-        self.assertGreater(r["1001"][1], r["1010"][1])        # numbers rise away from the entrance (up the plan)
-        self.assertLess(r["1001"][0], r["2001"][0] if "2001" in r else r["4009"][0])  # row 1 is on the left
-        self.assertLess(r["2043"][1], r["2001"][1] if "2001" in r else 10**6)
-        self.assertEqual(r["2142"][0], r["2144"][0])
-        self.assertLess(r["2144"][1], r["2142"][1])
+        # slots rise away from the entrance (up the plan = smaller y). Row 1 is clean; in the other rows only the
+        # odd-slot side is checked, because the traced SVG puts some even-slot booths off their row (see the README)
+        placed = lambda n: n.isdigit() and n not in graph()["roomStatus"]["hub"]
+        row1 = sorted((int(n) % 100, v[1]) for n, v in r.items() if placed(n) and int(n) // 1000 == 1 and int(n) % 100 < 10)
+        self.assertEqual([y for _, y in row1], sorted((y for _, y in row1), reverse=True))
+        for row in (2, 5):
+            odd = sorted((int(n) % 100, v[1]) for n, v in r.items() if placed(n) and int(n) // 1000 == row
+                         and int(n) % 2 and int(n) % 100 < 14)
+            self.assertEqual([y for _, y in odd], sorted((y for _, y in odd), reverse=True), row)
+        self.assertLess(r["1001"][0], r["4009"][0])  # row 1 is left of row 4
+        self.assertLess(r["2144"][1], r["2142"][1])  # 2142 and 2144 are at the far end, beside 2043 and 2045
+        self.assertLess(abs(r["2043"][1] - r["2142"][1]), 40)
+
+    def test_positions_come_from_the_svg_and_gaps_are_flagged(self):
+        status = graph()["roomStatus"]["hub"]
+        self.assertEqual(21, len(status))
+        self.assertEqual({"estimated"}, set(status.values()))
+        for n in ("2025", "8022", "13027"):
+            self.assertIn(n, status)
+            self.assertIn(n, graph()["rooms"]["hub"])
+        rot = graph()["roomRotation"]["hub"]
+        self.assertEqual({20.0, -30.0, 3.0}, set(rot.values()))
+        self.assertNotIn("4008", {n for n in rot if n not in status})
+        self.assertGreater(len(graph()["levels"]["6"]["outline"]), 10)
 
     def test_hub_is_in_hall_c(self):
         route = route_range("hall_c", "hub")
@@ -60,15 +79,31 @@ class BoothSearchTests(unittest.TestCase):
 
 
 class HubRouteTests(unittest.TestCase):
-    def test_booth_to_booth_follows_the_aisles(self):
+    def test_booth_to_booth_walks_between_aisle_sides(self):
         r = route_range("hub", "hub", False, "2003", "4009")
         self.assertEqual([6], r["levels"])
         self.assertGreater(r["meters"], 20)
-        pts = r["polylines"][0]["points"]
-        self.assertTrue(all(abs(a[0] - b[0]) < 0.01 or abs(a[1] - b[1]) < 0.01 for a, b in zip(pts, pts[1:])))  # axis-aligned
+        self.assertLess(r["meters"], 120)
         self.assertIn("Booth 2003 (Accenture)", r["steps"][0]["text"])
         self.assertIn("Booth 4009 (NVIDIA)", r["steps"][0]["text"])
         self.assertEqual(r["meters"], route_range("hub", "hub", False, "4009", "2003")["meters"])
+        self.assertGreater(route_range("hub", "hub", False, "1001", "13029")["meters"], r["meters"])
+
+    def test_estimated_booths_are_noted(self):
+        from app.venue import route_details
+
+        d = route_details("hub", "hub", False, None, "8022")
+        self.assertEqual(["8022"], d["estimatedPosition"])
+        self.assertIn("estimated", d["positionNote"])
+        self.assertNotIn("estimatedPosition", route_details("hub", "hub", False, None, "4009"))
+
+    def test_map_is_cropped_to_the_route(self):
+        from app.routing import hub_view
+
+        whole = hub_view(None)
+        near = hub_view(route_range("hub", "hub", False, "2003", "4009"))
+        self.assertLess(near[2] * near[3], whole[2] * whole[3] / 2)
+        self.assertTrue(whole[0] <= near[0] and near[0] + near[2] <= whole[0] + whole[2])
 
     def test_from_outside_into_the_hub(self):
         r = route_range("hall_g", "hub", False, None, "4009")

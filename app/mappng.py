@@ -8,7 +8,9 @@ from typing import Any
 from PIL import Image, ImageDraw, ImageFont
 
 from .mapsvg import _boards
-from .routing import graph, room_parts, room_rect
+import math
+
+from .routing import graph, hub_estimated, hub_rotation, hub_view, room_parts, room_rect
 from .venue import venue
 
 _FILL = {"hall": "#E9DCE0", "ballroom": "#E9DCE0", "meeting": "#DCEBEE"}
@@ -73,7 +75,7 @@ def stairs(d: ImageDraw.ImageDraw, x: float, y: float, color: str) -> None:
 def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
     g = graph()
     nodes = g["nodes"]
-    vx, vy, vw, vh = g["levels"][str(level)]["view"]
+    vx, vy, vw, vh = hub_view(route) if level == 6 else g["levels"][str(level)]["view"]
     zones = venue()["zones"]
     ends = {route["from"], route["to"]} if route else set()
 
@@ -97,7 +99,11 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
         active = zid in ends
         fill = "#F6D4CF" if active else _FILL.get(kind, "#EEEEEE")
         outline, width = (_ACCENT, 3) if active else (_STROKE, 1)
-        if "poly" in n:
+        if zid == "hub" and g["levels"]["6"].get("outline"):
+            pts = [P(x, y) for x, y in g["levels"]["6"]["outline"]]
+            d.polygon(pts, fill="#FBF2EE")
+            d.line(pts + [pts[0]], fill="#BEAB9B", width=3 * _SS, joint="curve")
+        elif "poly" in n:
             pts = [P(x, y) for x, y in n["poly"]]
             d.polygon(pts, fill=fill)
             d.line(pts + [pts[0]], fill=outline, width=width * _SS, joint="curve")
@@ -117,8 +123,20 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
             on = name in hi
             big = name in hub_labels
             fill = "#F6D4CF" if on else ("#DCEBEE" if big else "#F7FBFC")
-            d.rectangle([P(rx, ry), P(rx + rw, ry + rh)], fill=fill,
-                        outline=_ACCENT if on else "#9DB4BA", width=int((3 if on else 1.4 if big else .8) * _SS) or 1)
+            rot = hub_rotation(name) if zid == "hub" else 0
+            ocx, ocy = rx + rw / 2, ry + rh / 2
+            a_ = math.radians(rot)
+            corners = [(ocx + (dx * math.cos(a_) - dy * math.sin(a_)), ocy + (dx * math.sin(a_) + dy * math.cos(a_)))
+                       for dx, dy in ((-rw / 2, -rh / 2), (rw / 2, -rh / 2), (rw / 2, rh / 2), (-rw / 2, rh / 2))]
+            border = int((3 if on else 1.4 if big else .9) * _SS) or 1
+            d.polygon([P(*c) for c in corners], fill=fill)
+            edge = [P(*c) for c in corners]
+            if zid == "hub" and hub_estimated(name):  # estimated places: dashed outline
+                for i in range(4):
+                    for p, q in _dashes([edge[i], edge[(i + 1) % 4]], 3 * _SS, 2 * _SS):
+                        d.line([p, q], fill=_ACCENT if on else "#9DB4BA", width=border)
+            else:
+                d.line(edge + [edge[0]], fill=_ACCENT if on else "#9DB4BA", width=border)
             if on:
                 if zid == "hub":
                     from .hub import booths
@@ -126,11 +144,15 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
                     name = hub_labels.get(name) or f"{name} {booths().get(name, '')}".strip()
                 d.text(P(rx + rw / 2, ry - (16 if zid == "hub" else 14)), name, font=_font(26 if zid == "hub" else 22), fill=_ACCENT,
                        anchor="mm", stroke_width=6 if zid == "hub" else 5, stroke_fill="#FFFFFF")
-            elif not hi:
-                text_ = (hub_labels.get(name) if big and not name.startswith("T") else name)
-                d.text(P(rx + rw / 2, ry + rh / 2), text_, font=_font(13 if big else 12 if zid == "venetian_ballroom" else 9),
+            elif not hi and (zid != "hub" or big or max(rw, rh) >= 20):
+                text_ = name
+                if big and not name.startswith("T"):
+                    text_ = hub_labels[name].split(":")[0] if name.startswith("Z") else hub_labels[name]
+                d.text(P(rx + rw / 2, ry + rh / 2), text_, font=_font(14 if big else 12 if zid == "venetian_ballroom" else 7 if zid == "hub" and min(rw, rh) < 25 else 9),
                        fill="#31575F" if big else "#4A6168", anchor="mm")
         zone_name = venue()["hub"]["name"] if zid == "hub" else zones.get(zid, {}).get("name", zid)
+        if zid == "hub":
+            continue
         labels.append((n["x"], n["rect"][1] - 12 if rooms else n["y"] + (30 if active else 0), zone_name, size))
     for a, b in g["edges"]:
         na, nb = nodes[a], nodes[b]
