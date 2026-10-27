@@ -42,7 +42,7 @@ ZONES = {"A": "AI Data Center Spotlight", "B": "Oracle AI Database", "C": "Oracl
          "H": "Oracle Sports Spotlight"}
 EXTRA_AREAS = {"ORACLE TV": ("Oracle TV", 539, 915, 70, 28), "SWAG STATION": ("SWAG Station", 1179, 610, 70, 40),
                "THE SHOP": ("The Shop at Oracle AI World", 1150, 1345, 90, 70),
-               "ACE LOUNGE": ("ACE Lounge", 1103, 36, 90, 32),
+               "ACE LOUNGE": ("ACE Lounge", 1150, 234, 90, 32),
                "MULTICLOUD LOUNGE": ("Oracle Multicloud AI Database lounge", 1150, 190, 110, 44)}
 
 
