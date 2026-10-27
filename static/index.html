@@ -137,6 +137,7 @@ input.codes{flex:1;min-width:260px}
 .try-grid form .hidestarted{grid-column:1/-1;justify-self:start;display:flex;align-items:center;gap:8px;width:auto;font-size:.9rem;color:var(--muted);cursor:pointer}
 .try-grid form .hidestarted input{width:auto;margin:0}
 .try-grid form{display:grid;grid-template-columns:1fr 200px 130px;gap:12px}
+.try-grid form#sf{grid-template-columns:1fr 130px}
 .try-grid form input,.try-grid form select,.try-grid form .btn{width:100%;min-width:0;justify-content:center}
 @media(max-width:640px){.try-grid form{grid-template-columns:1fr}}
 .offer .grid{margin-top:32px}
@@ -150,7 +151,7 @@ input.codes{flex:1;min-width:260px}
 <body>
 <header class="site-header"><div class="container">
   <a class="logo" href="#top"><img src="/icon-192.png" alt="" onerror="this.style.display='none'"><span>AI World Agenda Assistant</span></a>
-  <nav class="main-nav"><a href="#top">Plan</a><a href="#connect">Connect</a><a href="#search">Find sessions</a><a href="#check">Can I make it?</a></nav>
+  <nav class="main-nav"><a href="#top">Plan</a><a href="#connect">Connect</a><a href="#search">Find sessions</a><a href="#check">Can I make it?</a><a href="#stands">Find a stand</a></nav>
   <a class="btn btn-primary" href="#lets-build-yours" style="padding:10px 22px">Let&rsquo;s build yours</a>
 </div></header>
 
@@ -218,6 +219,16 @@ input.codes{flex:1;min-width:260px}
       <div id="cstatus" class="status" aria-live="polite"></div>
       <div id="cresults"></div>
       <p class="fine" id="cfine"></p>
+    </div>
+    <div class="card" id="stands">
+      <h3>3. Find a stand</h3>
+      <p>Search the Hub by booth number, company or theater, and see where it is and how to walk there from the Hub entrance.</p>
+      <form id="sf">
+        <input type="search" id="sq" placeholder="e.g. NVIDIA, 4009, Theater 3" aria-label="Find a stand or theater">
+        <button class="btn btn-primary" type="submit">Find</button>
+      </form>
+      <div id="sstatus" class="status" aria-live="polite"></div>
+      <div id="sresults"></div>
     </div>
   </div>
 </div></section>
@@ -314,6 +325,27 @@ $("f").onsubmit = async e => {
   } catch (err) { $("status").textContent = "Search failed. Please try again."; }
 };
 
+$("sf").onsubmit = async e => {
+  e.preventDefault();
+  const q = $("sq").value.trim();
+  $("sresults").replaceChildren();
+  if (!q) { $("sstatus").textContent = "Type a booth number, a company or a theater."; return; }
+  $("sstatus").textContent = "Searching\u2026";
+  try {
+    const r = await fetch("/booths/search?q=" + encodeURIComponent(q) + "&limit=8");
+    if (!r.ok) throw new Error(r.status);
+    const data = await r.json();
+    $("sstatus").textContent = data.count ? data.count + " found in the Hub (Level 2, Hall C). Positions on the plan are approximate." : "No stand or theater found. Try a shorter name or the booth number.";
+    (data.results || []).forEach(b => {
+      const d = el("div", "hop");
+      d.appendChild(el("strong", "", b.kind === "theater" ? b.name : "Booth " + b.number + " \u00b7 " + b.name));
+      d.appendChild(el("p", "", b.kind === "theater" ? "Hub theater" : "Row " + b.row + ", slot " + b.slot));
+      if (b.routeDetail && b.routeDetail.steps) d.appendChild(routeView(b.routeDetail));
+      $("sresults").appendChild(d);
+    });
+  } catch (err) { $("sstatus").textContent = "Search failed. Please try again."; }
+};
+
 const MAXC = 15;
 const currentCodes = () => [...new Set(($("codes").value.toUpperCase().match(/[A-Z]{2,5}\d{3,5}/g) || []))];
 function setCodes(list) {
@@ -356,12 +388,12 @@ function routeView(rd) {
   const buttons = [];
   const show = i => { img.src = rd.mapUrls[i].url; buttons.forEach((b, j) => b.setAttribute("aria-pressed", String(i === j))); };
   rd.mapUrls.forEach((m, i) => {
-    const b = el("button", "", "Level " + m.level); b.type = "button"; b.onclick = () => show(i);
+    const b = el("button", "", m.label || ("Level " + m.level)); b.type = "button"; b.onclick = () => show(i);
     buttons.push(b); tabs.appendChild(b);
   });
   mapBox.appendChild(tabs); mapBox.appendChild(err); mapBox.appendChild(img);
   const info = el("div");
-  info.appendChild(el("p", "rt-sum", "About " + rd.meters + " m, " + (rd.levels.length > 1 ? "via Level " + rd.levels.join(" \u2192 ") : "on Level " + rd.levels[0]) + (rd.viaHub ? ". Hub hall unconfirmed, so the route shown is the shortest option." : ".")));
+  info.appendChild(el("p", "rt-sum", "About " + rd.meters + " m, " + (rd.levels.length > 1 ? "via " + rd.levels.map(l => l === 6 ? "the Hub" : "Level " + l).join(" \u2192 ") : "on " + (rd.levels[0] === 6 ? "the Hub plan" : "Level " + rd.levels[0])) + ". Positions on the Hub plan are approximate."));
   const ol = el("ol", "rt-steps");
   rd.steps.forEach(st => { const li = el("li", "", st.text); if (st.meters) li.appendChild(el("small", "", " (" + st.meters + " m)")); ol.appendChild(li); });
   info.appendChild(ol);

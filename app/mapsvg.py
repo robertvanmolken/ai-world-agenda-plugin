@@ -45,7 +45,34 @@ def _legend(vx: int, vy: int, vw: int, vh: int) -> str:
     )
 
 
+def _hub_svg(hi: set[str]) -> str:
+    """The Hub plan: booths as small numbered boxes, theaters and areas as larger labelled boxes."""
+    out = []
+    labels = graph().get("roomLabels", {}).get("hub", {})
+    for name, (x, y, w, h) in graph()["rooms"]["hub"].items():
+        on = name in hi
+        big = name in labels
+        fill = "#F6D4CF" if on else ("#DCEBEE" if big else "#F7FBFC")
+        out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{4 if big else 2}" fill="{fill}" '
+                   f'stroke="{_ACCENT if on else "#9DB4BA"}" stroke-width="{3 if on else (1.4 if big else .8)}"/>')
+        if big and not hi:
+            out.append(f'<text x="{x + w / 2}" y="{y + h / 2}" font-size="{11 if len(labels[name]) > 12 else 13}" font-weight="600" '
+                       f'fill="#31575F" text-anchor="middle" dominant-baseline="middle">{escape(name if name.startswith("T") else labels[name])}</text>')
+        elif not big and not hi:
+            out.append(f'<text x="{x + w / 2}" y="{y + h / 2}" font-size="9" fill="#4A6168" text-anchor="middle" '
+                       f'dominant-baseline="middle">{escape(name)}</text>')
+        if on:
+            from .hub import booths
+
+            label = labels.get(name) or (f"{name} {booths().get(name, '')}".strip())
+            out.append(f'<text x="{x + w / 2}" y="{y - 16}" font-size="26" fill="{_ACCENT}" text-anchor="middle" font-weight="700" '
+                       f'stroke="#fff" stroke-width="6" paint-order="stroke" stroke-linejoin="round">{escape(label)}</text>')
+    return "".join(out)
+
+
 def _rooms_svg(zone: str, hi: set[str]) -> str:
+    if zone == "hub":
+        return _hub_svg(hi)
     out = []
     for name, (x, y, w, h) in graph().get("rooms", {}).get(zone, {}).items():
         on = name in hi
@@ -66,6 +93,11 @@ def _rooms_svg(zone: str, hi: set[str]) -> str:
 def _end_point(route: dict[str, Any], key: str, node: dict[str, Any]) -> tuple[float, float]:
     rect = room_rect(route[key], route.get("fromRoom" if key == "from" else "toRoom"))
     return (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2) if rect else (node["x"], node["y"])
+
+
+def _level_title(level: int) -> str:
+    name = graph()["levels"][str(level)].get("name") or f"Level {level}"
+    return name if level > 5 else f"Level {level}"
 
 
 def levels() -> list[int]:
@@ -108,7 +140,7 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
         '<style>text{font-family:"Plus Jakarta Sans",Arial,sans-serif}'
         "@keyframes dash{to{stroke-dashoffset:-48}}.route{animation:dash 1.2s linear infinite}</style>",
         f'<rect x="{vx}" y="{vy}" width="{vw}" height="{vh}" fill="#F8F4F0"/>',
-        f'<text x="{vx + 24}" y="{vy + 44}" font-size="38" fill="#481F2B" font-weight="700">Level {level}</text>',
+        f'<text x="{vx + 24}" y="{vy + 44}" font-size="38" fill="#481F2B" font-weight="700">{escape(_level_title(level))}</text>',
     ]
     labels: list[str] = []
     for zid, n in nodes.items():
@@ -126,7 +158,7 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
             out.append(_rooms_svg(zid, hi))
         elif has_rooms:
             out.append(_rooms_svg(zid, hi))
-        name = zones.get(zid, {}).get("name", zid)
+        name = venue()["hub"]["name"] if zid == "hub" else zones.get(zid, {}).get("name", zid)
         size = 30 if kind == "hall" else 17 if kind == "ballroom" else 20
         label_y = n["rect"][1] - 12 if has_rooms else n["y"] + (30 if zid in ends else 0)
         labels.append(

@@ -76,6 +76,15 @@ paths:
                 limit: {type: integer, default: 50}
       responses:
         '200': {description: Ranked matching sessions}
+  /booths/search:
+    get:
+      operationId: searchBooths
+      summary: Find a sponsor booth or Hub theater by booth number, company name or "Theater 3", with the walk from the Hub entrance.
+      parameters:
+        - {name: q, in: query, required: true, schema: {type: string}}
+        - {name: limit, in: query, schema: {type: integer, default: 10}}
+      responses:
+        '200': {description: Matching booths (number, name, row, slot) with routeDetail steps and map links}
   /sessions/conflicts:
     post:
       operationId: findSessionConflicts

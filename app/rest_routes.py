@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import html
 import json
+import re
 from typing import Any
 
 from starlette.requests import Request
@@ -11,6 +12,7 @@ from starlette.responses import JSONResponse, Response
 from .catalog import find_conflicts, get_by_code, optimize_agenda, search_sessions
 from .mcp_server import ROOT, catalog, mcp, sessions, with_disclaimer
 from .planner import plan_day
+from .hub import find_booths
 from .mapsvg import levels as map_levels, render_level
 from .mappng import render_level_png
 from .routing import place_room, room_key, route_range
@@ -144,6 +146,31 @@ async def rest_search(request: Request) -> Response:
     return JSONResponse(with_disclaimer({"results": search_sessions(sessions(), body)}))
 
 
+@mcp.custom_route("/booths/search", methods=["GET", "POST"])
+async def rest_booths(request: Request) -> Response:
+    """Find a sponsor booth by number or company name, or a Hub theater ('Theater 3')."""
+    if request.method == "POST":
+        body = await _json_body(request)
+        if body is None:
+            return _BAD
+        query, limit = str(body.get("query") or ""), body.get("limit")
+    else:
+        query, limit = request.query_params.get("q", ""), request.query_params.get("limit")
+    try:
+        n = max(1, min(int(limit or 10), 50))
+    except ValueError:
+        return _BAD
+    t = re.search(r"theater\s*(\d{1,2})\b", query, re.I)
+    if t and room_key("hub", f"Theater {t.group(1)}"):
+        found = [{"number": f"T{int(t.group(1))}", "name": f"Theater {int(t.group(1))}", "kind": "theater"}]
+    else:
+        found = [dict(b, kind="booth") for b in find_booths(query, n)]
+    for f in found:
+        f["routeDetail"] = route_details("hub", "hub", False, None, f["number"])
+    return JSONResponse(with_disclaimer({"query": query, "results": found, "count": len(found),
+                                         "location": "Oracle AI World Hub, Level 2 (Hall C)"}))
+
+
 @mcp.custom_route("/sessions/conflicts", methods=["POST"])
 async def rest_conflicts(request: Request) -> Response:
     body = await _json_body(request)
@@ -235,7 +262,7 @@ async def venue_route_page(request: Request) -> Response:
     d = route_details(za, zb, sf, ra, rb) or {}
     steps = "".join(f"<li>{html.escape(s['text'])}</li>" for s in r["steps"])
     maps = "".join(
-        f'<h2>Level {m["level"]}</h2><a href="{html.escape(m["pngUrl"])}"><img src="{html.escape(m["pngUrl"])}" alt="Route on Level {m["level"]}"></a>'
+        f'<h2>{html.escape(m.get("label") or "Level " + str(m["level"]))}</h2><a href="{html.escape(m["pngUrl"])}"><img src="{html.escape(m["pngUrl"])}" alt="Route on Level {m["level"]}"></a>'
         for m in d.get("mapUrls", [])
     )
     title = f"{html.escape(q.get('from', ''))} to {html.escape(q.get('to', ''))}"

@@ -84,10 +84,10 @@ def resolve_zone(room: str, area: str, level: int | None) -> str | None:
 
 
 def session_room(s: dict[str, Any], zone: str | None) -> str | None:
-    """Room key on the plan for a session ('2204'), or None for halls and the Hub."""
+    """Room key on the plan for a session ('2204', or 'T3' for Hub theater 3), or None for halls."""
     from .routing import room_key
 
-    return room_key(zone, s.get("room")) if zone and zone != "hub" else None
+    return room_key(zone, s.get("room")) if zone else None
 
 
 def session_zone(s: dict[str, Any]) -> str | None:
@@ -114,7 +114,7 @@ def _candidates(zone: str) -> list[str]:
 
 def travel_minutes(a: str, b: str, step_free: bool = False, room_a: str | None = None, room_b: str | None = None) -> tuple[int, int]:
     """(best, worst) estimated minutes, including the buffer. Hub = range over candidate halls."""
-    if a == "hub" and b == "hub":
+    if a == "hub" and b == "hub" and not (room_a or room_b):
         lo = hi = venue()["model"]["sameZoneMinutes"]
     else:
         from .routing import route_range  # local import: routing imports this module
@@ -150,7 +150,8 @@ def route_details(a: str, b: str, step_free: bool = False, room_a: str | None = 
         "stepFree": step_free,
         "steps": r["steps"], "levels": r["levels"], "meters": r["meters"], "polylines": r["polylines"],
         "mapUrls": [
-            {"level": lv, "url": f"/venue/route?from={r['from']}&to={r['to']}&level={lv}{sf}",
+            {"level": lv, "label": "Hub plan" if lv == 6 else f"Level {lv}",
+             "url": f"/venue/route?from={r['from']}&to={r['to']}&level={lv}{sf}",
              "pngUrl": f"/venue/route.png?from={r['from']}&to={r['to']}&level={lv}{sf}"}
             for lv in r["levels"]
         ],
@@ -169,7 +170,13 @@ def resolve_place(text: str) -> str | None:
     t = (text or "").strip().lower()
     if not t:
         return None
-    if "hub" in t or "customer success" in t:
+    if "hub" in t or "customer success" in t or re.search(r"theater\s*\d", t):
+        return "hub"
+    from .hub import find_booths, match_company
+
+    if re.fullmatch(r"(?:(?:booth|stand)\s*)?\d{4,5}", t) and find_booths(t, 1):
+        return "hub"
+    if match_company(t) or re.match(r"(?:booth|stand)\s+\d{4,5}\b", t):
         return "hub"
     zones = venue()["zones"]
     for zid, z in zones.items():
@@ -210,11 +217,11 @@ def check_move(from_place: str, to_place: str, gap_minutes: int, step_free: bool
         route=f"{_label(za)} -> {_label(zb)}",
     )
     out["verdict"] = "overlap" if gap_minutes < 0 else "ok" if hi <= gap_minutes else "tight" if lo <= gap_minutes else "unlikely"
-    if out["verdict"] == "unlikely" and za == zb and za != "hub":
+    if out["verdict"] == "unlikely" and za == zb:
         out["verdict"] = "tight"  # same block: the rooms are next to each other
         out["reason"] = "Both places are in the same block, so they are close together. Expect to arrive right at the start."
     if "hub" in (za, zb):
-        out["note"] = "The Oracle AI World Hub is on Level 2, but its exact hall is unconfirmed, so this is a range over Halls A-D."
+        out["note"] = "The Oracle AI World Hub is on Level 2, in Hall C. Booth and theater positions on its plan are approximate."
     return out
 
 
@@ -275,5 +282,5 @@ def assess_transition(a: dict[str, Any], b: dict[str, Any], step_free: bool = Fa
     if detail:
         out["routeDetail"] = detail
     if "hub" in (za, zb):
-        out["note"] = "The Oracle AI World Hub is on Level 2, but its exact hall is unconfirmed, so this is a range over Halls A-D."
+        out["note"] = "The Oracle AI World Hub is on Level 2, in Hall C. Booth and theater positions on its plan are approximate."
     return out

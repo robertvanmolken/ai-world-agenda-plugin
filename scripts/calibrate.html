@@ -8,8 +8,8 @@ body{font-family:system-ui,sans-serif;margin:0;display:flex;height:100vh}
 #side{width:300px;padding:14px;overflow:auto;border-right:1px solid #ccc;font-size:14px}
 #stage{flex:1;overflow:auto;background:#eee}
 #wrap{position:relative;display:inline-block}
-#plan{display:block;width:1920px;opacity:.55}
-svg{position:absolute;left:0;top:0;width:1920px;height:1440px}
+#plan{display:block;opacity:.55}
+svg{position:absolute;left:0;top:0}
 button,select,input{font:inherit;margin:3px 0}
 code{background:#f2f2f2;padding:1px 4px}
 </style>
@@ -19,7 +19,7 @@ code{background:#f2f2f2;padding:1px 4px}
   <h3>Venue graph calibration</h3>
   <ol>
     <li>Load <code>data/venue_graph.json</code> and the matching plan image from <code>data/room-screenshots/</code> (level-1-1.png and so on).</li>
-    <li>Pick the level. Drag the dots (nodes) and the blue room boxes onto the right spot. Edges follow the dots.</li>
+    <li>Pick the level. Drag the dots (nodes) and the blue room boxes onto the right spot. Edges follow the dots. For <b>Level 6 (the Hub)</b> load <code>hub-plan-straight.png</code>; booths in the same row (first digits of the number, for example 40xx) move together.</li>
     <li>Click a room or a dot to select it. Arrow keys nudge it by 1 px (Shift: 5 px). Hold Alt while dragging or pressing arrows to resize a room.</li>
     <li>Save, replace <code>data/venue_graph.json</code>, run the tests.</li>
   </ol>
@@ -28,7 +28,7 @@ code{background:#f2f2f2;padding:1px 4px}
   <label>Level <select id="level"></select></label><br>
   <label><input type="checkbox" id="labels" checked> Show labels</label><br>
   <label><input type="checkbox" id="showRooms" checked> Show room boxes</label><br>
-  <label><input type="checkbox" id="moveRow" checked> Move a whole row of rooms together</label><br>
+  <label><input type="checkbox" id="moveRow" checked> Move a whole row of rooms together (Hub: one booth row)</label><br>
   <label><input type="checkbox" id="moveShape" checked> Move the shape and rooms with a zone dot</label><br>
   <button id="addNode">Add node</button> <button id="addEdge">Add edge</button> <button id="delNode">Delete selected node</button><br>
   <button id="save">Save graph JSON</button>
@@ -49,8 +49,14 @@ function mk(tag, attrs) { const e = document.createElementNS(NS, tag); for (cons
 const lv = () => +$("level").value;
 
 // compact save: one line per node, edge, link and room row, so git diffs stay small
+// JSON with a space after every comma and colon, like the committed file, so diffs stay small
+function jj(v) {
+  if (Array.isArray(v)) return "[" + v.map(jj).join(", ") + "]";
+  if (v && typeof v === "object") return "{" + Object.entries(v).map(([k, x]) => JSON.stringify(k) + ": " + jj(x)).join(", ") + "}";
+  return JSON.stringify(v);
+}
 function ser(v) {
-  const j = JSON.stringify, out = [];
+  const j = jj, out = [];
   for (const [k, val] of Object.entries(v)) {
     if (Array.isArray(val)) out.push("  " + j(k) + ": [\n" + val.map(x => "    " + j(x)).join(",\n") + "\n  ]");
     else if (k === "nodes" || k === "levels" || k === "rooms") out.push("  " + j(k) + ": {\n" + Object.entries(val).map(([a, b]) => "    " + j(a) + ": " + j(b)).join(",\n") + "\n  }");
@@ -65,8 +71,17 @@ $("save").onclick = () => {
   a.download = "venue_graph.json"; a.click();
 };
 
+// the canvas follows the level view: Levels 1-5 are 1920x1440 plan images, the Hub (level 6) is its own plan
+function canvas() {
+  const v = (g.levels[lv()] || {}).view, hub = lv() > 5;
+  const [w, h] = hub ? [v[0] + v[2], v[1] + v[3]] : [1920, 1440];
+  $("plan").style.width = w + "px"; $("svg").style.width = w + "px"; $("svg").style.height = h + "px";
+  $("svg").setAttribute("viewBox", "0 0 " + w + " " + h);
+}
+const boothRow = name => /^\d{4,5}$/.test(name) ? Math.floor(+name / 1000) : null;
 function draw() {
   if (!g) return;
+  canvas();
   const svg = $("svg"), N = g.nodes; svg.replaceChildren();
   for (const n of Object.values(N)) {
     if (n.level !== lv() || n.type !== "zone") continue;
@@ -107,7 +122,10 @@ function shift(dx, dy, resize) {
   if (!sel) return;
   if (sel.kind === "room") {
     const rs = g.rooms[sel.zone], r = rs[sel.name];
-    const group = $("moveRow").checked && !resize ? Object.values(rs).filter(o => Math.abs(o[1] - r[1]) < 1) : [r];
+    const br = boothRow(sel.name);
+    const group = $("moveRow").checked && !resize
+      ? (br !== null ? Object.entries(rs).filter(([k]) => boothRow(k) === br).map(([, o]) => o) : Object.values(rs).filter(o => Math.abs(o[1] - r[1]) < 1))
+      : [r];
     for (const o of group) { if (resize) { o[2] = Math.max(4, o[2] + dx); o[3] = Math.max(4, o[3] + dy); } else { o[0] += dx; o[1] += dy; } }
     return;
   }

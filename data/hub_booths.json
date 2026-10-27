@@ -1,0 +1,674 @@
+[
+  {
+    "booth_number": "7038",
+    "name": "1Trooper"
+  },
+  {
+    "booth_number": "10023",
+    "name": "AAIS Global"
+  },
+  {
+    "booth_number": "4033",
+    "name": "ACCELQ"
+  },
+  {
+    "booth_number": "2003",
+    "name": "Accenture"
+  },
+  {
+    "booth_number": "6035",
+    "name": "Accu-Time Systems, Inc."
+  },
+  {
+    "booth_number": "7022",
+    "name": "ACSE Solutions"
+  },
+  {
+    "booth_number": "2039",
+    "name": "ADP"
+  },
+  {
+    "booth_number": "2045",
+    "name": "Alithya"
+  },
+  {
+    "booth_number": "10024",
+    "name": "Amazon Web Services (AWS)"
+  },
+  {
+    "booth_number": "4005",
+    "name": "AMD"
+  },
+  {
+    "booth_number": "5041",
+    "name": "API Wizard"
+  },
+  {
+    "booth_number": "12026",
+    "name": "Apps Associates"
+  },
+  {
+    "booth_number": "11039",
+    "name": "APRO by PairSoft"
+  },
+  {
+    "booth_number": "5022",
+    "name": "Arcivate"
+  },
+  {
+    "booth_number": "11032",
+    "name": "Argano"
+  },
+  {
+    "booth_number": "7036",
+    "name": "Aspire Systems"
+  },
+  {
+    "booth_number": "1003",
+    "name": "Asure Software"
+  },
+  {
+    "booth_number": "11037",
+    "name": "Auditoria.AI"
+  },
+  {
+    "booth_number": "12037",
+    "name": "Autnhive"
+  },
+  {
+    "booth_number": "6045",
+    "name": "Autokrator.ai"
+  },
+  {
+    "booth_number": "1009",
+    "name": "Avalara"
+  },
+  {
+    "booth_number": "1038",
+    "name": "AWC Software"
+  },
+  {
+    "booth_number": "5028",
+    "name": "Birlasoft"
+  },
+  {
+    "booth_number": "11028",
+    "name": "Broadpin"
+  },
+  {
+    "booth_number": "4008",
+    "name": "BTM Global Consulting"
+  },
+  {
+    "booth_number": "10029",
+    "name": "Calfus"
+  },
+  {
+    "booth_number": "12039",
+    "name": "Camptra Technologies"
+  },
+  {
+    "booth_number": "2020",
+    "name": "Capgemini"
+  },
+  {
+    "booth_number": "1006",
+    "name": "Celonis"
+  },
+  {
+    "booth_number": "6029",
+    "name": "ChainSys Corporation"
+  },
+  {
+    "booth_number": "4038",
+    "name": "Clonetab"
+  },
+  {
+    "booth_number": "2026",
+    "name": "Cloud Inventory"
+  },
+  {
+    "booth_number": "3033",
+    "name": "Cloud Voyage Group (CVG)"
+  },
+  {
+    "booth_number": "11030",
+    "name": "Cloudflare"
+  },
+  {
+    "booth_number": "12035",
+    "name": "CloudServ Systems"
+  },
+  {
+    "booth_number": "7034",
+    "name": "CLOUDVICE"
+  },
+  {
+    "booth_number": "4007",
+    "name": "Cognizant"
+  },
+  {
+    "booth_number": "2032",
+    "name": "CUBIG"
+  },
+  {
+    "booth_number": "1022",
+    "name": "Cupix"
+  },
+  {
+    "booth_number": "1026",
+    "name": "Datadog"
+  },
+  {
+    "booth_number": "12030",
+    "name": "Datavail"
+  },
+  {
+    "booth_number": "1039",
+    "name": "Dayos"
+  },
+  {
+    "booth_number": "11040",
+    "name": "Dbvisit"
+  },
+  {
+    "booth_number": "10034",
+    "name": "Deel"
+  },
+  {
+    "booth_number": "2001",
+    "name": "Deloitte"
+  },
+  {
+    "booth_number": "13027",
+    "name": "Donyati, LLC"
+  },
+  {
+    "booth_number": "10030",
+    "name": "DXC Technology"
+  },
+  {
+    "booth_number": "10021",
+    "name": "Efficieno AI"
+  },
+  {
+    "booth_number": "1037",
+    "name": "Elfonze Technologies"
+  },
+  {
+    "booth_number": "4006",
+    "name": "Elire"
+  },
+  {
+    "booth_number": "5007",
+    "name": "Enginatics"
+  },
+  {
+    "booth_number": "5043",
+    "name": "Equinix"
+  },
+  {
+    "booth_number": "8024",
+    "name": "EverEx"
+  },
+  {
+    "booth_number": "10031",
+    "name": "Everpure"
+  },
+  {
+    "booth_number": "7030",
+    "name": "Fastpath, now part of Delinea"
+  },
+  {
+    "booth_number": "5036",
+    "name": "Fivetran + dbt Labs"
+  },
+  {
+    "booth_number": "6025",
+    "name": "Flash Star Technologies"
+  },
+  {
+    "booth_number": "6042",
+    "name": "Flexagon"
+  },
+  {
+    "booth_number": "2042",
+    "name": "FluidCloud"
+  },
+  {
+    "booth_number": "5040",
+    "name": "Fortinet"
+  },
+  {
+    "booth_number": "5034",
+    "name": "Fujitsu"
+  },
+  {
+    "booth_number": "2037",
+    "name": "Genpact"
+  },
+  {
+    "booth_number": "1036",
+    "name": "GFT Technologies"
+  },
+  {
+    "booth_number": "1007",
+    "name": "GHX"
+  },
+  {
+    "booth_number": "7044",
+    "name": "Giggso"
+  },
+  {
+    "booth_number": "10026",
+    "name": "Google Cloud"
+  },
+  {
+    "booth_number": "5008",
+    "name": "Gotestpro"
+  },
+  {
+    "booth_number": "1024",
+    "name": "Grant Thornton"
+  },
+  {
+    "booth_number": "2031",
+    "name": "HCLTech"
+  },
+  {
+    "booth_number": "7042",
+    "name": "HealthStream"
+  },
+  {
+    "booth_number": "2043",
+    "name": "Hexaware"
+  },
+  {
+    "booth_number": "3011",
+    "name": "IBM"
+  },
+  {
+    "booth_number": "10036",
+    "name": "IBM Cloudability"
+  },
+  {
+    "booth_number": "1032",
+    "name": "ImageGrafix Software FZCO"
+  },
+  {
+    "booth_number": "7046",
+    "name": "Impact Advisors"
+  },
+  {
+    "booth_number": "3038",
+    "name": "ImpactQA Services"
+  },
+  {
+    "booth_number": "1020",
+    "name": "Informatica from Salesforce"
+  },
+  {
+    "booth_number": "3009",
+    "name": "Infosys"
+  },
+  {
+    "booth_number": "6020",
+    "name": "Infovity"
+  },
+  {
+    "booth_number": "1005",
+    "name": "Innovacx"
+  },
+  {
+    "booth_number": "5024",
+    "name": "Innovate Tax"
+  },
+  {
+    "booth_number": "7024",
+    "name": "Integration Plumbers"
+  },
+  {
+    "booth_number": "4003",
+    "name": "Intel"
+  },
+  {
+    "booth_number": "2050",
+    "name": "Intellicept Corporation"
+  },
+  {
+    "booth_number": "1008",
+    "name": "Intellinum"
+  },
+  {
+    "booth_number": "12033",
+    "name": "IT Convergence"
+  },
+  {
+    "booth_number": "6027",
+    "name": "iteria.us"
+  },
+  {
+    "booth_number": "2048",
+    "name": "ITOrizon"
+  },
+  {
+    "booth_number": "10025",
+    "name": "J.P. Morgan"
+  },
+  {
+    "booth_number": "3039",
+    "name": "Justransform"
+  },
+  {
+    "booth_number": "5026",
+    "name": "KNEX"
+  },
+  {
+    "booth_number": "7032",
+    "name": "Kodesage"
+  },
+  {
+    "booth_number": "2005",
+    "name": "KPMG"
+  },
+  {
+    "booth_number": "10032",
+    "name": "Lineos"
+  },
+  {
+    "booth_number": "5020",
+    "name": "LTM"
+  },
+  {
+    "booth_number": "4049",
+    "name": "Lucasys"
+  },
+  {
+    "booth_number": "5005",
+    "name": "MangoBoost"
+  },
+  {
+    "booth_number": "12028",
+    "name": "Marvik"
+  },
+  {
+    "booth_number": "13031",
+    "name": "Mastek Inc."
+  },
+  {
+    "booth_number": "1001",
+    "name": "Mastercard"
+  },
+  {
+    "booth_number": "1034",
+    "name": "Meta Integration Technology"
+  },
+  {
+    "booth_number": "10028",
+    "name": "Microsoft"
+  },
+  {
+    "booth_number": "6005",
+    "name": "MirrorRoid"
+  },
+  {
+    "booth_number": "5042",
+    "name": "More4apps"
+  },
+  {
+    "booth_number": "9022",
+    "name": "Mythics"
+  },
+  {
+    "booth_number": "3036",
+    "name": "Neev Systems"
+  },
+  {
+    "booth_number": "1028",
+    "name": "NetApp"
+  },
+  {
+    "booth_number": "5045",
+    "name": "Nivo1"
+  },
+  {
+    "booth_number": "2038",
+    "name": "Novamodus"
+  },
+  {
+    "booth_number": "6022",
+    "name": "Nsight Inc."
+  },
+  {
+    "booth_number": "1002",
+    "name": "NTT DATA"
+  },
+  {
+    "booth_number": "4009",
+    "name": "NVIDIA"
+  },
+  {
+    "booth_number": "5044",
+    "name": "oAppsNET"
+  },
+  {
+    "booth_number": "9024",
+    "name": "Opkey"
+  },
+  {
+    "booth_number": "4035",
+    "name": "Orbit Analytics"
+  },
+  {
+    "booth_number": "1004",
+    "name": "Palo Alto Networks"
+  },
+  {
+    "booth_number": "6043",
+    "name": "Path Infotech"
+  },
+  {
+    "booth_number": "1041",
+    "name": "Payaptic"
+  },
+  {
+    "booth_number": "4001",
+    "name": "Peloton Consulting Group"
+  },
+  {
+    "booth_number": "6023",
+    "name": "Phenom"
+  },
+  {
+    "booth_number": "6038",
+    "name": "Phoenix Cloud"
+  },
+  {
+    "booth_number": "2044",
+    "name": "Process Point Technologies"
+  },
+  {
+    "booth_number": "5032",
+    "name": "Protiviti"
+  },
+  {
+    "booth_number": "2007",
+    "name": "PwC"
+  },
+  {
+    "booth_number": "2144",
+    "name": "Rapid4Cloud"
+  },
+  {
+    "booth_number": "6024",
+    "name": "RChilli Inc"
+  },
+  {
+    "booth_number": "10038",
+    "name": "Red Hat"
+  },
+  {
+    "booth_number": "6031",
+    "name": "Redgate Software"
+  },
+  {
+    "booth_number": "2022",
+    "name": "ReForms21"
+  },
+  {
+    "booth_number": "11031",
+    "name": "Retail Consult"
+  },
+  {
+    "booth_number": "2006",
+    "name": "RF-SMART"
+  },
+  {
+    "booth_number": "2008",
+    "name": "RFgen Software"
+  },
+  {
+    "booth_number": "2142",
+    "name": "RIA Advisory"
+  },
+  {
+    "booth_number": "6044",
+    "name": "Rite Software"
+  },
+  {
+    "booth_number": "12032",
+    "name": "Riverbed Technology"
+  },
+  {
+    "booth_number": "11034",
+    "name": "Salesdrive Technologies"
+  },
+  {
+    "booth_number": "10027",
+    "name": "Samara Tech"
+  },
+  {
+    "booth_number": "1035",
+    "name": "SC&H"
+  },
+  {
+    "booth_number": "2036",
+    "name": "ShipERP"
+  },
+  {
+    "booth_number": "8022",
+    "name": "SilicoPharm"
+  },
+  {
+    "booth_number": "13029",
+    "name": "Softdrive"
+  },
+  {
+    "booth_number": "11033",
+    "name": "SOMMA IT"
+  },
+  {
+    "booth_number": "6046",
+    "name": "Sovereign AI by Armor"
+  },
+  {
+    "booth_number": "11026",
+    "name": "SplashBI"
+  },
+  {
+    "booth_number": "5006",
+    "name": "SPS Commerce"
+  },
+  {
+    "booth_number": "6041",
+    "name": "Stellar Cyber"
+  },
+  {
+    "booth_number": "6047",
+    "name": "StorPool Storage"
+  },
+  {
+    "booth_number": "6007",
+    "name": "Superb AI"
+  },
+  {
+    "booth_number": "5030",
+    "name": "SUSE"
+  },
+  {
+    "booth_number": "13025",
+    "name": "Sutherland Global Services"
+  },
+  {
+    "booth_number": "11038",
+    "name": "T.O."
+  },
+  {
+    "booth_number": "5046",
+    "name": "Talan"
+  },
+  {
+    "booth_number": "2024",
+    "name": "TasteQ"
+  },
+  {
+    "booth_number": "10022",
+    "name": "Tata Consultancy Services"
+  },
+  {
+    "booth_number": "1033",
+    "name": "TCP Software"
+  },
+  {
+    "booth_number": "8020",
+    "name": "Tech Mahindra"
+  },
+  {
+    "booth_number": "6037",
+    "name": "Terillium"
+  },
+  {
+    "booth_number": "9020",
+    "name": "Thomson Reuters"
+  },
+  {
+    "booth_number": "5038",
+    "name": "Tricentis"
+  },
+  {
+    "booth_number": "2025",
+    "name": "Trinamix"
+  },
+  {
+    "booth_number": "1030",
+    "name": "UiPath"
+  },
+  {
+    "booth_number": "10020",
+    "name": "Vertex"
+  },
+  {
+    "booth_number": "7026",
+    "name": "Vigilant 360"
+  },
+  {
+    "booth_number": "7040",
+    "name": "Waratek"
+  },
+  {
+    "booth_number": "6033",
+    "name": "Winfo Solutions"
+  },
+  {
+    "booth_number": "1010",
+    "name": "Wipro"
+  },
+  {
+    "booth_number": "2030",
+    "name": "Wissen Digital Inc"
+  },
+  {
+    "booth_number": "7028",
+    "name": "YugabyteDB"
+  }
+]

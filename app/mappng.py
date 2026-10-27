@@ -87,7 +87,8 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
         d.text(P(x, y), s, font=_font(size), fill=fill, anchor="mm",
                stroke_width=5 if halo else 0, stroke_fill="#FFFFFF")
 
-    d.text(P(vx + 24, vy + 44), f"Level {level}", font=_font(38), fill="#481F2B", anchor="lm")
+    title = g["levels"][str(level)].get("name") if level > 5 else f"Level {level}"
+    d.text(P(vx + 24, vy + 44), title or f"Level {level}", font=_font(38), fill="#481F2B", anchor="lm")
     labels = []
     for zid, n in nodes.items():
         if n["level"] != level or n["type"] != "zone":
@@ -111,16 +112,26 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
                 hi |= set(room_parts(zid, route.get("fromRoom")))
             if zid == route["to"]:
                 hi |= set(room_parts(zid, route.get("toRoom")))
+        hub_labels = g.get("roomLabels", {}).get("hub", {}) if zid == "hub" else {}
         for name, (rx, ry, rw, rh) in (rooms or {}).items():
             on = name in hi
-            d.rectangle([P(rx, ry), P(rx + rw, ry + rh)], fill="#F6D4CF" if on else "#F7FBFC",
-                        outline=_ACCENT if on else "#9DB4BA", width=int((1.6 if on else .8) * _SS) or 1)
+            big = name in hub_labels
+            fill = "#F6D4CF" if on else ("#DCEBEE" if big else "#F7FBFC")
+            d.rectangle([P(rx, ry), P(rx + rw, ry + rh)], fill=fill,
+                        outline=_ACCENT if on else "#9DB4BA", width=int((3 if on else 1.4 if big else .8) * _SS) or 1)
             if on:
-                d.text(P(rx + rw / 2, ry - 14), name, font=_font(22), fill=_ACCENT, anchor="mm", stroke_width=5, stroke_fill="#FFFFFF")
+                if zid == "hub":
+                    from .hub import booths
+
+                    name = hub_labels.get(name) or f"{name} {booths().get(name, '')}".strip()
+                d.text(P(rx + rw / 2, ry - (16 if zid == "hub" else 14)), name, font=_font(26 if zid == "hub" else 22), fill=_ACCENT,
+                       anchor="mm", stroke_width=6 if zid == "hub" else 5, stroke_fill="#FFFFFF")
             elif not hi:
-                d.text(P(rx + rw / 2, ry + rh / 2), name, font=_font(12 if zid == "venetian_ballroom" else 9), fill="#4A6168", anchor="mm")
-        labels.append((n["x"], n["rect"][1] - 12 if rooms else n["y"] + (30 if active else 0),
-                       zones.get(zid, {}).get("name", zid), size))
+                text_ = (hub_labels.get(name) if big and not name.startswith("T") else name)
+                d.text(P(rx + rw / 2, ry + rh / 2), text_, font=_font(13 if big else 12 if zid == "venetian_ballroom" else 9),
+                       fill="#31575F" if big else "#4A6168", anchor="mm")
+        zone_name = venue()["hub"]["name"] if zid == "hub" else zones.get(zid, {}).get("name", zid)
+        labels.append((n["x"], n["rect"][1] - 12 if rooms else n["y"] + (30 if active else 0), zone_name, size))
     for a, b in g["edges"]:
         na, nb = nodes[a], nodes[b]
         if na["level"] == level and nb["level"] == level and not (na["type"] == "zone" and nb["type"] == "zone"):

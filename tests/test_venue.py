@@ -42,8 +42,8 @@ class VenueTests(unittest.TestCase):
         self.assertEqual([e for e in errors if "same room" in e], [])
 
     def test_travel_ranges(self):
-        lo, hi = travel_minutes("marco_polo", "hub")  # Hub hall unknown, so a range from a Level 1 room
-        self.assertLess(lo, hi)
+        lo, hi = travel_minutes("marco_polo", "hub")  # the Hub is in Hall C: one walk, only rounding differs
+        self.assertLessEqual(hi - lo, 1)
         self.assertEqual(travel_minutes("hub", "hub")[0], travel_minutes("hub", "hub")[1])
         self.assertGreater(travel_minutes("veronese", "galileo")[0], travel_minutes("veronese", "bellini")[0])
 

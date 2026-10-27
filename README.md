@@ -120,7 +120,7 @@ then the room import, then `python scripts/validate_rooms.py`.
 
 - `data/venue.json` models the Venetian Expo (levels 1-5) from the [official floor plans](https://www.venetianlasvegas.com/meetings/planning/spaces/expo-halls/expo-map-floor-plan.html). The map images themselves are not stored in the repo.
 - The maps have no scale, so walking minutes are **rough estimates**, tuned in `venue.json` (`model` and each zone's `x`).
-- The Oracle AI World Hub is on Level 2 (from the catalog), but its exact hall is unconfirmed (`hub.confirmed: false`), so Hub transitions return a best/worst range over Halls A-D. Set `confirmed` and the `candidates` list once the hall is known.
+- The Oracle AI World Hub is on Level 2 in Hall C (confirmed from the Hub floor plan). Walks to it enter from Hall C; its own plan (booths, theaters, areas) is the pseudo level 6 in `venue_graph.json`, shown as "Hub plan".
 - MCP tool `check_transition(code_a, code_b)` and REST `POST /sessions/transition` return `ok`, `tight`, `unlikely`, `overlap` or `unknown`. `find_session_conflicts` also returns `travel`, and `optimize_agenda` skips sessions that are unlikely to be reachable.
 - `search_sessions` accepts `room` and `level` filters.
 
@@ -137,7 +137,7 @@ To fix a room by hand, edit `data/rooms.csv` (the next import overwrites it), th
 
 - MCP tool `plan_strict_day` (REST `POST /agenda/plan`) picks the best-scoring sessions for your topics so that no two overlap and every move can be walked within `late_tolerance_minutes` (default 2). `lateness_basis` is `worst` (safe, default) or `best` (you hurry). It adds a 30-minute lunch in Hall G (window 12:00-14:00) and two 20-minute networking blocks in the Hub, and returns the moves (gap, walking range, minutes late), the best sessions it dropped with reasons, and warnings. The keynote and Hub talks are options (`include_keynote`, `include_hub_talks`).
 - MCP tool `check_walk(from_place, to_place, gap_minutes)` checks a custom stop such as lunch. `check_transition` also returns `lateIfWalking`.
-- All walking times are estimates; the Hub is on Level 2 but its exact hall is unconfirmed.
+- All walking times are estimates; positions on the Hub plan are approximate until calibrated.
 
 ## Connecting it to Claude and ChatGPT (MCP, recommended)
 
@@ -278,3 +278,12 @@ The search box on the page has a checkbox "Hide past sessions", ticked by defaul
 ## Arrive early for hands-on sessions
 
 Hands On Labs, Product Bootcamps and Hackathons need a laptop set up, so it is best to be in the room about 30 minutes early (my experience, not from the catalog). These sessions carry `arriveEarlyMinutes: 30` and an `arriveEarlyNote`, and the page shows the note on their tiles. "Can I make it?" then adds `arriveEarlyMinutes` and `earlyNote`, and downgrades an "ok" to "tight" when the gap does not leave the 30 minutes after the walk (soft rule: arriving at the start is still possible). The day planner lists such moves in `warnings` and `moves[].earlyArrivalPossible`; `/sessions/transition` and `check_transition` take `earlyArrival` / `early_arrival` (default true; the page has a checkbox) and return `arriveBy` (HH:MM); send `rules.strictEarly: true` (MCP `strict_early=true`) to plan with the early arrival as a hard rule.
+
+## Hub: stands and theaters
+
+The Oracle AI World Hub is on Level 2 in Hall C. Its own plan is drawn as "Hub plan" (pseudo level 6 in `data/venue_graph.json`), with 12 theaters, a few areas and one box per sponsor booth. Booths come from `data/hub_booths.json` (168 booths, the public exhibitor list: `booth_number` and `name`). A booth number is row (thousands) and slot (last two digits): row 1 is on the left of the plan with 1001 nearest the entrance, numbers rise away from it, and 2142 and 2144 sit at the far end beside 2043 and 2045.
+
+- **Find a stand:** MCP tool `find_booth` and `GET /booths/search?q=nvidia` (or `POST` with `{"query": ...}`) find a booth by number, company or `Theater 3` and return the walk from the Hub entrance. The landing page has a "Find a stand" box.
+- **Walking:** `get_walk_route`, `check_walk` and `POST /sessions/route` accept booth numbers and company names as places (`Booth 2003`, `NVIDIA`, `Theater 3`), for example "from Accenture to NVIDIA" or "from Hall G to booth 1001". Walks inside the Hub follow the aisles between the booth rows.
+- **Positions are a first guess.** They follow the numbering rules and about a dozen booth numbers read from the plan photo, so the boxes are only roughly right. Calibrate them: run `python scripts/build_hub_layout.py` once (it adds the Hub and writes `data/room-screenshots/hub-plan-straight.png`; later runs only add booths missing from the graph), open `scripts/calibrate.html`, load `data/venue_graph.json` and `hub-plan-straight.png`, pick Level 6, drag a booth row (one drag moves a whole row), the theaters and the areas into place, and save over `data/venue_graph.json`.
+- The booth list comes from Oracle's public exhibitor list and is not covered by the licence, like the session data.

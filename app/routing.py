@@ -20,8 +20,22 @@ def graph() -> dict[str, Any]:
     return json.loads((DATA_DIR / "venue_graph.json").read_text(encoding="utf-8"))
 
 
+def _scale(level: int) -> float:
+    """Metres per pixel on a map. The Hub plan has its own frame and scale."""
+    return graph()["levels"].get(str(level), {}).get("metersPerPixel", graph()["metersPerPixel"])
+
+
 def _meters(a: dict[str, Any], b: dict[str, Any]) -> float:
-    return math.hypot(a["x"] - b["x"], a["y"] - b["y"]) * graph()["metersPerPixel"]
+    return math.hypot(a["x"] - b["x"], a["y"] - b["y"]) * _scale(a["level"])
+
+
+def _edge_meters(ida: str, idb: str) -> float:
+    """Length of a walking edge. Edges between two different plans (Hall C to the Hub plan) have a fixed length."""
+    fixed = graph().get("fixedMeters", {})
+    if f"{ida}|{idb}" in fixed or f"{idb}|{ida}" in fixed:
+        return float(fixed.get(f"{ida}|{idb}", fixed.get(f"{idb}|{ida}")))
+    nodes = graph()["nodes"]
+    return _meters(nodes[ida], nodes[idb])
 
 
 def _px_minutes(a: dict[str, Any], b: dict[str, Any]) -> float:
@@ -37,7 +51,7 @@ def _adjacency(step_free: bool = False) -> dict[str, list[tuple[str, float, str]
     nodes = g["nodes"]
     adj: dict[str, list[tuple[str, float, str]]] = {n: [] for n in nodes}
     for a, b in g["edges"]:
-        m = _px_minutes(nodes[a], nodes[b])
+        m = _edge_meters(a, b) / g["model"]["walkMetersPerMinute"]
         adj[a].append((b, m, "walk"))
         adj[b].append((a, m, "walk"))
     for a, b, kind in g["links"]:
@@ -55,6 +69,14 @@ def room_key(zone: str, room: str | None) -> str | None:
     if not rooms or not room:
         return None
     k = str(room).strip().upper().split("/")[0].strip()
+    if zone == "hub":
+        m = re.search(r"THEATER\s*(\d{1,2})\b", k)  # 'Theater 3', 'Built to Win Theater 12'
+        if m and f"T{int(m.group(1))}" in rooms:
+            return f"T{int(m.group(1))}"
+        if re.fullmatch(r"HUB( MEETUP)?", k):
+            return None  # the Hub as a whole: end the walk at its centre
+        if re.fullmatch(r"\d{4,5}", k) and k in rooms:
+            return k
     if k in rooms or k in graph().get("roomAliases", {}).get(zone, {}):
         return k
     return None
@@ -82,6 +104,17 @@ def place_room(text: str, zone: str | None) -> str | None:
     """Pull a room out of free text such as 'Titian 2204', 'Galileo 1001, Level 1' or 'Venetian Ballroom HI'."""
     if not zone or zone not in graph().get("rooms", {}):
         return None
+    if zone == "hub":
+        m = re.search(r"theater\s*(\d{1,2})\b", text or "", re.I)
+        if m and room_key("hub", f"Theater {m.group(1)}"):
+            return room_key("hub", f"Theater {m.group(1)}")
+        for tok in re.findall(r"\b\d{4,5}\b", text or ""):
+            if room_key("hub", tok):
+                return tok
+        from .hub import match_company
+
+        company = match_company(text or "")  # 'NVIDIA', 'booth Accenture'
+        return company if company and room_key("hub", company) else None
     for tok in re.findall(r"\b\d{3,4}[A-Za-z]?\b", text or ""):
         if room_key(zone, tok):
             return room_key(zone, tok)
@@ -93,6 +126,13 @@ def room_name(zone: str, room: str | None) -> str:
     base = _zone_name(zone)
     if not room:
         return base
+    if zone == "hub":
+        label = graph().get("roomLabels", {}).get("hub", {}).get(room)
+        if label:
+            return label
+        from .hub import booth_name
+
+        return booth_name(room)
     return f"{base} section {room}" if zone == "venetian_ballroom" else f"{base} {room}"
 
 
@@ -129,6 +169,8 @@ def shortest_path(a: str, b: str, step_free: bool = False) -> tuple[float, list[
 
 
 def _zone_name(zone: str) -> str:
+    if zone == "hub":
+        return venue()["hub"]["name"]
     z = venue()["zones"].get(zone)
     return z["name"] if z else zone
 
@@ -151,7 +193,7 @@ def _path_minutes(path: list[str]) -> float:
             total += model["elevatorExtraLevelMinutes"] if in_lift else model["elevatorMinutes"]
             in_lift = True
         else:
-            total += _px_minutes(nodes[path[i - 1]], nodes[path[i]]) if not kind else model["escalatorMinutes"]
+            total += _edge_meters(path[i - 1], path[i]) / model["walkMetersPerMinute"] if not kind else model["escalatorMinutes"]
             in_lift = False
     return total
 
@@ -174,7 +216,7 @@ def _steps(path: list[str]) -> list[dict[str, Any]]:
                 "level": cur["level"], "levelChange": True,
             })
             continue
-        meters += _meters(prev, cur)
+        meters += _edge_meters(path[i - 1], path[i])
         last = i == len(path) - 1
         label = cur.get("label")
         # name an escalator or elevator only when the route actually takes it, not when it walks past
@@ -201,8 +243,83 @@ def _center(rect: list[float]) -> tuple[float, float]:
     return rect[0] + rect[2] / 2, rect[1] + rect[3] / 2
 
 
+def _aisle_x(zone: str, room: str, rect: list[float]) -> float:
+    """x of the aisle a Hub booth faces: odd slots face left, even slots face right. Theaters and areas use their centre."""
+    if zone == "hub" and re.fullmatch(r"\d{4,5}", room):
+        return rect[0] - 13 if int(room) % 2 else rect[0] + rect[2] + 13
+    return rect[0] + rect[2] / 2
+
+
+def _hub_leg(frm: tuple[float, float], to: tuple[float, float], via_x: float) -> list[list[float]]:
+    """Axis-aligned walk between two points on the Hub plan: across to an aisle, along it, across to the target."""
+    pts = [list(frm), [via_x, frm[1]], [via_x, to[1]], list(to)]
+    return [p for k, p in enumerate(pts) if k == 0 or p != pts[k - 1]]
+
+
+def _poly_len(points: list[list[float]]) -> float:
+    return sum(math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]) for i in range(1, len(points)))
+
+
+def _apply_hub(r: dict[str, Any], a: str, b: str, room_a: str | None, room_b: str | None) -> dict[str, Any]:
+    """Walks that start or end at a Hub booth, theater or area: follow the aisles on the Hub plan."""
+    scale, speed = _scale(6), graph()["model"]["walkMetersPerMinute"]
+    steps, polys = r["steps"], r["polylines"]
+    ra = room_rect("hub", room_a) if a == "hub" else None
+    rb = room_rect("hub", room_b) if b == "hub" else None
+    if a == b == "hub":
+        if not (ra or rb) or room_a == room_b:
+            return r
+        entry = graph()["nodes"]["hub_entry"]
+        if not ra:  # from the Hub entrance to a booth, theater or area
+            ra, room_a = [entry["x"] - 1, entry["y"] - 1, 2, 2], None
+        if not rb:
+            rb, room_b = [entry["x"] - 1, entry["y"] - 1, 2, 2], None
+        pa, pb = _center(ra), _center(rb)
+        ax = _aisle_x("hub", room_a, ra) if room_a else pa[0]
+        bx = _aisle_x("hub", room_b, rb) if room_b else pb[0]
+        pts = [list(pa), [ax, pa[1]], [ax, pb[1]], [bx, pb[1]], list(pb)] if abs(ax - bx) > 1 else [list(pa), [ax, pa[1]], [ax, pb[1]], list(pb)]
+        m = _poly_len(pts) * scale
+        return r | {
+            "meters": round(m), "walkMinutes": round(max(0.1, m / speed), 1),
+            "steps": [{"text": f"Walk from {room_name('hub', room_a) if room_a else 'the Hub entrance'} to "
+                               f"{room_name('hub', room_b) if room_b else 'the Hub entrance'}", "level": 6, "meters": round(m)}],
+            "polylines": [{"level": 6, "points": pts}], "fromRoom": room_a, "toRoom": room_b,
+        }
+    delta = 0.0
+    if rb and polys and polys[-1]["level"] == 6 and len(polys[-1]["points"]) >= 2:
+        old_pts = polys[-1]["points"]
+        entry, end = old_pts[-2], _center(rb)
+        leg = _hub_leg(tuple(entry), end, _aisle_x("hub", room_b, rb))
+        delta += (_poly_len(leg) - _poly_len(old_pts[-2:])) * scale
+        polys[-1]["points"] = old_pts[:-2] + leg
+        steps[-1]["text"] = f"Arrive at {room_name('hub', room_b)}"
+        steps[-1]["meters"] = max(0, round(steps[-1].get("meters", 0) + delta))
+    d_start = 0.0
+    if ra and polys and polys[0]["level"] == 6 and len(polys[0]["points"]) >= 2:
+        old_pts = polys[0]["points"]
+        start, entry = _center(ra), old_pts[1]
+        leg = _hub_leg(start, tuple(entry), _aisle_x("hub", room_a, ra))
+        d_start = (_poly_len(leg) - _poly_len(old_pts[:2])) * scale
+        polys[0]["points"] = leg + old_pts[2:]
+        steps[0]["text"] = f"Leave {room_name('hub', room_a)}"
+        first = next((s for s in steps[1:] if "meters" in s), None)
+        if first:
+            first["meters"] = max(0, round(first["meters"] + d_start))
+    delta += d_start
+    return r | {
+        "meters": max(0, round(r["meters"] + delta)),
+        "walkMinutes": round(max(0.1, r["walkMinutes"] + delta / speed), 1),
+        "fromRoom": room_a if ra else None, "toRoom": room_b if rb else None,
+    }
+
+
 def _apply_rooms(r: dict[str, Any], a: str, b: str, room_a: str | None, room_b: str | None) -> dict[str, Any]:
     """Start and end the walk at the room centres instead of the block centres."""
+    if "hub" in (a, b) and "hub" in graph()["nodes"]:
+        r = _apply_hub(r, a, b, room_a if a == "hub" else None, room_b if b == "hub" else None)
+        if a == b:
+            return r
+        room_a, room_b = (None if a == "hub" else room_a), (None if b == "hub" else room_b)  # the other end is a normal room
     ra, rb = room_rect(a, room_a), room_rect(b, room_b)
     if not ra and not rb:
         return r
@@ -276,7 +393,7 @@ def route(a: str, b: str, step_free: bool = False, room_a: str | None = None, ro
         if alt and _path_minutes(alt[1]) < minutes:
             minutes, path = _path_minutes(alt[1]), alt[1]
     meters = sum(
-        _meters(nodes[path[i - 1]], nodes[path[i]])
+        _edge_meters(path[i - 1], path[i])
         for i in range(1, len(path)) if not _link_kind(path[i - 1], path[i])
     )
     levels: list[int] = []
@@ -292,7 +409,10 @@ def route(a: str, b: str, step_free: bool = False, room_a: str | None = None, ro
 
 
 def _candidates(zone: str) -> list[str]:
-    return venue()["hub"]["candidates"] if zone == "hub" else [zone]
+    """The Hub has its own plan (node 'hub') inside Hall C, so it is one place and no longer a range of halls."""
+    if zone == "hub":
+        return ["hub"] if "hub" in graph()["nodes"] else venue()["hub"]["candidates"]
+    return [zone]
 
 
 def route_range(a: str, b: str, step_free: bool = False, room_a: str | None = None, room_b: str | None = None) -> dict[str, Any] | None:

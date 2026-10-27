@@ -58,9 +58,12 @@ class RoutingTests(unittest.TestCase):
         self.assertLess(r["meters"], 150)
         self.assertLess(route("galileo", "veronese")["walkMinutes"], 3)
 
-    def test_hub_range(self):
+    def test_hub_is_in_hall_c(self):
         r = route_range("marco_polo", "hub")
-        self.assertLess(r["bestMinutes"], r["worstMinutes"])
+        self.assertEqual(r["bestMinutes"], r["worstMinutes"])  # one place now, no range over halls
+        self.assertIn("hall_c", r["path"])
+        self.assertEqual("hub", r["path"][-1])
+        self.assertEqual([1, 2, 6], r["levels"])
 
     def test_unknown_zone(self):
         self.assertIsNone(route("hall_g", "nowhere"))
@@ -114,7 +117,7 @@ class RoutingWebTests(unittest.TestCase):
         missing = set()
         for s in sessions():
             z = session_zone(s)
-            if z in graph()["rooms"] and not session_room(s, z):
+            if z in graph()["rooms"] and not session_room(s, z) and s.get("room") not in ("Hub", "Hub Meetup"):
                 missing.add((z, s.get("room")))
         self.assertEqual(sorted(missing), [])
 

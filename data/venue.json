@@ -50,9 +50,9 @@
   },
   "hub": {
     "name": "Oracle AI World Hub",
-    "confirmed": false,
+    "confirmed": true,
     "level": 2,
-    "note": "The catalog places the Hub on Level 2 (for example 'Oracle AI World Hub, Level 2'), but the exact hall is not known, so travel is computed as a range over the Level 2 halls A-D.",
+    "note": "The Hub is on Level 2 in Hall C (confirmed from the Hub floor plan). Its own plan is the pseudo level 6 in venue_graph.json; routes enter it from Hall C.",
     "candidates": ["hall_a", "hall_b", "hall_c", "hall_d"]
   }
 }
