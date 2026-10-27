@@ -110,6 +110,12 @@ class AreaSearchTests(unittest.TestCase):
         self.assertGreater(r["meters"], 50)
 
 
+def hub_view_for(route):
+    from app.routing import hub_view
+
+    return hub_view(route)
+
+
 class HubRouteTests(unittest.TestCase):
     def test_booth_to_booth_walks_between_aisle_sides(self):
         r = route_range("hub", "hub", False, "2003", "4009")
@@ -151,6 +157,29 @@ class HubRouteTests(unittest.TestCase):
         ace, lounge = r["ACE LOUNGE"], r["MULTICLOUD LOUNGE"]
         self.assertAlmostEqual(ace[0] + ace[2] / 2, lounge[0] + lounge[2] / 2, delta=1)  # same centre line
         self.assertGreaterEqual(ace[1], lounge[1] + lounge[3])  # below it, not overlapping
+
+    def test_label_of_the_found_stand_is_drawn_last(self):
+        from app.mapsvg import found_labels, render_level
+
+        r = route_range("hub", "hub", False, None, "4009")
+        svg = render_level(6, r)
+        label = svg.rindex("4009 NVIDIA")
+        self.assertGreater(label, svg.rindex('class="route"'))   # above the route line
+        self.assertGreater(label, svg.index('r="20" fill="#B8321F"'))  # above the A/B markers
+        self.assertGreater(label, svg.rindex('rx="1.5"'))              # above every booth box
+        self.assertEqual(1, svg.count("4009 NVIDIA"))
+        self.assertEqual(["4009 NVIDIA"], [t for _, _, t, _ in found_labels(r, 6, hub_view_for(r))])
+
+    def test_label_stays_inside_the_map(self):
+        from app.mapsvg import found_labels
+
+        for room in ("ACE LOUNGE", "1001", "13029", "T1"):
+            r = route_range("hub", "hub", False, None, room)
+            x, y, w, h = hub_view_for(r)
+            (cx, cy, text, size), = found_labels(r, 6, [x, y, w, h])
+            half = len(text) * size * 0.31
+            self.assertTrue(x <= cx - half and cx + half <= x + w, room)
+            self.assertTrue(y <= cy - size and cy <= y + h, room)
 
     def test_estimated_booths_are_noted(self):
         from app.venue import route_details

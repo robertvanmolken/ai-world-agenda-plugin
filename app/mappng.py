@@ -7,7 +7,7 @@ from typing import Any
 
 from PIL import Image, ImageDraw, ImageFont
 
-from .mapsvg import _boards, _end_point
+from .mapsvg import _boards, _end_point, found_labels
 import math
 
 from .routing import graph, hub_estimated, hub_rotation, hub_view, room_parts, room_rect
@@ -138,12 +138,7 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
             else:
                 d.line(edge + [edge[0]], fill=_ACCENT if on else "#9DB4BA", width=border)
             if on:
-                if zid == "hub":
-                    from .hub import booths
-
-                    name = hub_labels.get(name) or f"{name} {booths().get(name, '')}".strip()
-                d.text(P(rx + rw / 2, ry - (70 if zid == "hub" else 14)), name, font=_font(26 if zid == "hub" else 22), fill=_ACCENT,
-                       anchor="mm", stroke_width=6 if zid == "hub" else 5, stroke_fill="#FFFFFF")
+                pass  # the label of a found room is drawn last, on top of everything (see found_labels)
             elif not hi and (zid != "hub" or big or max(rw, rh) >= 20):
                 text_ = name
                 if big and not name.startswith("T"):
@@ -184,6 +179,8 @@ def render_level_png(level: int, route: dict[str, Any] | None = None) -> bytes:
                 d.text((cx, cy), label, font=_font(22), fill="#FFFFFF", anchor="mm")
     for x, y, name, size in labels:
         text(x, y, name, size, "#2B1A20", halo=True)
+    for fx, fy, ftext, fsize in found_labels(route, level, [vx, vy, vw, vh]):
+        d.text(P(fx, fy), ftext, font=_font(fsize), fill=_ACCENT, anchor="ms", stroke_width=6, stroke_fill="#FFFFFF")
     lx, ly = vx + 24, vy + vh - 118  # the box spans ly-24 .. ly+94, inside the view
     d.rounded_rectangle([P(lx - 10, ly - 24), P(lx + 260, ly + 94)], radius=10 * _SS, fill="#FFFFFF", outline="#E5D9D0")
     marker(d, "escalator", *P(lx + 14, ly), False)

@@ -66,12 +66,6 @@ def _hub_svg(hi: set[str]) -> str:
         elif not big and not hi and max(w, h) >= 20:
             out.append(f'<text x="{cx}" y="{cy}" font-size="{7 if min(w, h) < 25 else 11}" fill="#4A6168" text-anchor="middle" '
                        f'dominant-baseline="middle"{spin}>{escape(name)}</text>')
-        if on:
-            from .hub import booths
-
-            label = labels.get(name) or (f"{name} {booths().get(name, '')}".strip())
-            out.append(f'<text x="{x + w / 2}" y="{y - 70}" font-size="26" fill="{_ACCENT}" text-anchor="middle" font-weight="700" '
-                       f'stroke="#fff" stroke-width="6" paint-order="stroke" stroke-linejoin="round">{escape(label)}</text>')
     return "".join(out)
 
 
@@ -87,12 +81,36 @@ def _rooms_svg(zone: str, hi: set[str]) -> str:
             + (f'<text x="{x + w / 2}" y="{y + h / 2}" font-size="{12 if zone == "venetian_ballroom" else 8.5}" '
                f'fill="#4A6168" text-anchor="middle" dominant-baseline="middle">{escape(name)}</text>' if not on and not hi else "")
         )
-        if on:
-            out.append(
-                f'<text x="{x + w / 2}" y="{y - 14}" font-size="22" fill="{_ACCENT}" text-anchor="middle" font-weight="700" '
-                f'stroke="#fff" stroke-width="5" paint-order="stroke" stroke-linejoin="round">{escape(name)}</text>'
-            )
     return "".join(out)
+
+
+def found_labels(route: dict[str, Any] | None, level: int, view: list[float]) -> list[tuple[float, float, str, int]]:
+    """Labels of the rooms a walk starts and ends at: (x, y, text, font size) on this level.
+
+    They are drawn after everything else, so no booth, route line or marker can cover them, and they are kept
+    inside the visible part of the plan. The text sits above the A/B marker."""
+    out: list[tuple[float, float, str, int]] = []
+    if not route:
+        return out
+    vx, vy, vw, vh = view
+    for key in ("from", "to"):
+        zone, room = route.get(key), route.get("fromRoom" if key == "from" else "toRoom")
+        node = graph()["nodes"].get(zone)
+        rect = room_rect(zone, room) if node and room else None
+        if not rect or node["level"] != level:
+            continue
+        if zone == "hub":
+            from .hub import booths
+
+            text = graph().get("roomLabels", {}).get("hub", {}).get(room) or f"{room} {booths().get(room, '')}".strip()
+            size = 26
+        else:
+            text, size = room, 22
+        half = len(text) * size * 0.31 + 8  # about half the text width
+        cx = min(max(rect[0] + rect[2] / 2, vx + half), vx + vw - half)
+        cy = max(rect[1] + rect[3] / 2 - 70, vy + size + 40)
+        out.append((cx, cy, text, size))
+    return out
 
 
 def _end_point(route: dict[str, Any], key: str, node: dict[str, Any]) -> tuple[float, float]:
@@ -208,6 +226,9 @@ def render_level(level: int, route: dict[str, Any] | None = None, width: int | N
                     f'<text x="{px}" y="{py - 37}" font-size="22" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">{label}</text>'
                 )
     out.extend(labels)
+    for lx, ly, text, size in found_labels(route, level, [vx, vy, vw, vh]):
+        out.append(f'<text x="{lx}" y="{ly}" font-size="{size}" fill="{_ACCENT}" text-anchor="middle" font-weight="700" '
+                   f'stroke="#fff" stroke-width="6" paint-order="stroke" stroke-linejoin="round">{escape(text)}</text>')
     out.append(_legend(vx, vy, vw, vh))
     out.append(
         f'<text x="{vx + vw - 16}" y="{vy + vh - 16}" font-size="16" fill="#76686B" text-anchor="end">'
