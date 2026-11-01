@@ -9,6 +9,7 @@ from typing import Any
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
+from . import clock
 from .catalog import find_conflicts, get_by_code, optimize_agenda, search_sessions
 from .mcp_server import ROOT, catalog, mcp, sessions, with_disclaimer
 from .planner import plan_day
@@ -56,19 +57,19 @@ async def root(request: Request) -> Response:
 @mcp.custom_route("/status", methods=["GET"])
 async def status(request: Request) -> Response:
     return JSONResponse({
-        "name": "Oracle AI World 2026 Agenda Assistant", "status": "ok", "sessions": len(sessions()),
+        "name": "Oracle AI World 2026 Agenda Assistant", "status": "ok", "sessions": len(sessions()), **clock.status(),
         "mcp": "/mcp", "openapi": "/openapi.yaml", "health": "/health", "catalogMetadata": "/catalog/meta",
     })
 
 
 @mcp.custom_route("/health", methods=["GET", "HEAD"])
 async def health(request: Request) -> Response:
-    return JSONResponse({"ok": True, "sessions": len(sessions())})
+    return JSONResponse({"ok": True, "sessions": len(sessions()), **clock.status()})
 
 
 @mcp.custom_route("/catalog/meta", methods=["GET"])
 async def catalog_meta(request: Request) -> Response:
-    return JSONResponse(catalog()["catalog"])
+    return JSONResponse({**catalog()["catalog"], **clock.status()})
 
 
 @mcp.custom_route("/openapi.yaml", methods=["GET"])

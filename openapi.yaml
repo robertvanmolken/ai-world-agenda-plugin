@@ -1,5 +1,9 @@
 openapi: 3.1.0
 info:
+  x-simulation: >-
+    After Oracle AI World 2026 has ended the API works as a simulation. Every JSON result has eventStatus, now and
+    (when ended) a thank-you note. Any request can pretend it is another moment with ?simulateNow=2026-10-27T10:30
+    or the X-Simulate-Now header (Las Vegas time).
   title: Oracle AI World 2026 Agenda Assistant
   version: 0.1.1
   description: >-

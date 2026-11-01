@@ -65,6 +65,10 @@ section{padding:48px 0}
 .logo:hover{color:var(--text)}.logo img{height:44px;width:44px;border-radius:10px}
 .main-nav{display:flex;gap:28px}.main-nav a{color:var(--muted);font-weight:600;font-size:.95rem}.main-nav a:hover{color:var(--accent)}
 @media(max-width:760px){.main-nav{display:none}.logo span{font-size:1rem}}
+.ended-banner{background:#F9E3B4;color:#4A3300;border-bottom:1px solid #E7C783;padding:12px 0;font-size:.95rem}
+.ended-banner[hidden]{display:none}
+.pretend{display:inline-flex;gap:8px;align-items:center;margin-left:14px;font-weight:600;white-space:nowrap}
+.pretend select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid #E7C783;background:#fff}
 .hero{background-color:var(--bg-dark);background-image:linear-gradient(180deg,var(--bg-dark),var(--bg-dark-3));color:var(--on-dark);padding:72px 0 60px}
 .hero h1 em{color:var(--accent-bright);font-style:italic}
 .hero .lead{color:var(--on-dark-muted);margin-top:22px}
@@ -155,10 +159,19 @@ input.codes{flex:1;min-width:260px}
   <a class="btn btn-primary" href="#lets-build-yours" style="padding:10px 22px">Let&rsquo;s build yours</a>
 </div></header>
 
+<div class="ended-banner" id="ended" hidden><div class="container">
+  <strong>Oracle AI World 2026 has ended.</strong> Thank you for using the AI World Agenda Assistant!
+  You can still search and plan with all the sessions as a simulation, and we will be back next year.
+  <label class="pretend">Pretend it is
+    <select id="simday" aria-label="Simulated day"></select>
+    <select id="simtime" aria-label="Simulated time"></select>
+  </label>
+</div></div>
+
 <section class="hero" id="top"><div class="container">
   <span class="eyebrow on-dark">Unofficial community tool</span>
-  <h1>Plan your Oracle AI World<br>with an <em>AI assistant</em>.</h1>
-  <p class="lead">Search sessions, spot schedule conflicts and build a personal agenda for Oracle AI World 2026, straight from Claude or ChatGPT.</p>
+  <h1 id="h1">Plan your Oracle AI World<br>with an <em>AI assistant</em>.</h1>
+  <p class="lead" id="lead">Search sessions, spot schedule conflicts and build a personal agenda for Oracle AI World 2026, straight from Claude or ChatGPT.</p>
   <div class="hero-actions">
     <a class="btn btn-primary" href="#connect">Add to your AI &darr;</a>
     <a class="btn btn-ghost" href="#try">Or try it right here</a>
@@ -271,8 +284,24 @@ $("copy").onclick = async () => {
   catch (e) { $("copy").textContent = "Copy failed"; }
   setTimeout(() => $("copy").textContent = "Copy", 1500);
 };
+// After the conference has ended the page is a simulation: the visitor can pretend it is a moment of the event.
+let simMoment = "";
+const simQuery = () => simMoment;
+const simHeaders = h => Object.assign({}, h || {}, simMoment ? {"X-Simulate-Now": simMoment} : {});
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
 
+fetch("/health").then(r => r.json()).then(h => {
+  if (h.eventStatus !== "ended") return;
+  $("ended").hidden = false;
+  $("h1").innerHTML = "Explore the Oracle AI World 2026<br>sessions with an <em>AI assistant</em>.";
+  $("lead").textContent = "Oracle AI World 2026 has ended. Thank you for using the assistant! Search all the sessions, or play the event again: check schedule conflicts and build an agenda as if it were still on. We will be back next year.";
+  const days = ["2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28"], times = ["08:00", "10:00", "12:00", "14:00", "16:00"];
+  days.forEach(d => { const o = el("option", "", new Date(d + "T12:00:00").toLocaleDateString(undefined, {weekday: "long", month: "short", day: "numeric"})); o.value = d; $("simday").appendChild(o); });
+  times.forEach(t => { const o = el("option", "", t); o.value = t; $("simtime").appendChild(o); });
+  const start = (h.now || "2026-10-26T08:00").split("T"); $("simday").value = start[0]; $("simtime").value = start[1] && times.includes(start[1]) ? start[1] : "08:00";
+  const apply = () => { simMoment = $("simday").value + "T" + $("simtime").value; };
+  $("simday").onchange = $("simtime").onchange = apply; apply();
+}).catch(() => {});
 fetch("/catalog/meta").then(r => r.json()).then(m => {
   const when = m.importedAt ? new Date(m.importedAt).toLocaleDateString() : "unknown";
   $("meta").textContent = m.sessionCount + " sessions \u00b7 snapshot from " + when;
@@ -314,10 +343,11 @@ function tile(s) {
 $("f").onsubmit = async e => {
   e.preventDefault();
   const body = {query: $("q").value.trim(), limit: 25, hideStarted: $("hs").checked};
+
   if ($("d").value) body.date = $("d").value;
   $("status").textContent = "Searching\u2026"; $("results").replaceChildren();
   try {
-    const r = await fetch("/sessions/search", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    const r = await fetch("/sessions/search", {method: "POST", headers: simHeaders({"Content-Type": "application/json"}), body: JSON.stringify(body)});
     if (!r.ok) throw new Error(r.status);
     const list = (await r.json()).results || [];
     $("status").textContent = list.length ? list.length + " session(s) shown. Click a card for details." + ($("hs").checked ? " Finished sessions are hidden." : "") : "No sessions found." + ($("hs").checked ? " Past sessions are hidden: untick the box to see them." : "");
@@ -332,7 +362,7 @@ $("sf").onsubmit = async e => {
   if (!q) { $("sstatus").textContent = "Type a booth number, a company or a theater."; return; }
   $("sstatus").textContent = "Searching\u2026";
   try {
-    const r = await fetch("/booths/search?q=" + encodeURIComponent(q) + "&limit=8");
+    const r = await fetch("/booths/search?q=" + encodeURIComponent(q) + "&limit=8", {headers: simHeaders()});
     if (!r.ok) throw new Error(r.status);
     const data = await r.json();
     $("sstatus").textContent = data.count ? data.count + " found in the Hub (Level 2, Hall C). Positions on the plan are approximate." : "Nothing found. Try a shorter name, the booth number, or an area such as ACE Lounge.";
@@ -432,7 +462,7 @@ $("chk").onsubmit = async e => {
   $("cresults").replaceChildren(); $("cfine").textContent = "";
   if (codes.length < 2) { $("cstatus").textContent = "Enter at least two session codes, such as LRN1128, LRN2162."; return; }
   $("cstatus").textContent = "Checking\u2026";
-  const post = (url, body) => fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)}).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  const post = (url, body) => fetch(url, {method: "POST", headers: simHeaders({"Content-Type": "application/json"}), body: JSON.stringify(body)}).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
   try {
     const c = await post("/sessions/conflicts", {codes, minimumTransitionMinutes: parseInt($("gap").value, 10)});
     const found = (c.sessions || []).filter(s => s.date && s.startTime).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));

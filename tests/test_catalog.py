@@ -44,9 +44,10 @@ class HideStartedTest(unittest.TestCase):
         import app.catalog as c
         from datetime import datetime
 
-        self._orig = c.now_local
+        if not hasattr(self, "_orig"):  # keep the real clock from the first call, later calls only change the time
+            self._orig = c.now_local
+            self.addCleanup(lambda: setattr(c, "now_local", self._orig))
         c.now_local = lambda: datetime.fromisoformat(stamp)
-        self.addCleanup(lambda: setattr(c, "now_local", self._orig))
 
     def test_paid_after_start_others_after_end(self):
         from app.catalog import hide_now

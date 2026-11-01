@@ -61,8 +61,12 @@ class DisclaimerTests(unittest.TestCase):
     def test_every_json_tool_result_has_disclaimer(self):
         import json
 
-        from app import mcp_server as m
+        from app import clock, mcp_server as m
 
+        os_status = __import__("os").environ.get("EVENT_STATUS")
+        __import__("os").environ["EVENT_STATUS"] = "live"  # the plain disclaimer is the live one
+        self.addCleanup(lambda: __import__("os").environ.pop("EVENT_STATUS", None) if os_status is None
+                        else __import__("os").environ.__setitem__("EVENT_STATUS", os_status))
         results = [
             m.search_sessions_tool(query="integration", limit=2),
             m.get_session_by_code("LRN2138"),

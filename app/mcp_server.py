@@ -120,9 +120,21 @@ def with_map_images(result: dict[str, Any]) -> CallToolResult:
     return CallToolResult(content=[TextContent(type="text", text=summary + text), *blocks], structuredContent=result)
 
 
+ENDED_DISCLAIMER = (
+    "Oracle AI World 2026 has ended. This is an archive of the session catalog (captured 2026-10-27), and planning, "
+    "'can I make it' and walking routes are a simulation of the event at the simulated time given in 'now'. "
+    "Always tell the user the conference has ended, thank them for using the AI World Agenda Assistant, and say "
+    "we will be back next year."
+)
+
+
 def with_disclaimer(result: dict[str, Any]) -> dict[str, Any]:
-    """Return a copy of a tool result with the disclaimer attached."""
-    return {**result, "disclaimer": DISCLAIMER}
+    """Return a copy of a tool result with the disclaimer and the state of the event (live or ended) attached."""
+    from . import clock
+
+    state = clock.status()
+    note = ENDED_DISCLAIMER + " " if state["eventStatus"] == "ended" else ""
+    return {**result, **state, "disclaimer": note + DISCLAIMER}
 
 
 mcp = FastMCP(
@@ -131,7 +143,9 @@ mcp = FastMCP(
         "Search the Oracle AI World 2026 session catalog (an unofficial snapshot), detect schedule "
         "conflicts and propose a personal agenda. Dates are ISO (YYYY-MM-DD), times are 24h HH:MM. "
         "Verify critical details in the official Oracle catalog. Every tool result has a 'disclaimer' field: "
-        "always include it in your answer. Sessions with paid=true need a separate paid registration through My Account: say so whenever you recommend one."
+        "always include it in your answer. Sessions with paid=true need a separate paid registration through My Account: say so whenever you recommend one. "
+        "If a result says eventStatus 'ended', the conference is over: tell the user so, thank them for using the "
+        "assistant, say the planning is a simulation at the time in 'now', and that the assistant is back next year."
     ),
     website_url=PUBLIC_URL,
     icons=[
@@ -145,6 +159,32 @@ mcp = FastMCP(
     port=int(os.environ.get("PORT", "8787")),
     transport_security=_security(),
 )
+
+def simulatable(fn):
+    """Give a tool an optional simulate_now argument ('2026-10-27T10:30'): the assistant can play another moment of the
+    event. The moment applies to this call only. Without it the clock of app/clock.py is used."""
+    import functools
+    import inspect
+
+    from . import clock
+
+    sig = inspect.signature(fn)
+
+    @functools.wraps(fn)
+    def wrapper(*args, simulate_now: str = "", **kwargs):
+        token = clock.set_simulated(simulate_now)
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            clock.reset_simulated(token)
+
+    wrapper.__signature__ = sig.replace(parameters=[*sig.parameters.values(),
+                                                    inspect.Parameter("simulate_now", inspect.Parameter.KEYWORD_ONLY,
+                                                                      default="", annotation=str)])
+    wrapper.__doc__ = (fn.__doc__ or "") + ("\n    simulate_now (optional, 'YYYY-MM-DDTHH:MM', Las Vegas time): after the conference has ended, "
+                                           "pretend it is this moment; default is Monday 2026-10-26 08:00.")
+    return wrapper
+
 
 READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
 
@@ -166,6 +206,7 @@ def route_widget() -> str:
 
 
 @mcp.tool(name="search_sessions", annotations=READ_ONLY)
+@simulatable
 def search_sessions_tool(
     query: str = "",
     date: str = "",
@@ -214,6 +255,7 @@ def find_session_conflicts(codes: list[str], minimum_transition_minutes: int = 0
 
 
 @mcp.tool(annotations=READ_ONLY, meta=ROUTE_WIDGET_TOOL_META)
+@simulatable
 def check_transition(code_a: str, code_b: str, step_free: bool = False, early_arrival: bool = True) -> CallToolResult:
     """Can someone walk from one session to the other? Uses venue maps; the result is an estimate.
     Verdict: ok, tight, unlikely, overlap or unknown (room not yet published).
@@ -229,6 +271,7 @@ def check_transition(code_a: str, code_b: str, step_free: bool = False, early_ar
 
 
 @mcp.tool(annotations=READ_ONLY, meta=ROUTE_WIDGET_TOOL_META)
+@simulatable
 def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> CallToolResult:
     """Step-by-step walking route between two places at the Venetian Expo, with distance, walking minutes, levels and
     schematic floor plan image URLs (one per level, route drawn on it). Places are free text such as
@@ -248,6 +291,7 @@ def get_walk_route(from_place: str, to_place: str, step_free: bool = False) -> C
 
 
 @mcp.tool(annotations=READ_ONLY, meta=ROUTE_WIDGET_TOOL_META)
+@simulatable
 def find_booth(query: str, limit: int = 5) -> CallToolResult:
     """Find a sponsor stand (booth), a Hub theater or a named Hub area at Oracle AI World by booth number ('4009'),
     company name ('NVIDIA', partial names work), theater ('Theater 3') or area ('ACE Lounge', 'Oracle TV',
@@ -299,6 +343,7 @@ def get_route_map_images(from_place: str, to_place: str, step_free: bool = False
 
 
 @mcp.tool(annotations=READ_ONLY)
+@simulatable
 def check_walk(from_place: str, to_place: str, gap_minutes: int, step_free: bool = False) -> dict[str, Any]:
     """Walking check between two places with a given gap, for custom stops such as lunch or networking.
     Places are free text: 'Hall G', 'Oracle AI World Hub', 'Galileo 1001, Level 1', 'Titian 2204'.
@@ -308,6 +353,7 @@ def check_walk(from_place: str, to_place: str, gap_minutes: int, step_free: bool
 
 
 @mcp.tool(annotations=READ_ONLY)
+@simulatable
 def plan_strict_day(
     date: str,
     topics: list[str],
@@ -343,6 +389,7 @@ def plan_strict_day(
 
 
 @mcp.tool(name="optimize_agenda", annotations=READ_ONLY)
+@simulatable
 def optimize_agenda_tool(
     date: str,
     interests: list[str],

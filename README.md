@@ -302,3 +302,19 @@ python scripts/validate_rooms.py
 ```
 
 Sessions with a date in the new file take the new data (new sessions, time changes, new text; a session that repeats on several days takes its earliest open occurrence). Sessions without a date keep the data of the earlier capture. A session that is still to come but missing from the file is removed, and the script refuses to write if the result has far fewer sessions than before.
+
+## After the conference: simulation mode
+
+When the last session has finished (the end of the last session in the catalog, Las Vegas time) the site switches itself to "ended" and keeps working as a simulation:
+
+- The page shows a banner (*Oracle AI World 2026 has ended. Thank you for using the AI World Agenda Assistant! ... we will be back next year*), the hero turns into past tense, and a "Pretend it is..." selector lets visitors pick a day and time of the event. Search, "Can I make it?", the walking routes, "Find a stand" and the other tools then behave as if it were that moment.
+- Every API and MCP result carries `eventStatus` (`live` or `ended`), `now` (the moment in use), `simulation` and a thank-you `note`, and the disclaimer says the conference has ended. The server instructions tell assistants to say so.
+- The default simulated moment is Monday 2026-10-26 08:00 (`SIMULATE_NOW`). A single request can choose its own: `?simulateNow=2026-10-27T10:30` or the `X-Simulate-Now` header on REST, `simulate_now` on the MCP tools that depend on the time (search, check_transition, get_walk_route, find_booth, check_walk, plan_strict_day, optimize_agenda). Nothing is stored between requests.
+- `EVENT_STATUS` (`auto` by default, or `live` / `ended`) forces a state without a deploy. `/health`, `/status` and `/catalog/meta` show the state.
+- `data/archive/2026/` keeps a copy of the 2026 data.
+
+### Next year
+
+1. Save the new catalog page, run `python scripts/merge_catalog.py` (or the plain parser for a first capture), then `python scripts/validate_rooms.py`.
+2. Update the dates in the page (the day selector), `data/venue.json` and the disclaimer text if the venue changes, and the Hub booths (`data/hub_booths.json`, then `scripts/import_hub_svg.py` for a new traced plan).
+3. The clock switches back to real time by itself once the new catalog has sessions that have not ended. Set `EVENT_STATUS=live` to force it. Remove `SIMULATE_NOW` if you set it.

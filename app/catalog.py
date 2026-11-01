@@ -6,17 +6,17 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from zoneinfo import ZoneInfo
-
 from .venue import EARLY_MINUTES, assess_transition, needs_early
 
-EVENT_TZ = ZoneInfo("America/Los_Angeles")  # the event is in Las Vegas (PDT)
 STARTED_GRACE_MINUTES = 30  # a session still counts as open for this long after it begins
 
 
 def now_local() -> datetime:
-    """Current Las Vegas time (naive). Tests replace this function."""
-    return datetime.now(EVENT_TZ).replace(tzinfo=None)
+    """The moment the assistant works with (see app/clock.py): real Las Vegas time while the conference runs, a
+    simulated time afterwards. Tests replace this function."""
+    from . import clock
+
+    return clock.now()
 
 
 def has_started(s: dict[str, Any], grace: int = STARTED_GRACE_MINUTES) -> bool:
